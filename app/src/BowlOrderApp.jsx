@@ -128,7 +128,7 @@ const MENU_SECTIONS = [
     subtitle: "Brodi e minestre tradizionali, reinterpretate",
     emoji: "🫕",
     items: [
-      { id: "brodu-berbeghe", name: "Brodu 'e Berbeghe", desc: "Il brodo di pecora della nonna, cotto lentamente con carote, sedano e cipolla. Servito con pane carasau tostato e un filo d'olio extravergine. Nutrimento puro, sapore di casa.", price: 8.50, allergens: ["glutine", "sedano"], vegetarian: false, vegan: false },
+      { id: "brodu-berbeghe", name: "Brodu de Puddha", desc: "Fregula tradizionale tostata in Brodo semplice di Polletto ruspante, Manzo e Maiale. Servito con carne di maiale sfilacciata nella sua salsa d'arrosto e verdure cotte di stagione.", price: 16.00, allergens: ["glutine", "sedano", "soia"], vegetarian: false, vegan: false, image: "/brodo-scivedda.jpg" },
       { id: "brodu-puddha", name: "Brodu 'e Puddha", desc: "Brodo di gallina ruspante con verdure di stagione, zafferano di Sardegna e fregola piccola. Un classico della domenica sarda.", price: 7.50, allergens: ["glutine", "sedano"], vegetarian: false, vegan: false },
       { id: "fregola-arselle", name: "Fregula con le Arselle", desc: "Fregula sarda tostata con vongole veraci, pomodorino, aglio e prezzemolo. Il mare della Sardegna in un piatto.", price: 12.00, allergens: ["glutine", "molluschi", "sedano"], vegetarian: false, vegan: false },
       { id: "minestra-verdure", name: "Minestra di Verdure", desc: "Minestrone ricco con legumi sardi, verdure dell'orto e un giro d'olio extravergine. Semplice, nutriente, vegan.", price: 7.00, allergens: ["sedano"], vegetarian: true, vegan: true },
