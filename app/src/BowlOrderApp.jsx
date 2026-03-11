@@ -780,18 +780,21 @@ export default function BowlOrderApp() {
           })}
         </div>
 
-        {/* Bowl Visual */}
-        <div style={{ padding: "4px 16px 0", background: theme.bg, maxHeight: 160, overflow: "hidden" }}>
-          <BowlVisual selected={selected} animatingItem={animatingItem} />
+        {/* Bowl Visual — compact strip */}
+        <div style={{ background: theme.bg, display: "flex", justifyContent: "center", paddingTop: 2 }}>
+          <div style={{ width: 100, pointerEvents: "none" }}>
+            <BowlVisual selected={selected} animatingItem={animatingItem} />
+          </div>
         </div>
 
         {/* Selector panel */}
         <div style={{
           flex: 1, background: theme.card,
-          borderTopLeftRadius: 24, borderTopRightRadius: 24,
+          borderTopLeftRadius: 20, borderTopRightRadius: 20,
           border: `1px solid ${theme.border}`, borderBottom: "none",
-          padding: "20px 16px 100px",
-          marginTop: 8, boxShadow: "0 -4px 20px rgba(0,0,0,0.05)",
+          padding: "16px 16px 86px",
+          marginTop: 4, boxShadow: "0 -4px 20px rgba(0,0,0,0.05)",
+          overflowY: "auto",
         }}>
 
           {/* ── SIZE STEP ── */}
@@ -942,63 +945,65 @@ export default function BowlOrderApp() {
             </>
           )}
 
-          {/* Navigation */}
-          <div style={{ display: "flex", gap: 10, marginTop: 20, paddingTop: 16, borderTop: `1px solid ${theme.border}` }}>
-            {catIdx > 0 && (
-              <button onClick={() => setActiveCategory(catOrder[catIdx - 1])} style={{
-                flex: 1, padding: "13px", background: theme.bg, border: `1px solid ${theme.border}`,
-                borderRadius: 12, cursor: "pointer", fontSize: 13, fontWeight: 600, color: theme.textSoft, fontFamily: "inherit",
-              }}>
-                ← {catIdx === 1 ? "Taglia" : MENU_CATEGORIES[catOrder[catIdx - 1]].label}
-              </button>
-            )}
-            {catIdx < catOrder.length - 1 ? (
-              <button onClick={() => setActiveCategory(catOrder[catIdx + 1])} style={{
-                flex: 2, padding: "13px", background: theme.accent, border: "none", borderRadius: 12,
-                cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "inherit",
-                boxShadow: "0 2px 8px rgba(212,118,60,0.25)",
-              }}>
-                {catIdx === 0 ? "Base →" : `${MENU_CATEGORIES[catOrder[catIdx + 1]].label} →`}
-              </button>
-            ) : (
-              <button onClick={addCustomToCart} disabled={!customBowlValid} style={{
-                flex: 2, padding: "13px",
-                background: customBowlValid ? theme.green : "#ccc",
-                border: "none", borderRadius: 12,
-                cursor: customBowlValid ? "pointer" : "not-allowed",
-                fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "inherit",
-                boxShadow: customBowlValid ? "0 2px 8px rgba(90,143,92,0.3)" : "none",
-              }}>
-                🛒 Aggiungi al carrello
-              </button>
-            )}
-          </div>
         </div>
 
-        {/* Price bar */}
+        {/* Fixed bottom bar: price + navigation always visible */}
         <div style={{
           position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
           width: "100%", maxWidth: 480,
-          background: theme.text, color: "#fff",
-          padding: "12px 20px 20px",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
+          background: "#fff",
+          borderTop: `1px solid ${theme.border}`,
+          padding: "10px 14px 22px",
+          display: "flex", alignItems: "center", gap: 8,
           zIndex: 90,
+          boxShadow: "0 -4px 20px rgba(0,0,0,0.08)",
         }}>
-          <div>
-            <div style={{ fontSize: 10, opacity: 0.6, textTransform: "uppercase", letterSpacing: 1 }}>Totale</div>
-            <div style={{
-              fontFamily: "'Jaapokki', sans-serif",
-              fontSize: 28, letterSpacing: 1, color: theme.warm,
-            }}>
+          {/* Price chip */}
+          <div style={{
+            background: theme.warm, borderRadius: 10,
+            padding: "6px 10px", flexShrink: 0,
+            display: "flex", flexDirection: "column", alignItems: "center",
+          }}>
+            <span style={{ fontSize: 9, color: theme.textSoft, textTransform: "uppercase", letterSpacing: 0.5 }}>Totale</span>
+            <span style={{ fontSize: 15, fontWeight: 800, color: theme.accent, fontFamily: "'Jaapokki', sans-serif" }}>
               €{customPrice.toFixed(2)}
-            </div>
+            </span>
           </div>
-          <div style={{ fontSize: 11, opacity: 0.5, textAlign: "right", lineHeight: 1.4 }}>
-            {selected.size
-              ? `${SIZE_OPTIONS.find(s => s.id === selected.size)?.label} · base`
-              : "Scegli la taglia"}
-            {selected.basi.length > 0 && ` + extra`}
-          </div>
+
+          {/* Back button */}
+          {catIdx > 0 && (
+            <button onClick={() => setActiveCategory(catOrder[catIdx - 1])} style={{
+              flexShrink: 0, padding: "11px 14px",
+              background: theme.bg, border: `1px solid ${theme.border}`,
+              borderRadius: 12, cursor: "pointer", fontSize: 12, fontWeight: 600,
+              color: theme.textSoft, fontFamily: "inherit",
+            }}>
+              ←
+            </button>
+          )}
+
+          {/* Forward / Add to cart */}
+          {catIdx < catOrder.length - 1 ? (
+            <button onClick={() => setActiveCategory(catOrder[catIdx + 1])} style={{
+              flex: 1, padding: "13px",
+              background: theme.accent, border: "none", borderRadius: 12,
+              cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "inherit",
+              boxShadow: "0 2px 10px rgba(212,118,60,0.3)",
+            }}>
+              {catIdx === 0 ? "Base →" : `${MENU_CATEGORIES[catOrder[catIdx + 1]].label} →`}
+            </button>
+          ) : (
+            <button onClick={addCustomToCart} disabled={!customBowlValid} style={{
+              flex: 1, padding: "13px",
+              background: customBowlValid ? theme.green : "#ccc",
+              border: "none", borderRadius: 12,
+              cursor: customBowlValid ? "pointer" : "not-allowed",
+              fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "inherit",
+              boxShadow: customBowlValid ? "0 2px 10px rgba(90,143,92,0.3)" : "none",
+            }}>
+              🛒 Aggiungi al carrello
+            </button>
+          )}
         </div>
       </div>
     );
