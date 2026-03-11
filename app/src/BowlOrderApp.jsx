@@ -7,11 +7,14 @@ const MENU_CATEGORIES = {
     emoji: "🍚",
     color: "#f5e6d3",
     items: [
-      { id: "riso", name: "Riso bianco", cal: 130, icon: "🍚" },
-      { id: "riso-int", name: "Riso integrale", cal: 120, icon: "🍘" },
-      { id: "quinoa", name: "Quinoa", cal: 110, icon: "🌾" },
-      { id: "insalata", name: "Mix insalata", cal: 25, icon: "🥬" },
-      { id: "noodles", name: "Noodles di riso", cal: 140, icon: "🍜" },
+      { id: "fregola", name: "Fregula Sarda", cal: 150, icon: "🟤" },
+      { id: "riso-bianco", name: "Riso Bianco di Oristano", cal: 130, icon: "🍚" },
+      { id: "riso-rosso", name: "Riso Rosso Integrale di Oristano", cal: 125, icon: "🔴" },
+      { id: "riso-nero", name: "Riso Nero Integrale di Oristano", cal: 120, icon: "⚫" },
+      { id: "farro", name: "Farro di Sardegna", cal: 140, icon: "🌾" },
+      { id: "insalata", name: "Insalata Verde", cal: 20, icon: "🥬" },
+      { id: "riso-insalata", name: "Riso + Insalata", cal: 90, icon: "🍱" },
+      { id: "fregola-insalata", name: "Fregula + Insalata", cal: 95, icon: "🥗" },
     ],
   },
   proteine: {
@@ -19,12 +22,17 @@ const MENU_CATEGORIES = {
     emoji: "🐟",
     color: "#ffd6d6",
     items: [
-      { id: "salmone", name: "Salmone", cal: 180, icon: "🍣" },
-      { id: "tonno", name: "Tonno", cal: 160, icon: "🐟" },
-      { id: "gamberi", name: "Gamberi", cal: 100, icon: "🦐" },
-      { id: "pollo", name: "Pollo teriyaki", cal: 170, icon: "🍗" },
-      { id: "tofu", name: "Tofu marinato", cal: 90, icon: "🧈" },
-      { id: "edamame", name: "Edamame", cal: 120, icon: "🫛" },
+      { id: "salmone-crudo",   name: "Salmone Crudo",        cal: 180, icon: "🍣" },
+      { id: "salmone-cotto",   name: "Salmone Cotto",        cal: 170, icon: "🐟" },
+      { id: "tonno-crudo",     name: "Tonno Crudo",          cal: 160, icon: "🔴" },
+      { id: "tonno-cotto",     name: "Tonno Cotto",          cal: 150, icon: "🫙" },
+      { id: "gambero-cotto",   name: "Gambero Cotto",        cal: 100, icon: "🦐", extra: 2 },
+      { id: "polpo",           name: "Polpo Tradizionale",   cal: 120, icon: "🐙", extra: 3 },
+      { id: "uovo-pula",       name: "Uovo Morbido di Pula", cal: 90,  icon: "🥚" },
+      { id: "maiale-sfilacciato", name: "Maiale Sfilacciato", cal: 200, icon: "🥩", extra: 3 },
+      { id: "polletto",        name: "Polletto Ruspante",    cal: 170, icon: "🍗" },
+      { id: "tofu-naturale",   name: "Tofu Naturale",        cal: 90,  icon: "🧈" },
+      { id: "legumi",          name: "Legumi del Campidano", cal: 130, icon: "🫘" },
     ],
   },
   verdure: {
@@ -87,7 +95,7 @@ const MENU_SECTIONS = [
     items: [
       { id: "brodu-berbeghe", name: "Brodu 'e Berbeghe", desc: "Il brodo di pecora della nonna, cotto lentamente con carote, sedano e cipolla. Servito con pane carasau tostato e un filo d'olio extravergine. Nutrimento puro, sapore di casa.", price: 8.50, allergens: ["glutine", "sedano"], vegetarian: false, vegan: false },
       { id: "brodu-puddha", name: "Brodu 'e Puddha", desc: "Brodo di gallina ruspante con verdure di stagione, zafferano di Sardegna e fregola piccola. Un classico della domenica sarda.", price: 7.50, allergens: ["glutine", "sedano"], vegetarian: false, vegan: false },
-      { id: "fregola-arselle", name: "Fregola con le Arselle", desc: "Fregola sarda tostata con vongole veraci, pomodorino, aglio e prezzemolo. Il mare della Sardegna in un piatto.", price: 12.00, allergens: ["glutine", "molluschi", "sedano"], vegetarian: false, vegan: false },
+      { id: "fregola-arselle", name: "Fregula con le Arselle", desc: "Fregula sarda tostata con vongole veraci, pomodorino, aglio e prezzemolo. Il mare della Sardegna in un piatto.", price: 12.00, allergens: ["glutine", "molluschi", "sedano"], vegetarian: false, vegan: false },
       { id: "minestra-verdure", name: "Minestra di Verdure", desc: "Minestrone ricco con legumi sardi, verdure dell'orto e un giro d'olio extravergine. Semplice, nutriente, vegan.", price: 7.00, allergens: ["sedano"], vegetarian: true, vegan: true },
     ],
   },
@@ -177,7 +185,14 @@ const MENU_SECTIONS = [
   },
 ];
 
-const CUSTOM_SCIVEDDA_PRICE = 11.90;
+const SIZE_OPTIONS = [
+  { id: "small",   label: "Small",   price: 10.90, bowlW: 72 },
+  { id: "regular", label: "Regular", price: 11.90, bowlW: 96 },
+  { id: "xl",      label: "XL",      price: 15.90, bowlW: 124 },
+];
+
+const MAX_BASI = 2;
+const MAX_PROTEINE = 3;
 const MAX_VERDURE = 4;
 const MAX_TOPPING = 3;
 
@@ -286,8 +301,8 @@ const BowlVisual = ({ selected, animatingItem }) => {
 export default function BowlOrderApp() {
   const [view, setView] = useState("menu"); // menu | build | cart | summary | confirm
   const [cart, setCart] = useState([]);
-  const [selected, setSelected] = useState({ basi: null, proteine: null, verdure: [], salse: null, topping: [] });
-  const [activeCategory, setActiveCategory] = useState("basi");
+  const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], salse: null, topping: [] });
+  const [activeCategory, setActiveCategory] = useState("size");
   const [animatingItem, setAnimatingItem] = useState(null);
   const [customerName, setCustomerName] = useState("");
   const [customerNote, setCustomerNote] = useState("");
@@ -298,7 +313,7 @@ export default function BowlOrderApp() {
 
   const toggleSection = (id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
 
-  const catOrder = ["basi", "proteine", "verdure", "salse", "topping"];
+  const catOrder = ["size", "basi", "proteine", "verdure", "salse", "topping"];
 
   const selectIngredient = (category, itemId) => {
     setAnimatingItem(itemId);
@@ -306,7 +321,19 @@ export default function BowlOrderApp() {
 
     setSelected(prev => {
       const next = { ...prev };
-      if (category === "verdure") {
+      if (category === "basi") {
+        if (next.basi.includes(itemId)) {
+          next.basi = next.basi.filter(b => b !== itemId);
+        } else if (next.basi.length < MAX_BASI) {
+          next.basi = [...next.basi, itemId];
+        }
+      } else if (category === "proteine") {
+        if (next.proteine.includes(itemId)) {
+          next.proteine = next.proteine.filter(p => p !== itemId);
+        } else if (next.proteine.length < MAX_PROTEINE) {
+          next.proteine = [...next.proteine, itemId];
+        }
+      } else if (category === "verdure") {
         if (next.verdure.includes(itemId)) {
           next.verdure = next.verdure.filter(v => v !== itemId);
         } else if (next.verdure.length < MAX_VERDURE) {
@@ -326,36 +353,40 @@ export default function BowlOrderApp() {
   };
 
   const isSelected = (category, itemId) => {
-    if (category === "verdure" || category === "topping") {
+    if (category === "basi" || category === "proteine" || category === "verdure" || category === "topping") {
       return selected[category].includes(itemId);
     }
     return selected[category] === itemId;
   };
 
-  const customBowlValid = selected.basi && selected.proteine && selected.verdure.length > 0;
+  const customBowlValid = selected.size && selected.basi.length > 0 && selected.proteine.length > 0 && selected.verdure.length > 0;
+  const proteinItemExtra = selected.proteine.reduce((sum, id) => sum + (MENU_CATEGORIES.proteine.items.find(i => i.id === id)?.extra ?? 0), 0);
+  const proteinCountExtra = Math.max(0, selected.proteine.length - 1) * 3;
+  const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinItemExtra + proteinCountExtra;
 
   const addCustomToCart = () => {
     if (!customBowlValid) return;
     const bowlItems = { ...selected };
     const desc = [
-      MENU_CATEGORIES.basi.items.find(i => i.id === selected.basi)?.name,
-      MENU_CATEGORIES.proteine.items.find(i => i.id === selected.proteine)?.name,
+      ...selected.basi.map(b => MENU_CATEGORIES.basi.items.find(i => i.id === b)?.name),
+      ...selected.proteine.map(p => MENU_CATEGORIES.proteine.items.find(i => i.id === p)?.name),
       ...selected.verdure.map(v => MENU_CATEGORIES.verdure.items.find(i => i.id === v)?.name),
       selected.salse ? MENU_CATEGORIES.salse.items.find(i => i.id === selected.salse)?.name : null,
       ...selected.topping.map(t => MENU_CATEGORIES.topping.items.find(i => i.id === t)?.name),
     ].filter(Boolean).join(", ");
 
+    const sizeLabel = SIZE_OPTIONS.find(s => s.id === selected.size)?.label ?? "";
     setCart(prev => [...prev, {
       id: Date.now(),
       type: "custom",
-      name: "Scivedda Custom",
+      name: `Scivedda Custom ${sizeLabel}`,
       desc,
       items: bowlItems,
-      price: CUSTOM_SCIVEDDA_PRICE,
+      price: customPrice,
       qty: 1,
     }]);
-    setSelected({ basi: null, proteine: null, verdure: [], salse: null, topping: [] });
-    setActiveCategory("basi");
+    setSelected({ size: null, basi: [], proteine: [], verdure: [], salse: null, topping: [] });
+    setActiveCategory("size");
     setShowCartBounce(true);
     setTimeout(() => setShowCartBounce(false), 600);
   };
@@ -412,7 +443,7 @@ export default function BowlOrderApp() {
       if (item.type === "menu") {
         text += `${item.name} (da menù)\n`;
       } else {
-        text += `Scivedda Custom\n`;
+        text += `${item.name}\n`;
         const its = item.items;
         Object.entries(catLabels).forEach(([cat, label]) => {
           const val = its[cat];
@@ -445,7 +476,7 @@ export default function BowlOrderApp() {
 
   const resetOrder = () => {
     setCart([]);
-    setSelected({ basi: null, proteine: null, verdure: [], salse: null, topping: [] });
+    setSelected({ size: null, basi: [], proteine: [], verdure: [], salse: null, topping: [] });
     setView("menu");
     setOrderSent(false);
     setCustomerName("");
@@ -621,7 +652,7 @@ export default function BowlOrderApp() {
         background: `linear-gradient(180deg, transparent 0%, ${theme.bg} 30%)`,
         zIndex: 90,
       }}>
-        <button onClick={() => { setView("build"); setActiveCategory("basi"); }} style={{
+        <button onClick={() => { setView("build"); setActiveCategory("size"); }} style={{
           width: "100%", padding: "16px 20px",
           background: `linear-gradient(135deg, ${theme.green}, #3d7a40)`,
           border: "none", borderRadius: 16,
@@ -638,7 +669,7 @@ export default function BowlOrderApp() {
           <div style={{ textAlign: "left" }}>
             <div style={{ fontSize: 16, letterSpacing: 1, textTransform: "uppercase" }}>Crea la tua Scivedda</div>
             <div style={{ fontSize: 11, opacity: 0.85, fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
-              Scegli ogni ingrediente — €{CUSTOM_SCIVEDDA_PRICE.toFixed(2)}
+              Scegli ogni ingrediente — da €10.90
             </div>
           </div>
           <span style={{ fontSize: 20, marginLeft: "auto" }}>→</span>
@@ -649,10 +680,11 @@ export default function BowlOrderApp() {
 
   // ── Render: Build ─────────────────────────────────────────────────────
   const renderBuild = () => {
-    const cat = MENU_CATEGORIES[activeCategory];
+    const isSize = activeCategory === "size";
+    const cat = isSize ? null : MENU_CATEGORIES[activeCategory];
     const catIdx = catOrder.indexOf(activeCategory);
-    const isMulti = activeCategory === "verdure" || activeCategory === "topping";
-    const limit = activeCategory === "verdure" ? MAX_VERDURE : activeCategory === "topping" ? MAX_TOPPING : 1;
+    const isMulti = activeCategory === "basi" || activeCategory === "proteine" || activeCategory === "verdure" || activeCategory === "topping";
+    const limit = activeCategory === "basi" ? MAX_BASI : activeCategory === "proteine" ? MAX_PROTEINE : activeCategory === "verdure" ? MAX_VERDURE : activeCategory === "topping" ? MAX_TOPPING : 1;
     const currentCount = isMulti ? selected[activeCategory].length : (selected[activeCategory] ? 1 : 0);
 
     return (
@@ -673,7 +705,9 @@ export default function BowlOrderApp() {
               fontFamily: "'Jaapokki', sans-serif",
               fontSize: 18, fontWeight: 700, color: theme.text, textTransform: "uppercase", letterSpacing: 1,
             }}>Crea la tua Scivedda</div>
-            <div style={{ fontSize: 12, color: theme.textSoft }}>€{CUSTOM_SCIVEDDA_PRICE.toFixed(2)}</div>
+            <div style={{ fontSize: 12, color: theme.textSoft }}>
+              {selected.size ? `€${customPrice.toFixed(2)}` : "Small · Regular · XL"}
+            </div>
           </div>
         </div>
 
@@ -684,9 +718,14 @@ export default function BowlOrderApp() {
           background: theme.bg,
         }}>
           {catOrder.map((c) => {
-            const hasSelection = c === "verdure" || c === "topping"
+            const hasSelection = c === "size"
+              ? !!selected.size
+              : c === "basi" || c === "proteine" || c === "verdure" || c === "topping"
               ? selected[c].length > 0
               : !!selected[c];
+            const tabInfo = c === "size"
+              ? { emoji: "📐", label: "Taglia" }
+              : { emoji: MENU_CATEGORIES[c].emoji, label: MENU_CATEGORIES[c].label };
             return (
               <button key={c} onClick={() => setActiveCategory(c)} style={{
                 display: "flex", alignItems: "center", gap: 4,
@@ -697,8 +736,8 @@ export default function BowlOrderApp() {
                 fontSize: 11, fontWeight: 600,
                 transition: "all 0.2s",
               }}>
-                <span style={{ fontSize: 13 }}>{MENU_CATEGORIES[c].emoji}</span>
-                {MENU_CATEGORIES[c].label}
+                <span style={{ fontSize: 13 }}>{tabInfo.emoji}</span>
+                {tabInfo.label}
                 {hasSelection && activeCategory !== c && (
                   <span style={{ fontSize: 10 }}>✓</span>
                 )}
@@ -712,108 +751,145 @@ export default function BowlOrderApp() {
           <BowlVisual selected={selected} animatingItem={animatingItem} />
         </div>
 
-        {/* Ingredient selector */}
+        {/* Selector panel */}
         <div style={{
-          flex: 1,
-          background: theme.card,
+          flex: 1, background: theme.card,
           borderTopLeftRadius: 24, borderTopRightRadius: 24,
-          border: `1px solid ${theme.border}`,
-          borderBottom: "none",
-          padding: "20px 16px",
-          marginTop: 8,
-          boxShadow: "0 -4px 20px rgba(0,0,0,0.05)",
+          border: `1px solid ${theme.border}`, borderBottom: "none",
+          padding: "20px 16px 100px",
+          marginTop: 8, boxShadow: "0 -4px 20px rgba(0,0,0,0.05)",
         }}>
-          <div style={{
-            display: "flex", justifyContent: "space-between", alignItems: "center",
-            marginBottom: 14,
-          }}>
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: theme.text }}>
-                {cat.emoji} Scegli {cat.label.toLowerCase()}
-              </div>
-              <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2 }}>
-                {isMulti
-                  ? `Seleziona fino a ${limit} (${currentCount}/${limit})`
-                  : selected[activeCategory] ? "✓ Selezionato" : "Seleziona 1"
-                }
-              </div>
-            </div>
-          </div>
 
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
-            gap: 10,
-          }}>
-            {cat.items.map(item => {
-              const sel = isSelected(activeCategory, item.id);
-              return (
-                <button key={item.id} onClick={() => selectIngredient(activeCategory, item.id)} style={{
-                  background: sel
-                    ? `linear-gradient(135deg, ${theme.accentLight}, #fff)`
-                    : theme.bg,
-                  border: sel
-                    ? `2px solid ${theme.accent}`
-                    : `1.5px solid ${theme.border}`,
-                  borderRadius: 14,
-                  padding: "14px 8px 10px",
-                  cursor: "pointer",
-                  display: "flex", flexDirection: "column",
-                  alignItems: "center", gap: 4,
-                  transition: "all 0.2s",
-                  transform: sel ? "scale(1.03)" : "scale(1)",
-                  boxShadow: sel ? "0 3px 12px rgba(212,118,60,0.15)" : "none",
-                  position: "relative",
-                }}>
-                  {sel && (
-                    <div style={{
-                      position: "absolute", top: 4, right: 4,
-                      width: 16, height: 16, borderRadius: "50%",
-                      background: theme.accent,
-                      color: "#fff", fontSize: 10,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontWeight: 700,
-                    }}>✓</div>
-                  )}
-                  <span style={{ fontSize: 28 }}>{item.icon}</span>
-                  <span style={{
-                    fontSize: 11, fontWeight: 600, color: theme.text,
-                    textAlign: "center", lineHeight: 1.2,
-                  }}>{item.name}</span>
-                  <span style={{ fontSize: 9, color: theme.textSoft }}>{item.cal} cal</span>
-                </button>
-              );
-            })}
-          </div>
+          {/* ── SIZE STEP ── */}
+          {isSize && (
+            <>
+              <div style={{ fontSize: 15, fontWeight: 700, color: theme.text, marginBottom: 4 }}>
+                Scegli la dimensione
+              </div>
+              <div style={{ fontSize: 11, color: theme.textSoft, marginBottom: 18 }}>
+                {selected.size ? "✓ Selezionata" : "Seleziona 1"}
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                {SIZE_OPTIONS.map(sz => {
+                  const sel = selected.size === sz.id;
+                  return (
+                    <button key={sz.id}
+                      onClick={() => setSelected(prev => ({ ...prev, size: sz.id }))}
+                      style={{
+                        flex: 1, padding: "16px 6px 14px",
+                        background: sel ? theme.accentLight : theme.bg,
+                        border: sel ? `2px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
+                        borderRadius: 16, cursor: "pointer",
+                        display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+                        transition: "all 0.2s",
+                        transform: sel ? "scale(1.04)" : "scale(1)",
+                        boxShadow: sel ? "0 4px 14px rgba(212,118,60,0.15)" : "none",
+                        position: "relative",
+                      }}>
+                      {sel && (
+                        <div style={{
+                          position: "absolute", top: 6, right: 6,
+                          width: 16, height: 16, borderRadius: "50%",
+                          background: theme.accent, color: "#fff",
+                          fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center",
+                          fontWeight: 700,
+                        }}>✓</div>
+                      )}
+                      {/* Bowl SVG scalata */}
+                      <svg viewBox="0 0 100 80" style={{ width: sz.bowlW, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.1))" }}>
+                        <ellipse cx="50" cy="72" rx="40" ry="5" fill="rgba(0,0,0,0.06)" />
+                        <path d="M10,35 Q10,68 50,70 Q90,68 90,35 Z" fill="url(#bG)" stroke="#d4a373" strokeWidth="0.8" />
+                        <ellipse cx="50" cy="35" rx="42" ry="14" fill="url(#rG)" stroke="#d4a373" strokeWidth="0.6" />
+                        <ellipse cx="50" cy="36" rx="38" ry="11.5" fill="url(#iG)" />
+                        <defs>
+                          <linearGradient id="bG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#e8d5b7" /><stop offset="100%" stopColor="#c9a96e" /></linearGradient>
+                          <linearGradient id="rG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#f5e6d3" /><stop offset="100%" stopColor="#e8d5b7" /></linearGradient>
+                          <radialGradient id="iG"><stop offset="0%" stopColor="#faf6f0" /><stop offset="100%" stopColor="#f0e6d8" /></radialGradient>
+                        </defs>
+                      </svg>
+                      <div style={{
+                        fontFamily: "'Jaapokki', sans-serif",
+                        fontSize: 13, color: theme.text, letterSpacing: 1, textTransform: "uppercase",
+                      }}>{sz.label}</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: theme.accent }}>
+                        €{sz.price.toFixed(2)}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {/* ── INGREDIENT STEPS ── */}
+          {!isSize && (
+            <>
+              <div style={{ marginBottom: 14 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: theme.text }}>
+                  {cat.emoji} Scegli {cat.label.toLowerCase()}
+                </div>
+                <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2 }}>
+                  {activeCategory === "proteine"
+                    ? `Seleziona una proteina — proteine extra +€3 cad. (${currentCount}/${limit})`
+                    : isMulti
+                    ? `Seleziona fino a ${limit} (${currentCount}/${limit})`
+                    : selected[activeCategory] ? "✓ Selezionato" : "Seleziona 1"
+                  }
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: 10 }}>
+                {cat.items.map(item => {
+                  const sel = isSelected(activeCategory, item.id);
+                  return (
+                    <button key={item.id} onClick={() => selectIngredient(activeCategory, item.id)} style={{
+                      background: sel ? `linear-gradient(135deg, ${theme.accentLight}, #fff)` : theme.bg,
+                      border: sel ? `2px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
+                      borderRadius: 14, padding: "14px 8px 10px", cursor: "pointer",
+                      display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                      transition: "all 0.2s", transform: sel ? "scale(1.03)" : "scale(1)",
+                      boxShadow: sel ? "0 3px 12px rgba(212,118,60,0.15)" : "none", position: "relative",
+                    }}>
+                      {sel && (
+                        <div style={{
+                          position: "absolute", top: 4, right: 4, width: 16, height: 16,
+                          borderRadius: "50%", background: theme.accent, color: "#fff",
+                          fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700,
+                        }}>✓</div>
+                      )}
+                      <span style={{ fontSize: 28 }}>{item.icon}</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: theme.text, textAlign: "center", lineHeight: 1.2 }}>{item.name}</span>
+                      <span style={{ fontSize: 9, color: theme.textSoft }}>{item.cal} cal</span>
+                      {item.extra && (
+                        <span style={{
+                          fontSize: 9, fontWeight: 700, color: "#fff",
+                          background: theme.accent, borderRadius: 4,
+                          padding: "1px 5px",
+                        }}>+€{item.extra}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
 
           {/* Navigation */}
-          <div style={{
-            display: "flex", gap: 10, marginTop: 20,
-            paddingTop: 16,
-            borderTop: `1px solid ${theme.border}`,
-          }}>
+          <div style={{ display: "flex", gap: 10, marginTop: 20, paddingTop: 16, borderTop: `1px solid ${theme.border}` }}>
             {catIdx > 0 && (
               <button onClick={() => setActiveCategory(catOrder[catIdx - 1])} style={{
-                flex: 1, padding: "13px",
-                background: theme.bg, border: `1px solid ${theme.border}`,
-                borderRadius: 12, cursor: "pointer",
-                fontSize: 13, fontWeight: 600, color: theme.textSoft,
-                fontFamily: "inherit",
+                flex: 1, padding: "13px", background: theme.bg, border: `1px solid ${theme.border}`,
+                borderRadius: 12, cursor: "pointer", fontSize: 13, fontWeight: 600, color: theme.textSoft, fontFamily: "inherit",
               }}>
-                ← {MENU_CATEGORIES[catOrder[catIdx - 1]].label}
+                ← {catIdx === 1 ? "Taglia" : MENU_CATEGORIES[catOrder[catIdx - 1]].label}
               </button>
             )}
             {catIdx < catOrder.length - 1 ? (
               <button onClick={() => setActiveCategory(catOrder[catIdx + 1])} style={{
-                flex: 2, padding: "13px",
-                background: theme.accent,
-                border: "none", borderRadius: 12,
-                cursor: "pointer",
-                fontSize: 13, fontWeight: 700, color: "#fff",
-                fontFamily: "inherit",
+                flex: 2, padding: "13px", background: theme.accent, border: "none", borderRadius: 12,
+                cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "inherit",
                 boxShadow: "0 2px 8px rgba(212,118,60,0.25)",
               }}>
-                {MENU_CATEGORIES[catOrder[catIdx + 1]].label} →
+                {catIdx === 0 ? "Base →" : `${MENU_CATEGORIES[catOrder[catIdx + 1]].label} →`}
               </button>
             ) : (
               <button onClick={addCustomToCart} disabled={!customBowlValid} style={{
@@ -821,13 +897,38 @@ export default function BowlOrderApp() {
                 background: customBowlValid ? theme.green : "#ccc",
                 border: "none", borderRadius: 12,
                 cursor: customBowlValid ? "pointer" : "not-allowed",
-                fontSize: 13, fontWeight: 700, color: "#fff",
-                fontFamily: "inherit",
+                fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "inherit",
                 boxShadow: customBowlValid ? "0 2px 8px rgba(90,143,92,0.3)" : "none",
               }}>
                 🛒 Aggiungi al carrello
               </button>
             )}
+          </div>
+        </div>
+
+        {/* Price bar */}
+        <div style={{
+          position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+          width: "100%", maxWidth: 480,
+          background: theme.text, color: "#fff",
+          padding: "12px 20px 20px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          zIndex: 90,
+        }}>
+          <div>
+            <div style={{ fontSize: 10, opacity: 0.6, textTransform: "uppercase", letterSpacing: 1 }}>Totale</div>
+            <div style={{
+              fontFamily: "'Jaapokki', sans-serif",
+              fontSize: 28, letterSpacing: 1, color: theme.warm,
+            }}>
+              €{customPrice.toFixed(2)}
+            </div>
+          </div>
+          <div style={{ fontSize: 11, opacity: 0.5, textAlign: "right", lineHeight: 1.4 }}>
+            {selected.size
+              ? `${SIZE_OPTIONS.find(s => s.id === selected.size)?.label} · base`
+              : "Scegli la taglia"}
+            {selected.basi.length > 0 && ` + extra`}
           </div>
         </div>
       </div>
