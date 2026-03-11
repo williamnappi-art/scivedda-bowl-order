@@ -731,7 +731,7 @@ export default function BowlOrderApp() {
     const currentCount = isMulti ? selected[activeCategory].length : 0;
 
     return (
-      <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <div style={{ display: "flex", flexDirection: "column", minHeight: "100svh" }}>
         {/* Header */}
         <div style={{
           padding: "16px",
@@ -756,8 +756,8 @@ export default function BowlOrderApp() {
 
         {/* Progress dots */}
         <div style={{
-          display: "flex", justifyContent: "center", gap: 6,
-          padding: "14px 16px 8px",
+          display: "flex", justifyContent: "center", gap: 5,
+          padding: "10px 16px 6px",
           background: theme.bg,
         }}>
           {catOrder.map((c) => {
@@ -766,31 +766,22 @@ export default function BowlOrderApp() {
               : Array.isArray(selected[c])
               ? selected[c].length > 0
               : !!selected[c];
-            const tabInfo = c === "size"
-              ? { emoji: "📐", label: "Taglia" }
-              : { emoji: MENU_CATEGORIES[c].emoji, label: MENU_CATEGORIES[c].label };
             return (
               <button key={c} onClick={() => setActiveCategory(c)} style={{
-                display: "flex", alignItems: "center", gap: 4,
-                padding: "5px 10px", borderRadius: 20,
-                background: activeCategory === c ? theme.accent : hasSelection ? theme.greenLight : "rgba(0,0,0,0.04)",
+                width: activeCategory === c ? 20 : 8,
+                height: 8, borderRadius: 4,
+                background: activeCategory === c ? theme.accent : hasSelection ? theme.green : theme.border,
                 border: "none", cursor: "pointer",
-                color: activeCategory === c ? "#fff" : hasSelection ? theme.green : theme.textSoft,
-                fontSize: 11, fontWeight: 600,
-                transition: "all 0.2s",
-              }}>
-                <span style={{ fontSize: 13 }}>{tabInfo.emoji}</span>
-                {tabInfo.label}
-                {hasSelection && activeCategory !== c && (
-                  <span style={{ fontSize: 10 }}>✓</span>
-                )}
-              </button>
+                padding: 0,
+                transition: "all 0.25s",
+                flexShrink: 0,
+              }} />
             );
           })}
         </div>
 
         {/* Bowl Visual */}
-        <div style={{ padding: "8px 16px 0", background: theme.bg }}>
+        <div style={{ padding: "4px 16px 0", background: theme.bg, maxHeight: 160, overflow: "hidden" }}>
           <BowlVisual selected={selected} animatingItem={animatingItem} />
         </div>
 
@@ -1330,9 +1321,11 @@ export default function BowlOrderApp() {
       background: theme.bg,
       color: theme.text,
       minHeight: "100vh",
+      width: "100%",
       maxWidth: 480,
       margin: "0 auto",
       position: "relative",
+      overflowX: "hidden",
       boxShadow: "0 0 60px rgba(0,0,0,0.08)",
     }}>
       <link href="https://fonts.cdnfonts.com/css/jaapokki" rel="stylesheet" />
