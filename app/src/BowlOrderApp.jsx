@@ -1226,7 +1226,7 @@ export default function BowlOrderApp() {
                   lines.push(
                     <div key={`qty-${idx}`}><b>Quantità: n.{item.qty}</b></div>
                   );
-                  if (item.type === "preset") {
+                  if (item.type === "menu") {
                     lines.push(<div key={`name-${idx}`}>{item.name} (da menù)</div>);
                   } else {
                     lines.push(<div key={`custom-${idx}`}>Bowl Custom</div>);
