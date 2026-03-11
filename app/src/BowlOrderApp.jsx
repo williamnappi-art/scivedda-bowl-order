@@ -1374,7 +1374,7 @@ export default function BowlOrderApp() {
             <div style={{
               height: 220,
               background: photoModal.image
-                ? `url(${photoModal.image}) center/cover no-repeat`
+                ? `url(${photoModal.image}) top/cover no-repeat`
                 : `linear-gradient(135deg, ${theme.warm}, ${theme.accentLight})`,
               display: "flex", alignItems: "center", justifyContent: "center",
               borderRadius: "24px 24px 0 0",
