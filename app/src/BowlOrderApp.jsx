@@ -82,11 +82,17 @@ const MENU_CATEGORIES = {
     emoji: "🫗",
     color: "#fff3cd",
     items: [
-      { id: "soia", name: "Salsa di soia", cal: 10, icon: "🫗" },
-      { id: "teriyaki", name: "Teriyaki", cal: 25, icon: "🍯" },
-      { id: "spicymayo", name: "Spicy mayo", cal: 45, icon: "🌶️" },
-      { id: "ponzu", name: "Ponzu", cal: 10, icon: "🍋" },
-      { id: "sesamo", name: "Salsa sesamo", cal: 35, icon: "🫘" },
+      { id: "soia",              name: "Soia",                  cal: 10, icon: "🫗" },
+      { id: "wasabi-maio",       name: "Wasabi Maio",           cal: 40, icon: "🟢" },
+      { id: "sale-zenzero",      name: "Sale allo Zenzero",     cal: 5,  icon: "🧂" },
+      { id: "teriyaki",          name: "Teriyaki",              cal: 25, icon: "🍯" },
+      { id: "zenzero-maio",      name: "Zenzero Maio",          cal: 40, icon: "🫚" },
+      { id: "spicy-maio",        name: "Spicy Maio",            cal: 45, icon: "🌶️" },
+      { id: "yogurt-dressing",   name: "Yogurt Dressing",       cal: 35, icon: "🥛" },
+      { id: "maio-tartufo",      name: "Maionese Tartufo",      cal: 50, icon: "🍄", extra: 0.5 },
+      { id: "olio-evo",          name: "Olio EVO",              cal: 90, icon: "🫒" },
+      { id: "sale",              name: "Sale",                  cal: 0,  icon: "🧂" },
+      { id: "wasabi",            name: "Wasabi",                cal: 5,  icon: "🌿" },
     ],
   },
   topping: {
@@ -397,7 +403,8 @@ export default function BowlOrderApp() {
   const proteinCountExtra = Math.max(0, selected.proteine.length - 1) * 3;
   const verdureItemExtra = selected.verdure.reduce((sum, id) => sum + (MENU_CATEGORIES.verdure.items.find(i => i.id === id)?.extra ?? 0), 0);
   const croccantItemExtra = selected.croccanti.reduce((sum, id) => sum + (MENU_CATEGORIES.croccanti.items.find(i => i.id === id)?.extra ?? 0), 0);
-  const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinItemExtra + proteinCountExtra + verdureItemExtra + croccantItemExtra;
+  const salseItemExtra = MENU_CATEGORIES.salse.items.find(i => i.id === selected.salse)?.extra ?? 0;
+  const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinItemExtra + proteinCountExtra + verdureItemExtra + croccantItemExtra + salseItemExtra;
 
   const addCustomToCart = () => {
     if (!customBowlValid) return;
