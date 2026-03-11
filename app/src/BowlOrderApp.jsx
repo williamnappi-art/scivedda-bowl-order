@@ -230,6 +230,7 @@ const MAX_BASI = 2;
 const MAX_PROTEINE = 3;
 const MAX_VERDURE = 4;
 const MAX_CROCCANTI = 3;
+const MAX_SALSE = 2;
 
 // ── Bowl Visual Component ───────────────────────────────────────────────
 const BowlVisual = ({ selected, animatingItem }) => {
@@ -336,7 +337,8 @@ const BowlVisual = ({ selected, animatingItem }) => {
 export default function BowlOrderApp() {
   const [view, setView] = useState("menu"); // menu | build | cart | summary | confirm
   const [cart, setCart] = useState([]);
-  const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, special: null });
+  const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
+  const [portions, setPortions] = useState({});
   const [activeCategory, setActiveCategory] = useState("size");
   const [animatingItem, setAnimatingItem] = useState(null);
   const [customerName, setCustomerName] = useState("");
@@ -348,6 +350,12 @@ export default function BowlOrderApp() {
 
   const toggleSection = (id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
 
+  const getPortion = (category, itemId) => portions[`${category}_${itemId}`] || 1;
+  const togglePortion = (category, itemId) => {
+    const key = `${category}_${itemId}`;
+    setPortions(prev => ({ ...prev, [key]: prev[key] === 2 ? 1 : 2 }));
+  };
+
   const catOrder = ["size", "basi", "proteine", "verdure", "croccanti", "salse", "special"];
 
   const selectIngredient = (category, itemId) => {
@@ -356,51 +364,30 @@ export default function BowlOrderApp() {
 
     setSelected(prev => {
       const next = { ...prev };
-      if (category === "basi") {
-        if (next.basi.includes(itemId)) {
-          next.basi = next.basi.filter(b => b !== itemId);
-        } else if (next.basi.length < MAX_BASI) {
-          next.basi = [...next.basi, itemId];
-        }
-      } else if (category === "proteine") {
-        if (next.proteine.includes(itemId)) {
-          next.proteine = next.proteine.filter(p => p !== itemId);
-        } else if (next.proteine.length < MAX_PROTEINE) {
-          next.proteine = [...next.proteine, itemId];
-        }
-      } else if (category === "verdure") {
-        if (next.verdure.includes(itemId)) {
-          next.verdure = next.verdure.filter(v => v !== itemId);
-        } else if (next.verdure.length < MAX_VERDURE) {
-          next.verdure = [...next.verdure, itemId];
-        }
-      } else if (category === "croccanti") {
-        if (next.croccanti.includes(itemId)) {
-          next.croccanti = next.croccanti.filter(c => c !== itemId);
-        } else if (next.croccanti.length < MAX_CROCCANTI) {
-          next.croccanti = [...next.croccanti, itemId];
-        }
-      } else {
-        next[category] = next[category] === itemId ? null : itemId;
+      const MAX = { basi: MAX_BASI, proteine: MAX_PROTEINE, verdure: MAX_VERDURE, croccanti: MAX_CROCCANTI, salse: MAX_SALSE };
+      const max = MAX[category] ?? Infinity;
+      if (next[category].includes(itemId)) {
+        next[category] = next[category].filter(x => x !== itemId);
+      } else if (next[category].length < max) {
+        next[category] = [...next[category], itemId];
       }
       return next;
     });
   };
 
   const isSelected = (category, itemId) => {
-    if (category === "basi" || category === "proteine" || category === "verdure" || category === "croccanti") {
-      return selected[category].includes(itemId);
-    }
-    return selected[category] === itemId;
+    return Array.isArray(selected[category])
+      ? selected[category].includes(itemId)
+      : selected[category] === itemId;
   };
 
   const customBowlValid = selected.size && selected.basi.length > 0 && selected.proteine.length > 0 && selected.verdure.length > 0;
-  const proteinItemExtra = selected.proteine.reduce((sum, id) => sum + (MENU_CATEGORIES.proteine.items.find(i => i.id === id)?.extra ?? 0), 0);
+  const proteinItemExtra = selected.proteine.reduce((sum, id) => sum + (MENU_CATEGORIES.proteine.items.find(i => i.id === id)?.extra ?? 0) * getPortion("proteine", id), 0);
   const proteinCountExtra = Math.max(0, selected.proteine.length - 1) * 3;
-  const verdureItemExtra = selected.verdure.reduce((sum, id) => sum + (MENU_CATEGORIES.verdure.items.find(i => i.id === id)?.extra ?? 0), 0);
-  const croccantItemExtra = selected.croccanti.reduce((sum, id) => sum + (MENU_CATEGORIES.croccanti.items.find(i => i.id === id)?.extra ?? 0), 0);
-  const salseItemExtra = MENU_CATEGORIES.salse.items.find(i => i.id === selected.salse)?.extra ?? 0;
-  const specialItemExtra = MENU_CATEGORIES.special.items.find(i => i.id === selected.special)?.extra ?? 0;
+  const verdureItemExtra = selected.verdure.reduce((sum, id) => sum + (MENU_CATEGORIES.verdure.items.find(i => i.id === id)?.extra ?? 0) * getPortion("verdure", id), 0);
+  const croccantItemExtra = selected.croccanti.reduce((sum, id) => sum + (MENU_CATEGORIES.croccanti.items.find(i => i.id === id)?.extra ?? 0) * getPortion("croccanti", id), 0);
+  const salseItemExtra = selected.salse.reduce((sum, id) => sum + (MENU_CATEGORIES.salse.items.find(i => i.id === id)?.extra ?? 0) * getPortion("salse", id), 0);
+  const specialItemExtra = selected.special.reduce((sum, id) => sum + 1 * getPortion("special", id), 0);
   const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinItemExtra + proteinCountExtra + verdureItemExtra + croccantItemExtra + salseItemExtra + specialItemExtra;
 
   const addCustomToCart = () => {
@@ -411,9 +398,17 @@ export default function BowlOrderApp() {
       ...selected.proteine.map(p => MENU_CATEGORIES.proteine.items.find(i => i.id === p)?.name),
       ...selected.verdure.map(v => MENU_CATEGORIES.verdure.items.find(i => i.id === v)?.name),
       ...selected.croccanti.map(c => MENU_CATEGORIES.croccanti.items.find(i => i.id === c)?.name),
-      selected.salse ? MENU_CATEGORIES.salse.items.find(i => i.id === selected.salse)?.name : null,
-      selected.special ? MENU_CATEGORIES.special.items.find(i => i.id === selected.special)?.name : null,
+      ...selected.salse.map(s => MENU_CATEGORIES.salse.items.find(i => i.id === s)?.name),
+      ...selected.special.map(s => MENU_CATEGORIES.special.items.find(i => i.id === s)?.name),
     ].filter(Boolean).join(", ");
+
+    const bowlPortions = {};
+    ["proteine", "verdure", "croccanti", "salse", "special"].forEach(cat => {
+      selected[cat].forEach(id => {
+        const key = `${cat}_${id}`;
+        if (portions[key]) bowlPortions[key] = portions[key];
+      });
+    });
 
     const sizeLabel = SIZE_OPTIONS.find(s => s.id === selected.size)?.label ?? "";
     setCart(prev => [...prev, {
@@ -422,10 +417,12 @@ export default function BowlOrderApp() {
       name: `Scivedda Custom ${sizeLabel}`,
       desc,
       items: bowlItems,
+      portions: bowlPortions,
       price: customPrice,
       qty: 1,
     }]);
-    setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, special: null });
+    setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
+    setPortions(prev => { const next = { ...prev }; Object.keys(bowlPortions).forEach(k => delete next[k]); return next; });
     setActiveCategory("size");
     setShowCartBounce(true);
     setTimeout(() => setShowCartBounce(false), 600);
@@ -490,7 +487,11 @@ export default function BowlOrderApp() {
           const val = its[cat];
           if (!val || (Array.isArray(val) && val.length === 0)) return;
           const names = Array.isArray(val)
-            ? val.map(id => MENU_CATEGORIES[cat].items.find(i => i.id === id)?.name?.toUpperCase()).filter(Boolean).join(" - ")
+            ? val.map(id => {
+                const name = MENU_CATEGORIES[cat].items.find(i => i.id === id)?.name?.toUpperCase();
+                const p = item.portions?.[`${cat}_${id}`] || 1;
+                return p === 2 ? `${name} x2` : name;
+              }).filter(Boolean).join(" - ")
             : MENU_CATEGORIES[cat].items.find(i => i.id === val)?.name?.toUpperCase();
           if (names) text += `${label}: ${names}\n`;
         });
@@ -517,7 +518,8 @@ export default function BowlOrderApp() {
 
   const resetOrder = () => {
     setCart([]);
-    setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, special: null });
+    setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
+    setPortions({});
     setView("menu");
     setOrderSent(false);
     setCustomerName("");
@@ -724,9 +726,9 @@ export default function BowlOrderApp() {
     const isSize = activeCategory === "size";
     const cat = isSize ? null : MENU_CATEGORIES[activeCategory];
     const catIdx = catOrder.indexOf(activeCategory);
-    const isMulti = activeCategory === "basi" || activeCategory === "proteine" || activeCategory === "verdure" || activeCategory === "croccanti";
-    const limit = activeCategory === "basi" ? MAX_BASI : activeCategory === "proteine" ? MAX_PROTEINE : activeCategory === "verdure" ? MAX_VERDURE : activeCategory === "croccanti" ? MAX_CROCCANTI : 1;
-    const currentCount = isMulti ? selected[activeCategory].length : (selected[activeCategory] ? 1 : 0);
+    const isMulti = activeCategory !== "size";
+    const limit = activeCategory === "basi" ? MAX_BASI : activeCategory === "proteine" ? MAX_PROTEINE : activeCategory === "verdure" ? MAX_VERDURE : activeCategory === "croccanti" ? MAX_CROCCANTI : activeCategory === "salse" ? MAX_SALSE : Infinity;
+    const currentCount = isMulti ? selected[activeCategory].length : 0;
 
     return (
       <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
@@ -761,7 +763,7 @@ export default function BowlOrderApp() {
           {catOrder.map((c) => {
             const hasSelection = c === "size"
               ? !!selected.size
-              : c === "basi" || c === "proteine" || c === "verdure" || c === "croccanti"
+              : Array.isArray(selected[c])
               ? selected[c].length > 0
               : !!selected[c];
             const tabInfo = c === "size"
@@ -871,35 +873,64 @@ export default function BowlOrderApp() {
                 </div>
                 <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2 }}>
                   {activeCategory === "proteine"
-                    ? `Seleziona una proteina — proteine extra +€3 cad. (${currentCount}/${limit})`
+                    ? `Seleziona fino a ${limit} — proteine extra +€3 cad. (${currentCount}/${limit})`
                     : activeCategory === "verdure"
                     ? `Seleziona fino a ${limit} — alcune con sovrapprezzzo (${currentCount}/${limit})`
                     : activeCategory === "croccanti"
                     ? `Seleziona fino a ${limit} — alcuni con sovrapprezzzo (${currentCount}/${limit})`
+                    : activeCategory === "salse"
+                    ? `Scegli fino a 2 salse (${currentCount}/${limit})`
                     : activeCategory === "special"
-                    ? `Ogni special aggiunge +€1 al totale`
+                    ? `Ogni special aggiunge +€1 al totale (${currentCount} selezionati)`
                     : isMulti
                     ? `Seleziona fino a ${limit} (${currentCount}/${limit})`
-                    : selected[activeCategory] ? "✓ Selezionato" : "Seleziona 1"
+                    : "Seleziona 1"
                   }
                 </div>
               </div>
+              {activeCategory !== "basi" && (
+                <div style={{ fontSize: 10, color: theme.textSoft, marginBottom: 10, opacity: 0.7 }}>
+                  Doppio tap su un ingrediente per indicare la doppia porzione
+                </div>
+              )}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: 10 }}>
                 {cat.items.map(item => {
                   const sel = isSelected(activeCategory, item.id);
+                  const portion = activeCategory !== "basi" ? getPortion(activeCategory, item.id) : 1;
+                  const isDouble = sel && portion === 2;
                   return (
-                    <button key={item.id} onClick={() => selectIngredient(activeCategory, item.id)} style={{
-                      background: sel ? `linear-gradient(135deg, ${theme.accentLight}, #fff)` : theme.bg,
-                      border: sel ? `2px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
-                      borderRadius: 14, padding: "14px 8px 10px", cursor: "pointer",
-                      display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                      transition: "all 0.2s", transform: sel ? "scale(1.03)" : "scale(1)",
-                      boxShadow: sel ? "0 3px 12px rgba(212,118,60,0.15)" : "none", position: "relative",
-                    }}>
+                    <button key={item.id}
+                      onClick={(e) => {
+                        if (e.detail >= 2) return;
+                        if (sel && activeCategory !== "basi") {
+                          setPortions(prev => { const n = { ...prev }; delete n[`${activeCategory}_${item.id}`]; return n; });
+                        }
+                        selectIngredient(activeCategory, item.id);
+                      }}
+                      onDoubleClick={() => {
+                        if (!sel) selectIngredient(activeCategory, item.id);
+                        if (activeCategory !== "basi") togglePortion(activeCategory, item.id);
+                      }}
+                      style={{
+                        background: isDouble ? `linear-gradient(135deg, #fde8e0, #fff8f5)` : sel ? `linear-gradient(135deg, ${theme.accentLight}, #fff)` : theme.bg,
+                        border: isDouble ? `2px solid #e53e3e` : sel ? `2px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
+                        borderRadius: 14, padding: "14px 8px 10px", cursor: "pointer",
+                        display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
+                        transition: "all 0.2s", transform: sel ? "scale(1.03)" : "scale(1)",
+                        boxShadow: sel ? "0 3px 12px rgba(212,118,60,0.15)" : "none",
+                        position: "relative", userSelect: "none",
+                      }}>
+                      {isDouble && (
+                        <div style={{
+                          position: "absolute", top: 4, left: 4, width: 18, height: 18,
+                          borderRadius: "50%", background: "#e53e3e", color: "#fff",
+                          fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800,
+                        }}>2</div>
+                      )}
                       {sel && (
                         <div style={{
                           position: "absolute", top: 4, right: 4, width: 16, height: 16,
-                          borderRadius: "50%", background: theme.accent, color: "#fff",
+                          borderRadius: "50%", background: isDouble ? "#e53e3e" : theme.accent, color: "#fff",
                           fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700,
                         }}>✓</div>
                       )}
@@ -1207,7 +1238,11 @@ export default function BowlOrderApp() {
                       const val = item.items[cat];
                       if (!val || (Array.isArray(val) && val.length === 0)) return;
                       const names = Array.isArray(val)
-                        ? val.map(id => MENU_CATEGORIES[cat].items.find(i => i.id === id)?.name?.toUpperCase()).filter(Boolean).join(" - ")
+                        ? val.map(id => {
+                            const name = MENU_CATEGORIES[cat].items.find(i => i.id === id)?.name?.toUpperCase();
+                            const p = item.portions?.[`${cat}_${id}`] || 1;
+                            return p === 2 ? `${name} x2` : name;
+                          }).filter(Boolean).join(" - ")
                         : MENU_CATEGORIES[cat].items.find(i => i.id === val)?.name?.toUpperCase();
                       if (names) lines.push(<div key={`${idx}-${cat}`}>{label}: {names}</div>);
                     });
