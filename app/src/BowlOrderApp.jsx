@@ -484,16 +484,13 @@ export default function BowlOrderApp() {
         <div style={{ background: theme.bg, padding: "0 16px 16px" }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginTop: -32 }}>
             {/* Logo avatar */}
-            <img
-              src="/logo-scivedda-menu.gif"
-              alt="Scivedda"
-              style={{
-                width: 80, height: 80, borderRadius: "50%",
-                border: `3px solid ${theme.bg}`,
-                boxShadow: "0 2px 12px rgba(0,0,0,0.15)",
-                flexShrink: 0, background: "#5f7a5a",
-              }}
-            />
+            <div style={{
+              width: 86, height: 86, borderRadius: "50%",
+              border: `3px solid ${theme.bg}`,
+              boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
+              flexShrink: 0,
+              background: `#5f7a5a url('/logo-scivedda-menu.gif') center / 130% no-repeat`,
+            }} />
             {/* Info */}
             <div style={{ paddingTop: 36 }}>
               <div style={{
