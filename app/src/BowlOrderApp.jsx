@@ -636,7 +636,7 @@ export default function BowlOrderApp() {
         >
           <span style={{ fontSize: 22 }}>🎨</span>
           <div style={{ textAlign: "left" }}>
-            <div style={{ fontSize: 16, letterSpacing: 0.5 }}>Crea la tua Scivedda</div>
+            <div style={{ fontSize: 16, letterSpacing: 1, textTransform: "uppercase" }}>Crea la tua Scivedda</div>
             <div style={{ fontSize: 11, opacity: 0.85, fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
               Scegli ogni ingrediente — €{CUSTOM_SCIVEDDA_PRICE.toFixed(2)}
             </div>
@@ -671,7 +671,7 @@ export default function BowlOrderApp() {
           <div>
             <div style={{
               fontFamily: "'Jaapokki', sans-serif",
-              fontSize: 18, fontWeight: 700, color: theme.text,
+              fontSize: 18, fontWeight: 700, color: theme.text, textTransform: "uppercase", letterSpacing: 1,
             }}>Crea la tua Scivedda</div>
             <div style={{ fontSize: 12, color: theme.textSoft }}>€{CUSTOM_SCIVEDDA_PRICE.toFixed(2)}</div>
           </div>
