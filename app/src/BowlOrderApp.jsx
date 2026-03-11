@@ -469,49 +469,23 @@ export default function BowlOrderApp() {
   // ── Render: Menu ──────────────────────────────────────────────────────
   const renderMenu = () => (
     <div style={{ paddingBottom: 100 }}>
-      {/* Hero — Instagram style */}
-      <div>
-        {/* Banner */}
-        <div style={{ height: 110, overflow: "hidden" }}>
-          <img
-            src="/sfondo-menu-online.gif"
-            alt=""
-            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top" }}
-          />
-        </div>
-
-        {/* Profile row */}
-        <div style={{ background: theme.bg, padding: "0 16px 16px" }}>
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 14, marginTop: -32 }}>
-            {/* Logo avatar */}
-            <div style={{
-              width: 86, height: 86, borderRadius: "50%",
-              border: `3px solid ${theme.bg}`,
-              boxShadow: "0 2px 12px rgba(0,0,0,0.18)",
-              flexShrink: 0,
-              background: `#5f7a5a url('/logo-scivedda-menu.gif') center / 130% no-repeat`,
-            }} />
-            {/* Info */}
-            <div style={{ paddingTop: 36 }}>
-              <div style={{
-                fontFamily: "'Jaapokki', sans-serif",
-                fontSize: 20, color: theme.text,
-                letterSpacing: 1.5, textTransform: "uppercase",
-              }}>Scivedda</div>
-              <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 1 }}>
-                Sardinian Bowl
-              </div>
-            </div>
-          </div>
-
-          {/* Bio */}
-          <div style={{ marginTop: 12, fontSize: 13, color: theme.text, lineHeight: 1.55 }}>
-            Scegli dal menù, aggiungi al carrello e invia il tuo ordine direttamente su WhatsApp. 🟢
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div style={{ height: 1, background: theme.border, margin: "0 16px" }} />
+      {/* Hero */}
+      <div style={{
+        textAlign: "center",
+        padding: "32px 20px 24px",
+        background: `linear-gradient(180deg, ${theme.warm} 0%, ${theme.bg} 100%)`,
+      }}>
+        <div style={{ fontSize: 48, marginBottom: 8 }}>🥣</div>
+        <h1 style={{
+          fontFamily: "'Jaapokki', sans-serif",
+          fontSize: 30, color: theme.text,
+          margin: 0, letterSpacing: 1,
+        }}>
+          Scivedda
+        </h1>
+        <p style={{ color: theme.textSoft, fontSize: 13, margin: "6px 0 0", lineHeight: 1.5 }}>
+          Scegli dal menù oppure crea la tua scivedda
+        </p>
       </div>
 
       {/* Accordion Sections */}
