@@ -95,17 +95,20 @@ const MENU_CATEGORIES = {
       { id: "wasabi",            name: "Wasabi",                cal: 5,  icon: "🌿" },
     ],
   },
-  topping: {
-    label: "Topping",
-    emoji: "✨",
-    color: "#e8daef",
+  special: {
+    label: "Special",
+    emoji: "⭐",
+    color: "#f0e6f6",
     items: [
-      { id: "semi-sesamo", name: "Semi di sesamo", cal: 15, icon: "🫘" },
-      { id: "cipolla-crisp", name: "Cipolla croccante", cal: 30, icon: "🧅" },
-      { id: "nori", name: "Nori", cal: 5, icon: "🟢" },
-      { id: "lime", name: "Lime", cal: 2, icon: "🍋‍🟩" },
-      { id: "zenzero", name: "Zenzero marinato", cal: 5, icon: "🫚" },
-      { id: "tobiko", name: "Tobiko", cal: 20, icon: "🔴" },
+      { id: "caprino",       name: "Caprino Fresco",                      cal: 70,  icon: "🧀", extra: 1 },
+      { id: "cipolla-cara",  name: "Cipolla Caramellata",                 cal: 55,  icon: "🧅", extra: 1 },
+      { id: "ricotta-mustia",name: "Ricotta Mustia",                      cal: 80,  icon: "🔶", extra: 1 },
+      { id: "philadelphia",  name: "Philadelphia",                        cal: 90,  icon: "🫙", extra: 1 },
+      { id: "bufala",        name: "Mozzarella di Bufala",                cal: 100, icon: "🫗", extra: 1 },
+      { id: "casu-axedu",    name: "Casu Axedu",                         cal: 65,  icon: "🍶", extra: 1 },
+      { id: "bottarga",      name: "Bottarga",                           cal: 40,  icon: "🟠", extra: 1 },
+      { id: "wakame",        name: "Alga Wakame",                        cal: 15,  icon: "🌿", extra: 1 },
+      { id: "pane-guttiau",  name: "Pane Guttiau",                       cal: 60,  icon: "🫓", extra: 1 },
     ],
   },
 };
@@ -227,7 +230,6 @@ const MAX_BASI = 2;
 const MAX_PROTEINE = 3;
 const MAX_VERDURE = 4;
 const MAX_CROCCANTI = 3;
-const MAX_TOPPING = 3;
 
 // ── Bowl Visual Component ───────────────────────────────────────────────
 const BowlVisual = ({ selected, animatingItem }) => {
@@ -334,7 +336,7 @@ const BowlVisual = ({ selected, animatingItem }) => {
 export default function BowlOrderApp() {
   const [view, setView] = useState("menu"); // menu | build | cart | summary | confirm
   const [cart, setCart] = useState([]);
-  const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, topping: [] });
+  const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, special: null });
   const [activeCategory, setActiveCategory] = useState("size");
   const [animatingItem, setAnimatingItem] = useState(null);
   const [customerName, setCustomerName] = useState("");
@@ -346,7 +348,7 @@ export default function BowlOrderApp() {
 
   const toggleSection = (id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
 
-  const catOrder = ["size", "basi", "proteine", "verdure", "croccanti", "salse", "topping"];
+  const catOrder = ["size", "basi", "proteine", "verdure", "croccanti", "salse", "special"];
 
   const selectIngredient = (category, itemId) => {
     setAnimatingItem(itemId);
@@ -378,12 +380,6 @@ export default function BowlOrderApp() {
         } else if (next.croccanti.length < MAX_CROCCANTI) {
           next.croccanti = [...next.croccanti, itemId];
         }
-      } else if (category === "topping") {
-        if (next.topping.includes(itemId)) {
-          next.topping = next.topping.filter(t => t !== itemId);
-        } else if (next.topping.length < MAX_TOPPING) {
-          next.topping = [...next.topping, itemId];
-        }
       } else {
         next[category] = next[category] === itemId ? null : itemId;
       }
@@ -392,7 +388,7 @@ export default function BowlOrderApp() {
   };
 
   const isSelected = (category, itemId) => {
-    if (category === "basi" || category === "proteine" || category === "verdure" || category === "croccanti" || category === "topping") {
+    if (category === "basi" || category === "proteine" || category === "verdure" || category === "croccanti") {
       return selected[category].includes(itemId);
     }
     return selected[category] === itemId;
@@ -404,7 +400,8 @@ export default function BowlOrderApp() {
   const verdureItemExtra = selected.verdure.reduce((sum, id) => sum + (MENU_CATEGORIES.verdure.items.find(i => i.id === id)?.extra ?? 0), 0);
   const croccantItemExtra = selected.croccanti.reduce((sum, id) => sum + (MENU_CATEGORIES.croccanti.items.find(i => i.id === id)?.extra ?? 0), 0);
   const salseItemExtra = MENU_CATEGORIES.salse.items.find(i => i.id === selected.salse)?.extra ?? 0;
-  const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinItemExtra + proteinCountExtra + verdureItemExtra + croccantItemExtra + salseItemExtra;
+  const specialItemExtra = MENU_CATEGORIES.special.items.find(i => i.id === selected.special)?.extra ?? 0;
+  const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinItemExtra + proteinCountExtra + verdureItemExtra + croccantItemExtra + salseItemExtra + specialItemExtra;
 
   const addCustomToCart = () => {
     if (!customBowlValid) return;
@@ -415,7 +412,7 @@ export default function BowlOrderApp() {
       ...selected.verdure.map(v => MENU_CATEGORIES.verdure.items.find(i => i.id === v)?.name),
       ...selected.croccanti.map(c => MENU_CATEGORIES.croccanti.items.find(i => i.id === c)?.name),
       selected.salse ? MENU_CATEGORIES.salse.items.find(i => i.id === selected.salse)?.name : null,
-      ...selected.topping.map(t => MENU_CATEGORIES.topping.items.find(i => i.id === t)?.name),
+      selected.special ? MENU_CATEGORIES.special.items.find(i => i.id === selected.special)?.name : null,
     ].filter(Boolean).join(", ");
 
     const sizeLabel = SIZE_OPTIONS.find(s => s.id === selected.size)?.label ?? "";
@@ -428,7 +425,7 @@ export default function BowlOrderApp() {
       price: customPrice,
       qty: 1,
     }]);
-    setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, topping: [] });
+    setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, special: null });
     setActiveCategory("size");
     setShowCartBounce(true);
     setTimeout(() => setShowCartBounce(false), 600);
@@ -474,7 +471,7 @@ export default function BowlOrderApp() {
       verdure: "Verdure",
       croccanti: "Croccanti",
       salse: "Salsa",
-      topping: "Topping",
+      special: "Special",
     };
 
     let text = `🥣 *Ordine Scivedda*\n`;
@@ -520,7 +517,7 @@ export default function BowlOrderApp() {
 
   const resetOrder = () => {
     setCart([]);
-    setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, topping: [] });
+    setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, special: null });
     setView("menu");
     setOrderSent(false);
     setCustomerName("");
@@ -727,8 +724,8 @@ export default function BowlOrderApp() {
     const isSize = activeCategory === "size";
     const cat = isSize ? null : MENU_CATEGORIES[activeCategory];
     const catIdx = catOrder.indexOf(activeCategory);
-    const isMulti = activeCategory === "basi" || activeCategory === "proteine" || activeCategory === "verdure" || activeCategory === "croccanti" || activeCategory === "topping";
-    const limit = activeCategory === "basi" ? MAX_BASI : activeCategory === "proteine" ? MAX_PROTEINE : activeCategory === "verdure" ? MAX_VERDURE : activeCategory === "croccanti" ? MAX_CROCCANTI : activeCategory === "topping" ? MAX_TOPPING : 1;
+    const isMulti = activeCategory === "basi" || activeCategory === "proteine" || activeCategory === "verdure" || activeCategory === "croccanti";
+    const limit = activeCategory === "basi" ? MAX_BASI : activeCategory === "proteine" ? MAX_PROTEINE : activeCategory === "verdure" ? MAX_VERDURE : activeCategory === "croccanti" ? MAX_CROCCANTI : 1;
     const currentCount = isMulti ? selected[activeCategory].length : (selected[activeCategory] ? 1 : 0);
 
     return (
@@ -764,7 +761,7 @@ export default function BowlOrderApp() {
           {catOrder.map((c) => {
             const hasSelection = c === "size"
               ? !!selected.size
-              : c === "basi" || c === "proteine" || c === "verdure" || c === "croccanti" || c === "topping"
+              : c === "basi" || c === "proteine" || c === "verdure" || c === "croccanti"
               ? selected[c].length > 0
               : !!selected[c];
             const tabInfo = c === "size"
@@ -879,6 +876,8 @@ export default function BowlOrderApp() {
                     ? `Seleziona fino a ${limit} — alcune con sovrapprezzzo (${currentCount}/${limit})`
                     : activeCategory === "croccanti"
                     ? `Seleziona fino a ${limit} — alcuni con sovrapprezzzo (${currentCount}/${limit})`
+                    : activeCategory === "special"
+                    ? `Ogni special aggiunge +€1 al totale`
                     : isMulti
                     ? `Seleziona fino a ${limit} (${currentCount}/${limit})`
                     : selected[activeCategory] ? "✓ Selezionato" : "Seleziona 1"
@@ -1149,7 +1148,7 @@ export default function BowlOrderApp() {
       verdure: "Verdure",
       croccanti: "Croccanti",
       salse: "Salsa",
-      topping: "Topping",
+      special: "Special",
     };
 
     return (
