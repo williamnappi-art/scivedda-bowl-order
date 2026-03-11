@@ -60,6 +60,23 @@ const MENU_CATEGORIES = {
       { id: "pomodoro-secco",    name: "Pomodoro Secco",       cal: 45,  icon: "🔴" },
     ],
   },
+  croccanti: {
+    label: "Croccanti",
+    emoji: "✨",
+    color: "#fdf3e3",
+    items: [
+      { id: "chips-cipolla",   name: "Chips di Cipolla",  cal: 45,  icon: "🧅" },
+      { id: "semi-zucca",      name: "Semi di Zucca",     cal: 35,  icon: "🎃" },
+      { id: "sesamo",          name: "Sesamo",            cal: 20,  icon: "⬜" },
+      { id: "zenzero-rosa",    name: "Zenzero Rosa",      cal: 10,  icon: "🌸", extra: 0.5 },
+      { id: "noci",            name: "Noci",              cal: 65,  icon: "🫘" },
+      { id: "mandorle",        name: "Mandorle",          cal: 60,  icon: "🌰" },
+      { id: "semi-canapa",     name: "Semi di Canapa",    cal: 30,  icon: "🌿" },
+      { id: "anacardi",        name: "Anacardi",          cal: 55,  icon: "🥜", extra: 0.5 },
+      { id: "pistacchio",      name: "Pistacchio",        cal: 60,  icon: "💚", extra: 0.5 },
+      { id: "kataifi",         name: "Kataifi",           cal: 50,  icon: "🥐", extra: 1 },
+    ],
+  },
   salse: {
     label: "Salsa",
     emoji: "🫗",
@@ -203,6 +220,7 @@ const SIZE_OPTIONS = [
 const MAX_BASI = 2;
 const MAX_PROTEINE = 3;
 const MAX_VERDURE = 4;
+const MAX_CROCCANTI = 3;
 const MAX_TOPPING = 3;
 
 // ── Bowl Visual Component ───────────────────────────────────────────────
@@ -310,7 +328,7 @@ const BowlVisual = ({ selected, animatingItem }) => {
 export default function BowlOrderApp() {
   const [view, setView] = useState("menu"); // menu | build | cart | summary | confirm
   const [cart, setCart] = useState([]);
-  const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], salse: null, topping: [] });
+  const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, topping: [] });
   const [activeCategory, setActiveCategory] = useState("size");
   const [animatingItem, setAnimatingItem] = useState(null);
   const [customerName, setCustomerName] = useState("");
@@ -322,7 +340,7 @@ export default function BowlOrderApp() {
 
   const toggleSection = (id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
 
-  const catOrder = ["size", "basi", "proteine", "verdure", "salse", "topping"];
+  const catOrder = ["size", "basi", "proteine", "verdure", "croccanti", "salse", "topping"];
 
   const selectIngredient = (category, itemId) => {
     setAnimatingItem(itemId);
@@ -348,6 +366,12 @@ export default function BowlOrderApp() {
         } else if (next.verdure.length < MAX_VERDURE) {
           next.verdure = [...next.verdure, itemId];
         }
+      } else if (category === "croccanti") {
+        if (next.croccanti.includes(itemId)) {
+          next.croccanti = next.croccanti.filter(c => c !== itemId);
+        } else if (next.croccanti.length < MAX_CROCCANTI) {
+          next.croccanti = [...next.croccanti, itemId];
+        }
       } else if (category === "topping") {
         if (next.topping.includes(itemId)) {
           next.topping = next.topping.filter(t => t !== itemId);
@@ -362,7 +386,7 @@ export default function BowlOrderApp() {
   };
 
   const isSelected = (category, itemId) => {
-    if (category === "basi" || category === "proteine" || category === "verdure" || category === "topping") {
+    if (category === "basi" || category === "proteine" || category === "verdure" || category === "croccanti" || category === "topping") {
       return selected[category].includes(itemId);
     }
     return selected[category] === itemId;
@@ -372,7 +396,8 @@ export default function BowlOrderApp() {
   const proteinItemExtra = selected.proteine.reduce((sum, id) => sum + (MENU_CATEGORIES.proteine.items.find(i => i.id === id)?.extra ?? 0), 0);
   const proteinCountExtra = Math.max(0, selected.proteine.length - 1) * 3;
   const verdureItemExtra = selected.verdure.reduce((sum, id) => sum + (MENU_CATEGORIES.verdure.items.find(i => i.id === id)?.extra ?? 0), 0);
-  const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinItemExtra + proteinCountExtra + verdureItemExtra;
+  const croccantItemExtra = selected.croccanti.reduce((sum, id) => sum + (MENU_CATEGORIES.croccanti.items.find(i => i.id === id)?.extra ?? 0), 0);
+  const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinItemExtra + proteinCountExtra + verdureItemExtra + croccantItemExtra;
 
   const addCustomToCart = () => {
     if (!customBowlValid) return;
@@ -381,6 +406,7 @@ export default function BowlOrderApp() {
       ...selected.basi.map(b => MENU_CATEGORIES.basi.items.find(i => i.id === b)?.name),
       ...selected.proteine.map(p => MENU_CATEGORIES.proteine.items.find(i => i.id === p)?.name),
       ...selected.verdure.map(v => MENU_CATEGORIES.verdure.items.find(i => i.id === v)?.name),
+      ...selected.croccanti.map(c => MENU_CATEGORIES.croccanti.items.find(i => i.id === c)?.name),
       selected.salse ? MENU_CATEGORIES.salse.items.find(i => i.id === selected.salse)?.name : null,
       ...selected.topping.map(t => MENU_CATEGORIES.topping.items.find(i => i.id === t)?.name),
     ].filter(Boolean).join(", ");
@@ -395,7 +421,7 @@ export default function BowlOrderApp() {
       price: customPrice,
       qty: 1,
     }]);
-    setSelected({ size: null, basi: [], proteine: [], verdure: [], salse: null, topping: [] });
+    setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, topping: [] });
     setActiveCategory("size");
     setShowCartBounce(true);
     setTimeout(() => setShowCartBounce(false), 600);
@@ -439,8 +465,9 @@ export default function BowlOrderApp() {
       basi: "Base",
       proteine: "Proteine",
       verdure: "Verdure",
-      salse: "Salse",
-      topping: "Croccanti",
+      croccanti: "Croccanti",
+      salse: "Salsa",
+      topping: "Topping",
     };
 
     let text = `🥣 *Ordine Scivedda*\n`;
@@ -486,7 +513,7 @@ export default function BowlOrderApp() {
 
   const resetOrder = () => {
     setCart([]);
-    setSelected({ size: null, basi: [], proteine: [], verdure: [], salse: null, topping: [] });
+    setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: null, topping: [] });
     setView("menu");
     setOrderSent(false);
     setCustomerName("");
@@ -693,8 +720,8 @@ export default function BowlOrderApp() {
     const isSize = activeCategory === "size";
     const cat = isSize ? null : MENU_CATEGORIES[activeCategory];
     const catIdx = catOrder.indexOf(activeCategory);
-    const isMulti = activeCategory === "basi" || activeCategory === "proteine" || activeCategory === "verdure" || activeCategory === "topping";
-    const limit = activeCategory === "basi" ? MAX_BASI : activeCategory === "proteine" ? MAX_PROTEINE : activeCategory === "verdure" ? MAX_VERDURE : activeCategory === "topping" ? MAX_TOPPING : 1;
+    const isMulti = activeCategory === "basi" || activeCategory === "proteine" || activeCategory === "verdure" || activeCategory === "croccanti" || activeCategory === "topping";
+    const limit = activeCategory === "basi" ? MAX_BASI : activeCategory === "proteine" ? MAX_PROTEINE : activeCategory === "verdure" ? MAX_VERDURE : activeCategory === "croccanti" ? MAX_CROCCANTI : activeCategory === "topping" ? MAX_TOPPING : 1;
     const currentCount = isMulti ? selected[activeCategory].length : (selected[activeCategory] ? 1 : 0);
 
     return (
@@ -730,7 +757,7 @@ export default function BowlOrderApp() {
           {catOrder.map((c) => {
             const hasSelection = c === "size"
               ? !!selected.size
-              : c === "basi" || c === "proteine" || c === "verdure" || c === "topping"
+              : c === "basi" || c === "proteine" || c === "verdure" || c === "croccanti" || c === "topping"
               ? selected[c].length > 0
               : !!selected[c];
             const tabInfo = c === "size"
@@ -843,6 +870,8 @@ export default function BowlOrderApp() {
                     ? `Seleziona una proteina — proteine extra +€3 cad. (${currentCount}/${limit})`
                     : activeCategory === "verdure"
                     ? `Seleziona fino a ${limit} — alcune con sovrapprezzzo (${currentCount}/${limit})`
+                    : activeCategory === "croccanti"
+                    ? `Seleziona fino a ${limit} — alcuni con sovrapprezzzo (${currentCount}/${limit})`
                     : isMulti
                     ? `Seleziona fino a ${limit} (${currentCount}/${limit})`
                     : selected[activeCategory] ? "✓ Selezionato" : "Seleziona 1"
@@ -1111,8 +1140,9 @@ export default function BowlOrderApp() {
       basi: "Base",
       proteine: "Proteine",
       verdure: "Verdure",
-      salse: "Salse",
-      topping: "Croccanti",
+      croccanti: "Croccanti",
+      salse: "Salsa",
+      topping: "Topping",
     };
 
     return (
