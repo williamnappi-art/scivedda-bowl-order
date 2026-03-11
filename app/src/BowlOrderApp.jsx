@@ -541,11 +541,11 @@ export default function BowlOrderApp() {
 
   // ── Render: Menu ──────────────────────────────────────────────────────
   const renderMenu = () => (
-    <div style={{ paddingBottom: 100 }}>
+    <div style={{ paddingBottom: 32 }}>
       {/* Hero */}
       <div style={{
         textAlign: "center",
-        padding: "32px 20px 24px",
+        padding: "32px 20px 20px",
         background: `linear-gradient(180deg, ${theme.warm} 0%, ${theme.bg} 100%)`,
       }}>
         <div style={{ fontSize: 48, marginBottom: 8 }}>🥣</div>
@@ -561,8 +561,36 @@ export default function BowlOrderApp() {
         </p>
       </div>
 
+      {/* CTA — Crea la tua Scivedda (nel flusso, non fixed) */}
+      <div style={{ padding: "0 16px 16px" }}>
+        <button
+          onClick={() => { setView("build"); setActiveCategory("size"); }}
+          onMouseDown={e => e.currentTarget.style.transform = "scale(0.98)"}
+          onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+          style={{
+            width: "100%", padding: "18px 20px",
+            background: `linear-gradient(135deg, ${theme.green}, #3d7a40)`,
+            border: "none", borderRadius: 18,
+            color: "#fff", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+            boxShadow: "0 6px 24px rgba(90,143,92,0.35)",
+            fontFamily: "'Jaapokki', sans-serif",
+            transition: "transform 0.15s",
+          }}
+        >
+          <span style={{ fontSize: 24 }}>🎨</span>
+          <div style={{ textAlign: "left" }}>
+            <div style={{ fontSize: 17, letterSpacing: 1, textTransform: "uppercase" }}>Crea la tua Scivedda</div>
+            <div style={{ fontSize: 11, opacity: 0.85, fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
+              Scegli ogni ingrediente — da €10.90
+            </div>
+          </div>
+          <span style={{ fontSize: 22, marginLeft: "auto" }}>→</span>
+        </button>
+      </div>
+
       {/* Accordion Sections */}
-      <div style={{ padding: "8px 16px 0" }}>
+      <div style={{ padding: "0 16px 0" }}>
         {MENU_SECTIONS.map((section, si) => {
           const isOpen = !!openSections[section.id];
           return (
@@ -686,37 +714,6 @@ export default function BowlOrderApp() {
         })}
       </div>
 
-      {/* Sticky CTA — Crea la tua Scivedda */}
-      <div style={{
-        position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
-        width: "100%", maxWidth: 480,
-        padding: "12px 16px 20px",
-        background: `linear-gradient(180deg, transparent 0%, ${theme.bg} 30%)`,
-        zIndex: 90,
-      }}>
-        <button onClick={() => { setView("build"); setActiveCategory("size"); }} style={{
-          width: "100%", padding: "16px 20px",
-          background: `linear-gradient(135deg, ${theme.green}, #3d7a40)`,
-          border: "none", borderRadius: 16,
-          color: "#fff", cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-          boxShadow: "0 4px 20px rgba(90,143,92,0.35)",
-          fontFamily: "'Jaapokki', sans-serif",
-          transition: "transform 0.15s",
-        }}
-          onMouseDown={e => e.currentTarget.style.transform = "scale(0.98)"}
-          onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
-        >
-          <span style={{ fontSize: 22 }}>🎨</span>
-          <div style={{ textAlign: "left" }}>
-            <div style={{ fontSize: 16, letterSpacing: 1, textTransform: "uppercase" }}>Crea la tua Scivedda</div>
-            <div style={{ fontSize: 11, opacity: 0.85, fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
-              Scegli ogni ingrediente — da €10.90
-            </div>
-          </div>
-          <span style={{ fontSize: 20, marginLeft: "auto" }}>→</span>
-        </button>
-      </div>
     </div>
   );
 
