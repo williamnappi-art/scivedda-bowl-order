@@ -517,7 +517,7 @@ export default function BowlOrderApp() {
                 <div style={{ flex: 1 }}>
                   <div style={{
                     fontFamily: "'Jaapokki', sans-serif",
-                    fontSize: 17, color: theme.text, letterSpacing: 0.5,
+                    fontSize: 17, color: theme.text, letterSpacing: 1, textTransform: "uppercase",
                   }}>{section.label}</div>
                   <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2 }}>
                     {section.subtitle}
