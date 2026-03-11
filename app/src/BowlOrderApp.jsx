@@ -40,15 +40,24 @@ const MENU_CATEGORIES = {
     emoji: "🥑",
     color: "#d4edda",
     items: [
-      { id: "avocado", name: "Avocado", cal: 80, icon: "🥑" },
-      { id: "mango", name: "Mango", cal: 60, icon: "🥭" },
-      { id: "cetriolo", name: "Cetriolo", cal: 15, icon: "🥒" },
-      { id: "carote", name: "Carote julienne", cal: 20, icon: "🥕" },
-      { id: "pomodorini", name: "Pomodorini", cal: 18, icon: "🍅" },
-      { id: "cipolla", name: "Cipolla rossa", cal: 10, icon: "🧅" },
-      { id: "wakame", name: "Wakame", cal: 5, icon: "🌿" },
-      { id: "mais", name: "Mais", cal: 35, icon: "🌽" },
-      { id: "ananas", name: "Ananas", cal: 40, icon: "🍍" },
+      { id: "avocado",           name: "Avocado",              cal: 80,  icon: "🥑", extra: 1.5 },
+      { id: "cipolla-rossa",     name: "Cipolla Rossa",        cal: 10,  icon: "🧅" },
+      { id: "olive-parteolla",   name: "Olive del Parteolla",  cal: 40,  icon: "🫒" },
+      { id: "cetriolo",          name: "Cetriolo",             cal: 15,  icon: "🥒" },
+      { id: "frutta-stagione",   name: "Frutta di Stagione",   cal: 50,  icon: "🍓" },
+      { id: "pomodorini-pula",   name: "Pomodorini di Pula",   cal: 18,  icon: "🍅" },
+      { id: "edamame",           name: "Edamame",              cal: 120, icon: "🫛" },
+      { id: "ananas",            name: "Ananas",               cal: 40,  icon: "🍍" },
+      { id: "mais",              name: "Mais",                 cal: 35,  icon: "🌽" },
+      { id: "jalapeno",          name: "Jalapeño",             cal: 5,   icon: "🌶️" },
+      { id: "mango",             name: "Mango",                cal: 60,  icon: "🥭", extra: 1 },
+      { id: "carote",            name: "Carote",               cal: 20,  icon: "🥕" },
+      { id: "ceci",              name: "Ceci",                 cal: 130, icon: "🫘" },
+      { id: "zucchina-fritta",   name: "Zucchina Fritta",      cal: 70,  icon: "🥬", extra: 1.5 },
+      { id: "cavolo-viola",      name: "Cavolo Viola",         cal: 25,  icon: "🫐" },
+      { id: "finocchio",         name: "Finocchio",            cal: 20,  icon: "🌿" },
+      { id: "verdura-stagione",  name: "Verdura di Stagione",  cal: 30,  icon: "🥦", extra: 1.5 },
+      { id: "pomodoro-secco",    name: "Pomodoro Secco",       cal: 45,  icon: "🔴" },
     ],
   },
   salse: {
@@ -362,7 +371,8 @@ export default function BowlOrderApp() {
   const customBowlValid = selected.size && selected.basi.length > 0 && selected.proteine.length > 0 && selected.verdure.length > 0;
   const proteinItemExtra = selected.proteine.reduce((sum, id) => sum + (MENU_CATEGORIES.proteine.items.find(i => i.id === id)?.extra ?? 0), 0);
   const proteinCountExtra = Math.max(0, selected.proteine.length - 1) * 3;
-  const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinItemExtra + proteinCountExtra;
+  const verdureItemExtra = selected.verdure.reduce((sum, id) => sum + (MENU_CATEGORIES.verdure.items.find(i => i.id === id)?.extra ?? 0), 0);
+  const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinItemExtra + proteinCountExtra + verdureItemExtra;
 
   const addCustomToCart = () => {
     if (!customBowlValid) return;
@@ -831,6 +841,8 @@ export default function BowlOrderApp() {
                 <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2 }}>
                   {activeCategory === "proteine"
                     ? `Seleziona una proteina — proteine extra +€3 cad. (${currentCount}/${limit})`
+                    : activeCategory === "verdure"
+                    ? `Seleziona fino a ${limit} — alcune con sovrapprezzzo (${currentCount}/${limit})`
                     : isMulti
                     ? `Seleziona fino a ${limit} (${currentCount}/${limit})`
                     : selected[activeCategory] ? "✓ Selezionato" : "Seleziona 1"
