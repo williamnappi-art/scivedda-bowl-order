@@ -70,52 +70,114 @@ const MENU_CATEGORIES = {
   },
 };
 
-const PRESET_BOWLS = [
+const ALLERGEN_LABELS = {
+  glutine: "🌾 Glutine", uova: "🥚 Uova", latte: "🥛 Latte",
+  pesce: "🐟 Pesce", crostacei: "🦐 Crostacei", soia: "🫘 Soia",
+  sesamo: "⬜ Sesamo", fruttaGuscio: "🌰 Frutta a guscio",
+  sedano: "🌿 Sedano", solfiti: "🍷 Solfiti", molluschi: "🦪 Molluschi",
+  arachidi: "🥜 Arachidi", senape: "🌼 Senape",
+};
+
+const MENU_SECTIONS = [
   {
-    id: "salmon-classic",
-    name: "Salmon Classic",
-    desc: "Il grande classico: salmone fresco su riso bianco con avocado e wakame",
-    price: 11.90,
-    image: "🍣",
-    items: { basi: "riso", proteine: "salmone", verdure: ["avocado", "cetriolo", "wakame"], salse: "soia", topping: ["semi-sesamo", "nori"] },
-    popular: true,
+    id: "brodu",
+    label: "Brodu",
+    subtitle: "Brodi e minestre tradizionali, reinterpretate",
+    emoji: "🫕",
+    items: [
+      { id: "brodu-berbeghe", name: "Brodu 'e Berbeghe", desc: "Il brodo di pecora della nonna, cotto lentamente con carote, sedano e cipolla. Servito con pane carasau tostato e un filo d'olio extravergine. Nutrimento puro, sapore di casa.", price: 8.50, allergens: ["glutine", "sedano"], vegetarian: false, vegan: false },
+      { id: "brodu-puddha", name: "Brodu 'e Puddha", desc: "Brodo di gallina ruspante con verdure di stagione, zafferano di Sardegna e fregola piccola. Un classico della domenica sarda.", price: 7.50, allergens: ["glutine", "sedano"], vegetarian: false, vegan: false },
+      { id: "fregola-arselle", name: "Fregola con le Arselle", desc: "Fregola sarda tostata con vongole veraci, pomodorino, aglio e prezzemolo. Il mare della Sardegna in un piatto.", price: 12.00, allergens: ["glutine", "molluschi", "sedano"], vegetarian: false, vegan: false },
+      { id: "minestra-verdure", name: "Minestra di Verdure", desc: "Minestrone ricco con legumi sardi, verdure dell'orto e un giro d'olio extravergine. Semplice, nutriente, vegan.", price: 7.00, allergens: ["sedano"], vegetarian: true, vegan: true },
+    ],
   },
   {
-    id: "tuna-spicy",
-    name: "Tuna Spicy",
-    desc: "Tonno piccante con mango dolce e cipolla croccante",
-    price: 12.50,
-    image: "🐟",
-    items: { basi: "riso", proteine: "tonno", verdure: ["mango", "cipolla", "carote"], salse: "spicymayo", topping: ["cipolla-crisp", "lime"] },
-    popular: true,
+    id: "special",
+    label: "Special del Giorno",
+    subtitle: "Cosa bolle in pentola? Guarda un po' cosa abbiamo oggi!",
+    emoji: "⭐",
+    items: [
+      { id: "special-today", name: "Il Piatto del Giorno", desc: "Ogni giorno una sorpresa. Cambia ogni giorno in base alla stagione e all'umore dello chef. Chiedi al banco per ingredienti e prezzo.", price: null, allergens: [], vegetarian: null, vegan: null },
+      { id: "zuppa-ceci", name: "Zuppa di Ceci e Rosmarino", desc: "Ceci sardi cotti con rosmarino, aglio, olio e peperoncino. Servita con crostoni di pane carasau. Oggi questo!", price: 9.00, allergens: ["glutine"], vegetarian: true, vegan: true },
+    ],
   },
   {
-    id: "chicken-teri",
-    name: "Chicken Teriyaki",
-    desc: "Pollo teriyaki su riso integrale con avocado e mais",
-    price: 10.90,
-    image: "🍗",
-    items: { basi: "riso-int", proteine: "pollo", verdure: ["avocado", "mais", "carote"], salse: "teriyaki", topping: ["semi-sesamo", "zenzero"] },
+    id: "scivedde",
+    label: "Le nostre Scivedde",
+    subtitle: "La scivedda sarda, la tradizione incontra altre culture",
+    emoji: "🥣",
+    items: [
+      { id: "scivedda-sarda", name: "Scivedda Sarda", desc: "Riso bianco, salmone fresco, avocado, wakame, cetriolo, salsa di soia e semi di sesamo. Il nostro classico.", price: 11.90, allergens: ["pesce", "sesamo", "soia"], vegetarian: false, vegan: false, popular: true },
+      { id: "scivedda-piccante", name: "Scivedda Piccante", desc: "Tonno, mango, cipolla rossa, carote, spicy mayo, cipolla croccante e lime. Piccante al punto giusto.", price: 12.50, allergens: ["pesce", "uova", "sesamo"], vegetarian: false, vegan: false, popular: true },
+      { id: "scivedda-pollo", name: "Scivedda Teriyaki", desc: "Pollo teriyaki su riso integrale con avocado, mais, carote, salsa teriyaki e zenzero marinato.", price: 10.90, allergens: ["glutine", "soia", "sesamo"], vegetarian: false, vegan: false },
+      { id: "scivedda-veggie", name: "Scivedda Veggie Power", desc: "100% vegetale: tofu marinato, quinoa, avocado, mango, cetriolo, pomodorini, ponzu e nori.", price: 10.50, allergens: ["soia", "sesamo"], vegetarian: true, vegan: true },
+      { id: "scivedda-tropical", name: "Scivedda Tropicale", desc: "Gamberi, mango, ananas, cetriolo, ponzu, tobiko e lime. Un viaggio ai tropici.", price: 12.90, allergens: ["crostacei", "pesce"], vegetarian: false, vegan: false },
+    ],
   },
   {
-    id: "veggie-power",
-    name: "Veggie Power",
-    desc: "100% vegetale: tofu marinato, quinoa e tanta freschezza",
-    price: 10.50,
-    image: "🥑",
-    items: { basi: "quinoa", proteine: "tofu", verdure: ["avocado", "mango", "cetriolo", "pomodorini"], salse: "ponzu", topping: ["semi-sesamo", "nori"] },
+    id: "pistoccu",
+    label: "Pistoccu",
+    subtitle: "L'unico Pistoccu tradizionale, solo da Scivedda",
+    emoji: "🫓",
+    items: [
+      { id: "pistoccu-lardo", name: "Pistoccu con Lardo e Miele", desc: "Pistoccu tradizionale dell'Ogliastra con lardo di colonnata, miele di corbezzolo e scaglie di pecorino stagionato. Dolce e salato in perfetto equilibrio.", price: 7.50, allergens: ["glutine", "latte"], vegetarian: false, vegan: false },
+      { id: "pistoccu-ricotta", name: "Pistoccu con Ricotta e Pomodoro", desc: "Pistoccu con ricotta fresca di pecora, pomodorino arrosto, origano e olio extravergine del Sulcis.", price: 6.50, allergens: ["glutine", "latte"], vegetarian: true, vegan: false },
+      { id: "pistoccu-tonno", name: "Pistoccu con Tonno e Olive", desc: "Pistoccu con tonno pinna gialla sott'olio, olive taggiasche, capperi e pomodorino. Semplice e perfetto.", price: 8.00, allergens: ["glutine", "pesce"], vegetarian: false, vegan: false },
+    ],
   },
   {
-    id: "tropical-shrimp",
-    name: "Tropical Shrimp",
-    desc: "Gamberi con mango, ananas e ponzu per un viaggio ai tropici",
-    price: 12.90,
-    image: "🦐",
-    items: { basi: "riso", proteine: "gamberi", verdure: ["mango", "ananas", "cetriolo"], salse: "ponzu", topping: ["tobiko", "lime"] },
+    id: "culurgionis",
+    label: "Culurgionis",
+    subtitle: "Culurgionis arrosto, sempre e solo fatti a mano",
+    emoji: "🥟",
+    items: [
+      { id: "culurgionis-classici", name: "Culurgionis Classici Arrosto", desc: "I culurgionis dell'Ogliastra, ripieni di patate, menta e pecorino, arrostiti in padella con burro e salvia. Fatti a mano ogni mattina.", price: 12.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
+      { id: "culurgionis-cinghiale", name: "Culurgionis con Ragù di Cinghiale", desc: "Culurgionis fatti a mano, arrostiti, con ragù lento di cinghiale sardo, mirto e bacche di ginepro.", price: 14.00, allergens: ["glutine", "uova", "sedano", "solfiti"], vegetarian: false, vegan: false },
+      { id: "culurgionis-bottarga", name: "Culurgionis con Bottarga", desc: "Culurgionis di patate e menta, arrostiti, con bottarga di muggine grattugiata, olio e limone. Il mare nel piatto.", price: 15.00, allergens: ["glutine", "uova", "pesce"], vegetarian: false, vegan: false },
+    ],
+  },
+  {
+    id: "dolcetti",
+    label: "Dolcetti",
+    subtitle: "I nostri dolcetti, la frutta e qualche fine pasto",
+    emoji: "🍯",
+    items: [
+      { id: "seadas", name: "Seadas con Miele", desc: "La seada sarda fritta al momento, ripiena di formaggio fresco acidulo, con miele di corbezzolo amaro. Croccante fuori, morbida dentro.", price: 5.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
+      { id: "formagelle", name: "Formagella con Miele", desc: "Formagella di pecora fresca con miele millefiori sardo e noci tostate.", price: 4.50, allergens: ["latte", "fruttaGuscio"], vegetarian: true, vegan: false },
+      { id: "frutta", name: "Frutta di Stagione", desc: "Frutta fresca di stagione, selezionata ogni mattina. Pulita, tagliata e pronta.", price: 4.00, allergens: [], vegetarian: true, vegan: true },
+      { id: "pistoccu-dolce", name: "Pistoccu Dolce", desc: "Pistoccu con crema di mandorle sarde, miele e scorza d'arancia. Un fine pasto leggero e profumato.", price: 4.50, allergens: ["glutine", "fruttaGuscio"], vegetarian: true, vegan: true },
+    ],
+  },
+  {
+    id: "panedda",
+    label: "Panedda",
+    subtitle: "Il Panino di Scivedda",
+    emoji: "🥙",
+    items: [
+      { id: "panedda-salmone", name: "Panedda col Salmone", desc: "Pane sardo morbido tostato, salmone marinato, avocado schiacciato, cetriolo, cipolla rossa e salsa ponzu. Fresco e saporito.", price: 9.50, allergens: ["glutine", "pesce", "sesamo"], vegetarian: false, vegan: false, popular: true },
+      { id: "panedda-porchetta", name: "Panedda con la Porchetta", desc: "Pane di semola tostato con porchetta sarda affettata al momento, rucola selvatica, pomodorino e maionese al limone.", price: 9.00, allergens: ["glutine", "uova", "senape"], vegetarian: false, vegan: false, popular: true },
+      { id: "panedda-tonno", name: "Panedda col Tonno", desc: "Pane carasau morbidito, tonno pinna gialla, olive verdi, capperi di Pantelleria, pomodorino e origano selvatico.", price: 8.50, allergens: ["glutine", "pesce"], vegetarian: false, vegan: false },
+      { id: "panedda-culurgionis", name: "Panedda con Culurgionis", desc: "Pane di semola aperto, culurgionis arrosto tagliati a metà, pecorino fondente, rucola e riduzione di mirto. Il nostro signature.", price: 11.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
+      { id: "panedda-veggie", name: "Panedda Veggie", desc: "Pane di segale tostato, hummus di ceci sardi, verdure grigliate, avocado, spinacino e tahini al limone. 100% vegetale.", price: 8.00, allergens: ["glutine", "sesamo"], vegetarian: true, vegan: true },
+    ],
+  },
+  {
+    id: "dabare",
+    label: "Da Bere",
+    subtitle: "Il Bar, di Scivedda",
+    emoji: "🍷",
+    items: [
+      { id: "mirto", name: "Mirto Rosso", desc: "Liquore tradizionale sardo di mirto, servito ghiacciato. Il modo migliore per chiudere il pasto.", price: 4.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
+      { id: "vernaccia", name: "Vernaccia di Oristano", desc: "Il vino bianco sardo per eccellenza, secco e ambrato. Ottimo come aperitivo o con il pesce.", price: 5.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
+      { id: "cannonau", name: "Cannonau di Sardegna", desc: "Rosso robusto e caldo, ricco di polifenoli. Il vino della longevità sarda.", price: 5.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
+      { id: "acqua", name: "Acqua Naturale / Frizzante", desc: "Acqua in bottiglia da 50cl.", price: 2.00, allergens: [], vegetarian: true, vegan: true },
+      { id: "te-freddo", name: "Tè Freddo Artigianale", desc: "Tè freddo fatto in casa, al limone o alla pesca. Senza zuccheri aggiunti.", price: 3.00, allergens: [], vegetarian: true, vegan: true },
+      { id: "caffe", name: "Caffè", desc: "Espresso, macchiato o americano. Miscela sarda tostata artigianalmente.", price: 1.50, allergens: [], vegetarian: true, vegan: true },
+    ],
   },
 ];
 
-const CUSTOM_BOWL_PRICE = 11.90;
+const CUSTOM_SCIVEDDA_PRICE = 11.90;
 const MAX_VERDURE = 4;
 const MAX_TOPPING = 3;
 
@@ -231,6 +293,10 @@ export default function BowlOrderApp() {
   const [customerNote, setCustomerNote] = useState("");
   const [orderSent, setOrderSent] = useState(false);
   const [showCartBounce, setShowCartBounce] = useState(false);
+  const [openSections, setOpenSections] = useState({});
+  const [photoModal, setPhotoModal] = useState(null); // item in focus
+
+  const toggleSection = (id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
 
   const catOrder = ["basi", "proteine", "verdure", "salse", "topping"];
 
@@ -282,10 +348,10 @@ export default function BowlOrderApp() {
     setCart(prev => [...prev, {
       id: Date.now(),
       type: "custom",
-      name: "Custom Bowl",
+      name: "Scivedda Custom",
       desc,
       items: bowlItems,
-      price: CUSTOM_BOWL_PRICE,
+      price: CUSTOM_SCIVEDDA_PRICE,
       qty: 1,
     }]);
     setSelected({ basi: null, proteine: null, verdure: [], salse: null, topping: [] });
@@ -294,19 +360,20 @@ export default function BowlOrderApp() {
     setTimeout(() => setShowCartBounce(false), 600);
   };
 
-  const addPresetToCart = (preset) => {
+  const addMenuItemToCart = (item) => {
+    if (!item.price) return; // skip items without price (e.g. piatto del giorno)
     setCart(prev => {
-      const existing = prev.find(c => c.presetId === preset.id);
+      const existing = prev.find(c => c.menuItemId === item.id);
       if (existing) {
-        return prev.map(c => c.presetId === preset.id ? { ...c, qty: c.qty + 1 } : c);
+        return prev.map(c => c.menuItemId === item.id ? { ...c, qty: c.qty + 1 } : c);
       }
       return [...prev, {
         id: Date.now(),
-        presetId: preset.id,
-        type: "preset",
-        name: preset.name,
-        desc: preset.desc,
-        price: preset.price,
+        menuItemId: item.id,
+        type: "menu",
+        name: item.name,
+        desc: item.desc,
+        price: item.price,
         qty: 1,
       }];
     });
@@ -335,17 +402,17 @@ export default function BowlOrderApp() {
       topping: "Croccanti",
     };
 
-    let text = `🥣 *Ordine Bowl*\n`;
+    let text = `🥣 *Ordine Scivedda*\n`;
     if (customerName) text += `👤 *${customerName}*\n`;
     text += `\n`;
 
     cart.forEach((item, idx) => {
       text += `*Quantità: n.${item.qty}*\n`;
 
-      if (item.type === "preset") {
+      if (item.type === "menu") {
         text += `${item.name} (da menù)\n`;
       } else {
-        text += `Bowl Custom\n`;
+        text += `Scivedda Custom\n`;
         const its = item.items;
         Object.entries(catLabels).forEach(([cat, label]) => {
           const val = its[cat];
@@ -365,7 +432,7 @@ export default function BowlOrderApp() {
     return text;
   };
 
-  const WA_BUSINESS_NUMBER = ""; // es: "393331234567" — inserire il numero WA Business
+  const WA_BUSINESS_NUMBER = "393475157410";
 
   const sendOrder = () => {
     const text = buildOrderText();
@@ -401,7 +468,7 @@ export default function BowlOrderApp() {
 
   // ── Render: Menu ──────────────────────────────────────────────────────
   const renderMenu = () => (
-    <div>
+    <div style={{ paddingBottom: 100 }}>
       {/* Hero */}
       <div style={{
         textAlign: "center",
@@ -410,116 +477,168 @@ export default function BowlOrderApp() {
       }}>
         <div style={{ fontSize: 48, marginBottom: 8 }}>🥣</div>
         <h1 style={{
-          fontFamily: "'Playfair Display', Georgia, serif",
-          fontSize: 28, fontWeight: 800, color: theme.text,
-          margin: 0, letterSpacing: -0.5,
+          fontFamily: "'Jaapokki', sans-serif",
+          fontSize: 30, color: theme.text,
+          margin: 0, letterSpacing: 1,
         }}>
-          Componi la tua Bowl
+          Scivedda
         </h1>
-        <p style={{ color: theme.textSoft, fontSize: 14, margin: "8px 0 0", lineHeight: 1.5 }}>
-          Scegli dal menu oppure crea la tua combinazione
+        <p style={{ color: theme.textSoft, fontSize: 13, margin: "6px 0 0", lineHeight: 1.5 }}>
+          Scegli dal menù oppure crea la tua scivedda
         </p>
       </div>
 
-      {/* Preset Bowls */}
-      <div style={{ padding: "0 16px 16px" }}>
-        <div style={{
-          display: "flex", alignItems: "center", gap: 8,
-          marginBottom: 16, paddingTop: 8,
-        }}>
-          <span style={{ fontSize: 18 }}>⭐</span>
-          <h2 style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
-            fontSize: 18, fontWeight: 700, color: theme.text, margin: 0,
-          }}>Le nostre Bowl</h2>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {PRESET_BOWLS.map((bowl, i) => (
-            <div key={bowl.id}
-              style={{
-                background: theme.card,
-                borderRadius: 16,
-                border: `1px solid ${theme.border}`,
-                padding: 16,
-                display: "flex", alignItems: "center", gap: 14,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-                animation: `fadeSlideUp 0.4s ease both`,
-                animationDelay: `${i * 0.06}s`,
-                position: "relative",
-                overflow: "hidden",
-              }}
-            >
-              {bowl.popular && (
-                <div style={{
-                  position: "absolute", top: 8, right: 8,
-                  background: "#fff3e0", color: "#e65100",
-                  fontSize: 9, fontWeight: 700, padding: "2px 7px",
-                  borderRadius: 6, textTransform: "uppercase", letterSpacing: 0.5,
-                }}>Popular</div>
-              )}
-              <div style={{
-                width: 60, height: 60, borderRadius: 14,
-                background: theme.warm,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 32, flexShrink: 0,
-              }}>{bowl.image}</div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{
-                  fontFamily: "'Playfair Display', Georgia, serif",
-                  fontSize: 16, fontWeight: 700, color: theme.text,
-                }}>{bowl.name}</div>
-                <div style={{
-                  fontSize: 12, color: theme.textSoft, lineHeight: 1.4,
-                  marginTop: 3, 
-                  display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden",
-                }}>{bowl.desc}</div>
-              </div>
-              <div style={{ textAlign: "right", flexShrink: 0 }}>
-                <div style={{
-                  fontWeight: 800, fontSize: 16, color: theme.accent,
-                  marginBottom: 6,
-                }}>€{bowl.price.toFixed(2)}</div>
-                <button onClick={() => addPresetToCart(bowl)} style={{
-                  background: theme.accent,
-                  border: "none", borderRadius: 10,
-                  color: "#fff", fontSize: 18,
-                  width: 36, height: 36,
-                  cursor: "pointer",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  transition: "transform 0.15s, box-shadow 0.15s",
-                  boxShadow: "0 2px 8px rgba(212,118,60,0.3)",
+      {/* Accordion Sections */}
+      <div style={{ padding: "8px 16px 0" }}>
+        {MENU_SECTIONS.map((section, si) => {
+          const isOpen = !!openSections[section.id];
+          return (
+            <div key={section.id} style={{
+              marginBottom: 8,
+              borderRadius: 16,
+              border: `1px solid ${theme.border}`,
+              background: theme.card,
+              overflow: "hidden",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+              animation: `fadeSlideUp 0.3s ease both`,
+              animationDelay: `${si * 0.05}s`,
+            }}>
+              {/* Section Header */}
+              <button
+                onClick={() => toggleSection(section.id)}
+                style={{
+                  width: "100%", padding: "16px",
+                  background: "none", border: "none", cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: 12,
+                  textAlign: "left",
                 }}
-                  onMouseDown={e => e.currentTarget.style.transform = "scale(0.92)"}
-                  onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
-                >+</button>
-              </div>
+              >
+                <span style={{ fontSize: 26 }}>{section.emoji}</span>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontFamily: "'Jaapokki', sans-serif",
+                    fontSize: 17, color: theme.text, letterSpacing: 0.5,
+                  }}>{section.label}</div>
+                  <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2 }}>
+                    {section.subtitle}
+                  </div>
+                </div>
+                <span style={{
+                  fontSize: 18, color: theme.textSoft,
+                  transition: "transform 0.25s",
+                  transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
+                  display: "inline-block",
+                }}>›</span>
+              </button>
+
+              {/* Section Items — Carousel */}
+              {isOpen && (
+                <div style={{ borderTop: `1px solid ${theme.border}`, paddingBottom: 4 }}>
+                  <div style={{
+                    display: "flex", gap: 10,
+                    overflowX: "auto", padding: "14px 16px",
+                    scrollbarWidth: "none", msOverflowStyle: "none",
+                  }}>
+                    {section.items.map(item => (
+                      <div key={item.id} style={{
+                        minWidth: 140, maxWidth: 140,
+                        borderRadius: 14,
+                        border: `1px solid ${theme.border}`,
+                        background: theme.card,
+                        overflow: "hidden",
+                        boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+                        cursor: "pointer",
+                        flexShrink: 0,
+                      }} onClick={() => setPhotoModal({ ...item, sectionEmoji: section.emoji })}>
+                        {/* Image area */}
+                        <div style={{
+                          height: 120,
+                          background: item.image
+                            ? `url(${item.image}) center/cover no-repeat`
+                            : `linear-gradient(135deg, ${theme.warm}, ${theme.accentLight})`,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          position: "relative",
+                        }}>
+                          {!item.image && (
+                            <span style={{ fontSize: 44, filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}>
+                              {section.emoji}
+                            </span>
+                          )}
+                          {/* Badges overlay */}
+                          <div style={{ position: "absolute", top: 6, left: 6, display: "flex", gap: 3 }}>
+                            {item.popular && (
+                              <span style={{ background: "#e65100", color: "#fff", fontSize: 7, fontWeight: 700, padding: "2px 5px", borderRadius: 4, textTransform: "uppercase" }}>⭐</span>
+                            )}
+                            {item.vegan && (
+                              <span style={{ background: "#2e7d32", color: "#fff", fontSize: 7, fontWeight: 700, padding: "2px 5px", borderRadius: 4 }}>VG</span>
+                            )}
+                            {!item.vegan && item.vegetarian && (
+                              <span style={{ background: "#558b2f", color: "#fff", fontSize: 7, fontWeight: 700, padding: "2px 5px", borderRadius: 4 }}>V</span>
+                            )}
+                          </div>
+                        </div>
+                        {/* Info */}
+                        <div style={{ padding: "10px 10px 10px" }}>
+                          <div style={{
+                            fontFamily: "'Jaapokki', sans-serif",
+                            fontSize: 12, color: theme.text, lineHeight: 1.35,
+                            marginBottom: 8, letterSpacing: 0.2,
+                            display: "-webkit-box", WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical", overflow: "hidden",
+                          }}>{item.name}</div>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span style={{ fontSize: 13, fontWeight: 800, color: theme.accent }}>
+                              {item.price ? `€${item.price.toFixed(2)}` : "—"}
+                            </span>
+                            {item.price && (
+                              <button onClick={e => { e.stopPropagation(); addMenuItemToCart(item); }} style={{
+                                background: theme.accent, border: "none", borderRadius: 8,
+                                color: "#fff", fontSize: 16, width: 30, height: 30,
+                                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                                boxShadow: "0 2px 6px rgba(212,118,60,0.3)",
+                              }}
+                                onMouseDown={e => { e.stopPropagation(); e.currentTarget.style.transform = "scale(0.88)"; }}
+                                onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+                              >+</button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      {/* Build your own CTA */}
-      <div style={{ padding: "8px 16px 24px" }}>
+      {/* Sticky CTA — Crea la tua Scivedda */}
+      <div style={{
+        position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+        width: "100%", maxWidth: 480,
+        padding: "12px 16px 20px",
+        background: `linear-gradient(180deg, transparent 0%, ${theme.bg} 30%)`,
+        zIndex: 90,
+      }}>
         <button onClick={() => { setView("build"); setActiveCategory("basi"); }} style={{
-          width: "100%",
-          padding: "18px 20px",
+          width: "100%", padding: "16px 20px",
           background: `linear-gradient(135deg, ${theme.green}, #3d7a40)`,
           border: "none", borderRadius: 16,
           color: "#fff", cursor: "pointer",
           display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
-          boxShadow: "0 4px 16px rgba(90,143,92,0.3)",
-          fontFamily: "'Playfair Display', Georgia, serif",
+          boxShadow: "0 4px 20px rgba(90,143,92,0.35)",
+          fontFamily: "'Jaapokki', sans-serif",
           transition: "transform 0.15s",
         }}
           onMouseDown={e => e.currentTarget.style.transform = "scale(0.98)"}
           onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
         >
-          <span style={{ fontSize: 24 }}>🎨</span>
+          <span style={{ fontSize: 22 }}>🎨</span>
           <div style={{ textAlign: "left" }}>
-            <div style={{ fontSize: 17, fontWeight: 700 }}>Crea la tua Bowl</div>
-            <div style={{ fontSize: 12, opacity: 0.85, fontWeight: 400, fontFamily: "'DM Sans', sans-serif" }}>
-              Scegli ogni ingrediente — €{CUSTOM_BOWL_PRICE.toFixed(2)}
+            <div style={{ fontSize: 16, letterSpacing: 0.5 }}>Crea la tua Scivedda</div>
+            <div style={{ fontSize: 11, opacity: 0.85, fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
+              Scegli ogni ingrediente — €{CUSTOM_SCIVEDDA_PRICE.toFixed(2)}
             </div>
           </div>
           <span style={{ fontSize: 20, marginLeft: "auto" }}>→</span>
@@ -551,10 +670,10 @@ export default function BowlOrderApp() {
           }}>←</button>
           <div>
             <div style={{
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "'Jaapokki', sans-serif",
               fontSize: 18, fontWeight: 700, color: theme.text,
-            }}>Crea la tua Bowl</div>
-            <div style={{ fontSize: 12, color: theme.textSoft }}>€{CUSTOM_BOWL_PRICE.toFixed(2)}</div>
+            }}>Crea la tua Scivedda</div>
+            <div style={{ fontSize: 12, color: theme.textSoft }}>€{CUSTOM_SCIVEDDA_PRICE.toFixed(2)}</div>
           </div>
         </div>
 
@@ -729,7 +848,7 @@ export default function BowlOrderApp() {
           fontSize: 22, color: theme.text, padding: 4,
         }}>←</button>
         <div style={{
-          fontFamily: "'Playfair Display', Georgia, serif",
+          fontFamily: "'Jaapokki', sans-serif",
           fontSize: 18, fontWeight: 700, color: theme.text,
         }}>Il tuo ordine</div>
         <span style={{
@@ -745,7 +864,7 @@ export default function BowlOrderApp() {
           <div style={{ textAlign: "center", padding: "48px 20px", color: theme.textSoft }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>🥣</div>
             <div style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>Il carrello è vuoto</div>
-            <div style={{ fontSize: 13, marginTop: 6 }}>Aggiungi una bowl per iniziare</div>
+            <div style={{ fontSize: 13, marginTop: 6 }}>Aggiungi una scivedda per iniziare</div>
             <button onClick={() => setView("menu")} style={{
               marginTop: 20, padding: "12px 28px",
               background: theme.accent, border: "none", borderRadius: 12,
@@ -852,7 +971,7 @@ export default function BowlOrderApp() {
                 <span style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>Totale</span>
                 <span style={{
                   fontSize: 24, fontWeight: 800, color: theme.accent,
-                  fontFamily: "'Playfair Display', Georgia, serif",
+                  fontFamily: "'Jaapokki', sans-serif",
                 }}>€{totalPrice.toFixed(2)}</span>
               </div>
               <button onClick={() => setView("summary")} style={{
@@ -897,7 +1016,7 @@ export default function BowlOrderApp() {
             fontSize: 22, color: theme.text, padding: 4,
           }}>←</button>
           <div style={{
-            fontFamily: "'Playfair Display', Georgia, serif",
+            fontFamily: "'Jaapokki', sans-serif",
             fontSize: 18, fontWeight: 700, color: theme.text,
           }}>Riepilogo ordine</div>
         </div>
@@ -965,7 +1084,7 @@ export default function BowlOrderApp() {
             <span style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>Totale ordine</span>
             <span style={{
               fontSize: 24, fontWeight: 800, color: theme.accent,
-              fontFamily: "'Playfair Display', Georgia, serif",
+              fontFamily: "'Jaapokki', sans-serif",
             }}>€{totalPrice.toFixed(2)}</span>
           </div>
 
@@ -1004,7 +1123,7 @@ export default function BowlOrderApp() {
           animation: "bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
         }}>🎉</div>
         <h2 style={{
-          fontFamily: "'Playfair Display', Georgia, serif",
+          fontFamily: "'Jaapokki', sans-serif",
           fontSize: 24, fontWeight: 800, color: theme.text, margin: "0 0 8px",
         }}>Ordine inviato!</h2>
         <p style={{ color: theme.textSoft, fontSize: 14, lineHeight: 1.5, margin: "0 0 24px" }}>
@@ -1032,7 +1151,108 @@ export default function BowlOrderApp() {
       position: "relative",
       boxShadow: "0 0 60px rgba(0,0,0,0.08)",
     }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet" />
+      <link href="https://fonts.cdnfonts.com/css/jaapokki" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+      {/* ── Photo Modal ───────────────────────────────────────────────── */}
+      {photoModal && (
+        <div
+          onClick={() => setPhotoModal(null)}
+          style={{
+            position: "fixed", inset: 0, zIndex: 300,
+            background: "rgba(0,0,0,0.55)",
+            display: "flex", alignItems: "flex-end", justifyContent: "center",
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: theme.card, width: "100%", maxWidth: 480,
+              borderRadius: "24px 24px 0 0",
+              maxHeight: "88vh", overflowY: "auto",
+              animation: "slideUp 0.28s cubic-bezier(0.34,1.1,0.64,1)",
+            }}
+          >
+            {/* Image */}
+            <div style={{
+              height: 220,
+              background: photoModal.image
+                ? `url(${photoModal.image}) center/cover no-repeat`
+                : `linear-gradient(135deg, ${theme.warm}, ${theme.accentLight})`,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              borderRadius: "24px 24px 0 0",
+              position: "relative",
+            }}>
+              {!photoModal.image && (
+                <span style={{ fontSize: 72 }}>{photoModal.sectionEmoji}</span>
+              )}
+              <button onClick={() => setPhotoModal(null)} style={{
+                position: "absolute", top: 14, right: 14,
+                background: "rgba(0,0,0,0.35)", border: "none",
+                color: "#fff", borderRadius: "50%", width: 34, height: 34,
+                fontSize: 18, cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>×</button>
+            </div>
+
+            {/* Content */}
+            <div style={{ padding: "20px 20px 32px" }}>
+              {/* Name + badges */}
+              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 10, marginBottom: 10 }}>
+                <h2 style={{
+                  fontFamily: "'Jaapokki', sans-serif",
+                  fontSize: 20, color: theme.text, margin: 0, letterSpacing: 0.5, lineHeight: 1.3,
+                }}>{photoModal.name}</h2>
+                <div style={{ display: "flex", gap: 4, flexShrink: 0, marginTop: 2 }}>
+                  {photoModal.vegan && <span style={{ background: "#2e7d32", color: "#fff", fontSize: 9, fontWeight: 700, padding: "3px 7px", borderRadius: 5 }}>VG</span>}
+                  {!photoModal.vegan && photoModal.vegetarian && <span style={{ background: "#558b2f", color: "#fff", fontSize: 9, fontWeight: 700, padding: "3px 7px", borderRadius: 5 }}>V</span>}
+                </div>
+              </div>
+
+              {/* Description */}
+              <p style={{ fontSize: 14, color: theme.textSoft, lineHeight: 1.6, margin: "0 0 16px" }}>
+                {photoModal.desc}
+              </p>
+
+              {/* Allergens */}
+              {photoModal.allergens.length > 0 && (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: theme.textSoft, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>Allergeni</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                    {photoModal.allergens.map(a => (
+                      <span key={a} style={{
+                        background: theme.accentLight, color: theme.accent,
+                        fontSize: 11, padding: "3px 8px", borderRadius: 6, fontWeight: 600,
+                      }}>{ALLERGEN_LABELS[a] || a}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Price + Add */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                <span style={{
+                  fontFamily: "'Jaapokki', sans-serif",
+                  fontSize: 26, color: theme.accent, letterSpacing: 0.5,
+                }}>
+                  {photoModal.price ? `€${photoModal.price.toFixed(2)}` : "Chiedi al banco"}
+                </span>
+                {photoModal.price && (
+                  <button onClick={() => { addMenuItemToCart(photoModal); setPhotoModal(null); }} style={{
+                    flex: 1, maxWidth: 180, padding: "14px",
+                    background: theme.accent, border: "none", borderRadius: 14,
+                    color: "#fff", fontSize: 15, fontWeight: 700,
+                    cursor: "pointer", fontFamily: "inherit",
+                    boxShadow: "0 4px 14px rgba(212,118,60,0.3)",
+                  }}>
+                    + Aggiungi
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {orderSent ? renderConfirm() : (
         <>
@@ -1112,8 +1332,13 @@ export default function BowlOrderApp() {
           60% { transform: scale(1.1); }
           100% { transform: scale(1); opacity: 1; }
         }
+        @keyframes slideUp {
+          from { transform: translateY(100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
         * { box-sizing: border-box; }
         input::placeholder, textarea::placeholder { color: #b8a080; }
+        ::-webkit-scrollbar { display: none; }
       `}</style>
     </div>
   );
