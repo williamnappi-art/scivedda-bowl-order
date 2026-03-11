@@ -470,8 +470,8 @@ export default function BowlOrderApp() {
       special: "Special",
     };
 
-    let text = `🥣 *Ordine Scivedda*\n`;
-    if (customerName) text += `👤 *${customerName}*\n`;
+    let text = `*-- ORDINE SCIVEDDA --*\n`;
+    if (customerName) text += `*Cliente: ${customerName}*\n`;
     text += `\n`;
 
     cart.forEach((item, idx) => {
@@ -499,8 +499,8 @@ export default function BowlOrderApp() {
       if (idx < cart.length - 1) text += `\n`;
     });
 
-    text += `\n💰 *Totale: €${totalPrice.toFixed(2)}*`;
-    if (customerNote) text += `\n📝 Note: ${customerNote}`;
+    text += `\n*Totale: EUR ${totalPrice.toFixed(2)}*`;
+    if (customerNote) text += `\nNote: ${customerNote}`;
     return text;
   };
 
