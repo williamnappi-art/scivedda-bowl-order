@@ -366,12 +366,13 @@ export default function BowlOrderApp() {
     return () => subscription.unsubscribe();
   }, []);
 
+  const fetchOrders = async () => {
+    const { data } = await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false }).limit(100);
+    if (data) setAdminOrders(data);
+  };
+
   useEffect(() => {
     if (!adminSession || !adminView) return;
-    const fetchOrders = async () => {
-      const { data } = await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false }).limit(100);
-      if (data) setAdminOrders(data);
-    };
     fetchOrders();
     const channel = supabase.channel("orders-realtime")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, () => fetchOrders())
@@ -1426,9 +1427,12 @@ export default function BowlOrderApp() {
         <div style={{ background: theme.text, color: "#fff", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div>
             <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 20, letterSpacing: 1 }}>Dashboard Scivedda</div>
-            <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>Aggiornamento in tempo reale</div>
+            <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>Ordini in tempo reale</div>
           </div>
-          <button onClick={adminLogout} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "8px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>Esci</button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={fetchOrders} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "8px 14px", borderRadius: 8, cursor: "pointer", fontSize: 16 }}>↻</button>
+            <button onClick={adminLogout} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "8px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>Esci</button>
+          </div>
         </div>
 
         {/* Stats */}
