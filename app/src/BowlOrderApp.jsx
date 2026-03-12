@@ -946,7 +946,7 @@ export default function BowlOrderApp() {
         {/* Fixed bottom bar: price + navigation always visible */}
         <div style={{
           position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
-          width: "100%", maxWidth: 768,
+          width: "100%", maxWidth: 1024,
           background: "#fff",
           borderTop: `1px solid ${theme.border}`,
           padding: "10px 14px 22px",
@@ -1339,7 +1339,7 @@ export default function BowlOrderApp() {
       color: theme.text,
       minHeight: "100vh",
       width: "100%",
-      maxWidth: 768,
+      maxWidth: 1024,
       margin: "0 auto",
       position: "relative",
       overflowX: "hidden",
@@ -1361,7 +1361,7 @@ export default function BowlOrderApp() {
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              background: theme.card, width: "100%", maxWidth: 768,
+              background: theme.card, width: "100%", maxWidth: 1024,
               borderRadius: "24px 24px 0 0",
               maxHeight: "88vh", overflowY: "auto",
               animation: "slideUp 0.28s cubic-bezier(0.34,1.1,0.64,1)",
