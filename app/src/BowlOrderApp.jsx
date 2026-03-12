@@ -411,6 +411,29 @@ export default function BowlOrderApp() {
     setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, whatsapp_confirmed: true } : o));
   };
 
+  const printOrder = (order) => {
+    const time = new Date(order.created_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    const items = (order.order_items || []).map(i => `${i.qty}x  ${i.item_name}`).join("\n");
+    const note = order.customer_note ? `\nNOTA: ${order.customer_note}` : "";
+    const win = window.open("", "_blank", "width=400,height=600");
+    win.document.write(`<html><head><title>Ordine</title><style>
+      body { font-family: monospace; font-size: 14px; padding: 20px; }
+      h2 { font-size: 18px; margin-bottom: 4px; }
+      .time { color: #666; font-size: 12px; margin-bottom: 16px; }
+      pre { font-size: 14px; line-height: 1.8; }
+      .total { font-size: 16px; font-weight: bold; margin-top: 16px; border-top: 1px dashed #000; padding-top: 8px; }
+      @media print { button { display: none; } }
+    </style></head><body>
+      <h2>${order.customer_name || "Cliente"}</h2>
+      <div class="time">${time}</div>
+      <pre>${items}${note}</pre>
+      <div class="total">TOTALE: EUR ${Number(order.total).toFixed(2)}</div>
+      <br/><button onclick="window.print()">Stampa</button>
+    </body></html>`);
+    win.document.close();
+    win.focus();
+  };
+
   const toggleSection = (id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
 
   const getPortion = (category, itemId) => portions[`${category}_${itemId}`] || 1;
@@ -1423,7 +1446,7 @@ export default function BowlOrderApp() {
   const renderAdmin = () => {
     const today = new Date().toDateString();
     const todayOrders = adminOrders.filter(o => new Date(o.created_at).toDateString() === today);
-    const todayTotal = todayOrders.reduce((s, o) => s + Number(o.total), 0);
+
     const statusColors = { nuovo: "#f59e0b", preparazione: "#3b82f6", pronto: "#10b981" };
     const statusLabels = { nuovo: "Nuovo", preparazione: "In prep.", pronto: "Pronto" };
     const isConfirmed = (order) => order.whatsapp_confirmed === true;
@@ -1443,17 +1466,19 @@ export default function BowlOrderApp() {
         </div>
 
         {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, padding: "16px 16px 0" }}>
-          {[
-            { label: "Ordini oggi", value: todayOrders.length },
-            { label: "Incasso oggi", value: `€${todayTotal.toFixed(2)}` },
-            { label: "Totale ordini", value: adminOrders.length },
-          ].map(s => (
-            <div key={s.label} style={{ background: "#fff", borderRadius: 14, padding: "14px 12px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-              <div style={{ fontSize: 20, fontWeight: 800, color: theme.accent, fontFamily: "'Jaapokki', sans-serif" }}>{s.value}</div>
-              <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 4 }}>{s.label}</div>
+        <div style={{ padding: "16px 16px 0", display: "flex", gap: 12 }}>
+          {/* Ordini da fare — grande */}
+          <div style={{ flex: 2, background: "#fff", borderRadius: 14, padding: "16px 12px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", borderBottom: `3px solid ${theme.accent}` }}>
+            <div style={{ fontSize: 48, fontWeight: 800, color: theme.accent, fontFamily: "'Jaapokki', sans-serif", lineHeight: 1 }}>
+              {todayOrders.filter(o => isConfirmed(o) && o.status !== "pronto").length}
             </div>
-          ))}
+            <div style={{ fontSize: 12, color: theme.textSoft, marginTop: 6, fontWeight: 600 }}>Da fare oggi</div>
+          </div>
+          {/* Ordini oggi — piccolo */}
+          <div style={{ flex: 1, background: "#fff", borderRadius: 14, padding: "16px 12px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+            <div style={{ fontSize: 28, fontWeight: 800, color: theme.text, fontFamily: "'Jaapokki', sans-serif", lineHeight: 1 }}>{todayOrders.length}</div>
+            <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 6 }}>Ordini oggi</div>
+          </div>
         </div>
 
         {/* Orders list */}
@@ -1502,7 +1527,7 @@ export default function BowlOrderApp() {
                   background: "#25d366", color: "#fff", letterSpacing: 0.5
                 }}>Conferma WhatsApp</button>
               )}
-              {/* Status buttons — visibili solo se confermato */}
+              {/* Status buttons + stampa — visibili solo se confermato */}
               {confirmed && (
                 <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
                   {["nuovo", "preparazione", "pronto"].map(s => (
@@ -1512,6 +1537,10 @@ export default function BowlOrderApp() {
                       color: order.status === s ? "#fff" : theme.textSoft,
                     }}>{statusLabels[s]}</button>
                   ))}
+                  <button onClick={() => printOrder(order)} style={{
+                    padding: "7px 10px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 14,
+                    background: "#f1f5f9", color: theme.textSoft,
+                  }}>🖨</button>
                 </div>
               )}
             </div>
