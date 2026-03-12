@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { supabase } from "./supabase";
 
 // ── Menu Data (in production, this comes from admin panel / API) ──────────
 const MENU_CATEGORIES = {
@@ -506,13 +507,36 @@ export default function BowlOrderApp() {
 
   const WA_BUSINESS_NUMBER = "393475157410";
 
-  const sendOrder = () => {
+  const sendOrder = async () => {
     const text = buildOrderText();
     const waUrl = WA_BUSINESS_NUMBER
       ? `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`
       : `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(waUrl, "_blank");
     setOrderSent(true);
+
+    // Salva su Supabase (non bloccante — WhatsApp parte sempre)
+    try {
+      const { data: order } = await supabase
+        .from("orders")
+        .insert({ customer_name: customerName || null, customer_note: customerNote || null, total: totalPrice, status: "nuovo" })
+        .select()
+        .single();
+
+      if (order) {
+        const items = cart.map(item => ({
+          order_id: order.id,
+          item_name: item.name,
+          item_type: item.type,
+          price: item.price,
+          qty: item.qty,
+          details: item.type === "custom" ? item.items : null,
+        }));
+        await supabase.from("order_items").insert(items);
+      }
+    } catch (e) {
+      console.warn("Supabase save failed:", e);
+    }
   };
 
   const resetOrder = () => {
