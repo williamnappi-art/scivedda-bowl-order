@@ -374,10 +374,11 @@ export default function BowlOrderApp() {
   useEffect(() => {
     if (!adminSession || !adminView) return;
     fetchOrders();
+    const interval = setInterval(fetchOrders, 15000);
     const channel = supabase.channel("orders-realtime")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, () => fetchOrders())
       .subscribe();
-    return () => supabase.removeChannel(channel);
+    return () => { clearInterval(interval); supabase.removeChannel(channel); };
   }, [adminSession, adminView]);
 
   const handleLogoTap = () => {
