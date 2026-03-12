@@ -406,6 +406,11 @@ export default function BowlOrderApp() {
     setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
   };
 
+  const confirmWhatsapp = async (orderId) => {
+    await supabase.from("orders").update({ whatsapp_confirmed: true }).eq("id", orderId);
+    setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, whatsapp_confirmed: true } : o));
+  };
+
   const toggleSection = (id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
 
   const getPortion = (category, itemId) => portions[`${category}_${itemId}`] || 1;
@@ -1421,6 +1426,7 @@ export default function BowlOrderApp() {
     const todayTotal = todayOrders.reduce((s, o) => s + Number(o.total), 0);
     const statusColors = { nuovo: "#f59e0b", preparazione: "#3b82f6", pronto: "#10b981" };
     const statusLabels = { nuovo: "Nuovo", preparazione: "In prep.", pronto: "Pronto" };
+    const isConfirmed = (order) => order.whatsapp_confirmed === true;
 
     return (
       <div style={{ minHeight: "100vh", background: "#f1f5f9" }}>
@@ -1456,11 +1462,22 @@ export default function BowlOrderApp() {
           {adminOrders.length === 0 && (
             <div style={{ textAlign: "center", padding: 40, color: theme.textSoft }}>Nessun ordine ancora</div>
           )}
-          {adminOrders.map(order => (
-            <div key={order.id} style={{ background: "#fff", borderRadius: 14, padding: 16, marginBottom: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.05)", borderLeft: `4px solid ${statusColors[order.status] || "#ccc"}` }}>
+          {adminOrders.map(order => {
+            const confirmed = isConfirmed(order);
+            return (
+            <div key={order.id} style={{
+              background: confirmed ? "#f0fdf4" : "#fff",
+              borderRadius: 14, padding: 16, marginBottom: 10,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+              borderLeft: `4px solid ${confirmed ? "#22c55e" : (statusColors[order.status] || "#ccc")}`,
+              transition: "background 0.3s, border-color 0.3s"
+            }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: theme.text }}>{order.customer_name || "Cliente anonimo"}</div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: theme.text }}>{order.customer_name || "Cliente anonimo"}</div>
+                    {confirmed && <div style={{ fontSize: 10, fontWeight: 700, color: "#16a34a", background: "#dcfce7", borderRadius: 6, padding: "2px 6px" }}>WA CONFERMATO</div>}
+                  </div>
                   <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2 }}>
                     {new Date(order.created_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
                   </div>
@@ -1477,18 +1494,29 @@ export default function BowlOrderApp() {
                   Nota: {order.customer_note}
                 </div>
               )}
-              {/* Status buttons */}
-              <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-                {["nuovo", "preparazione", "pronto"].map(s => (
-                  <button key={s} onClick={() => updateOrderStatus(order.id, s)} style={{
-                    flex: 1, padding: "7px 4px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700,
-                    background: order.status === s ? statusColors[s] : "#f1f5f9",
-                    color: order.status === s ? "#fff" : theme.textSoft,
-                  }}>{statusLabels[s]}</button>
-                ))}
-              </div>
+              {/* Conferma WhatsApp */}
+              {!confirmed && (
+                <button onClick={() => confirmWhatsapp(order.id)} style={{
+                  width: "100%", marginTop: 10, padding: "9px 0", borderRadius: 8, border: "none",
+                  cursor: "pointer", fontSize: 12, fontWeight: 700,
+                  background: "#25d366", color: "#fff", letterSpacing: 0.5
+                }}>Conferma WhatsApp</button>
+              )}
+              {/* Status buttons — visibili solo se confermato */}
+              {confirmed && (
+                <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+                  {["nuovo", "preparazione", "pronto"].map(s => (
+                    <button key={s} onClick={() => updateOrderStatus(order.id, s)} style={{
+                      flex: 1, padding: "7px 4px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700,
+                      background: order.status === s ? statusColors[s] : "#f1f5f9",
+                      color: order.status === s ? "#fff" : theme.textSoft,
+                    }}>{statusLabels[s]}</button>
+                  ))}
+                </div>
+              )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );
