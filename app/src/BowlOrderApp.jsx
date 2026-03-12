@@ -572,23 +572,23 @@ export default function BowlOrderApp() {
 
     // Salva su Supabase (non bloccante — WhatsApp parte sempre)
     try {
-      const { data: order } = await supabase
-        .from("orders")
-        .insert({ customer_name: customerName || null, customer_note: customerNote || null, total: totalPrice, status: "nuovo" })
-        .select()
-        .single();
-
-      if (order) {
-        const items = cart.map(item => ({
-          order_id: order.id,
-          item_name: item.name,
-          item_type: item.type,
-          price: item.price,
-          qty: item.qty,
-          details: item.type === "custom" ? item.items : null,
-        }));
-        await supabase.from("order_items").insert(items);
-      }
+      const orderId = crypto.randomUUID();
+      await supabase.from("orders").insert({
+        id: orderId,
+        customer_name: customerName || null,
+        customer_note: customerNote || null,
+        total: totalPrice,
+        status: "nuovo",
+      });
+      const items = cart.map(item => ({
+        order_id: orderId,
+        item_name: item.name,
+        item_type: item.type,
+        price: item.price,
+        qty: item.qty,
+        details: item.type === "custom" ? item.items : null,
+      }));
+      await supabase.from("order_items").insert(items);
     } catch (e) {
       console.warn("Supabase save failed:", e);
     }
