@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 
 // ── Menu Data (in production, this comes from admin panel / API) ──────────
@@ -347,7 +347,62 @@ export default function BowlOrderApp() {
   const [orderSent, setOrderSent] = useState(false);
   const [showCartBounce, setShowCartBounce] = useState(false);
   const [openSections, setOpenSections] = useState({});
-  const [photoModal, setPhotoModal] = useState(null); // item in focus
+  const [photoModal, setPhotoModal] = useState(null);
+
+  // ── Admin state ──────────────────────────────────────────────────────
+  const [adminSession, setAdminSession] = useState(null);
+  const [adminView, setAdminView] = useState(false);
+  const [adminOrders, setAdminOrders] = useState([]);
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminLoginError, setAdminLoginError] = useState("");
+  const [adminLoading, setAdminLoading] = useState(false);
+  const logoTapCount = useRef(0);
+  const logoTapTimer = useRef(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setAdminSession(session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setAdminSession(session));
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if (!adminSession || !adminView) return;
+    const fetchOrders = async () => {
+      const { data } = await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false }).limit(100);
+      if (data) setAdminOrders(data);
+    };
+    fetchOrders();
+    const channel = supabase.channel("orders-realtime")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders" }, () => fetchOrders())
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [adminSession, adminView]);
+
+  const handleLogoTap = () => {
+    logoTapCount.current += 1;
+    clearTimeout(logoTapTimer.current);
+    logoTapTimer.current = setTimeout(() => { logoTapCount.current = 0; }, 1500);
+    if (logoTapCount.current >= 5) { logoTapCount.current = 0; setAdminView(true); }
+  };
+
+  const adminLogin = async () => {
+    setAdminLoading(true); setAdminLoginError("");
+    const { error } = await supabase.auth.signInWithPassword({ email: adminEmail, password: adminPassword });
+    if (error) setAdminLoginError("Email o password errati");
+    setAdminLoading(false);
+  };
+
+  const adminLogout = async () => {
+    await supabase.auth.signOut();
+    setAdminView(false);
+    setAdminOrders([]);
+  };
+
+  const updateOrderStatus = async (orderId, status) => {
+    await supabase.from("orders").update({ status }).eq("id", orderId);
+    setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
+  };
 
   const toggleSection = (id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
 
@@ -572,7 +627,7 @@ export default function BowlOrderApp() {
         padding: "32px 20px 20px",
         background: `linear-gradient(180deg, ${theme.warm} 0%, ${theme.bg} 100%)`,
       }}>
-        <div style={{ fontSize: 48, marginBottom: 8 }}>🥣</div>
+        <div style={{ fontSize: 48, marginBottom: 8, cursor: "default", userSelect: "none" }} onClick={handleLogoTap}>🥣</div>
         <h1 style={{
           fontFamily: "'Jaapokki', sans-serif",
           fontSize: 30, color: theme.text,
@@ -1326,6 +1381,110 @@ export default function BowlOrderApp() {
     );
   };
 
+  // ── Render: Admin Login ───────────────────────────────────────────────
+  const renderAdminLogin = () => (
+    <div style={{ minHeight: "100vh", background: theme.bg, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+      <div style={{ width: "100%", maxWidth: 360 }}>
+        <div style={{ textAlign: "center", marginBottom: 32 }}>
+          <div style={{ fontSize: 40, marginBottom: 8 }}>🔐</div>
+          <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 22, color: theme.text, letterSpacing: 1 }}>Admin Scivedda</div>
+        </div>
+        <div style={{ background: theme.card, borderRadius: 18, padding: 24, boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
+          <input value={adminEmail} onChange={e => setAdminEmail(e.target.value)} placeholder="Email" type="email"
+            style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 14, fontFamily: "inherit", marginBottom: 12, outline: "none", boxSizing: "border-box", background: theme.bg }} />
+          <input value={adminPassword} onChange={e => setAdminPassword(e.target.value)} placeholder="Password" type="password"
+            onKeyDown={e => e.key === "Enter" && adminLogin()}
+            style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 14, fontFamily: "inherit", marginBottom: 16, outline: "none", boxSizing: "border-box", background: theme.bg }} />
+          {adminLoginError && <div style={{ color: "#e53e3e", fontSize: 13, marginBottom: 12 }}>{adminLoginError}</div>}
+          <button onClick={adminLogin} disabled={adminLoading} style={{
+            width: "100%", padding: "14px", background: theme.accent, border: "none", borderRadius: 12,
+            color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
+          }}>{adminLoading ? "..." : "Accedi"}</button>
+          <button onClick={() => setAdminView(false)} style={{ width: "100%", padding: "10px", background: "none", border: "none", color: theme.textSoft, fontSize: 13, cursor: "pointer", marginTop: 8 }}>
+            ← Torna al menù
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // ── Render: Admin Dashboard ───────────────────────────────────────────
+  const renderAdmin = () => {
+    const today = new Date().toDateString();
+    const todayOrders = adminOrders.filter(o => new Date(o.created_at).toDateString() === today);
+    const todayTotal = todayOrders.reduce((s, o) => s + Number(o.total), 0);
+    const statusColors = { nuovo: "#f59e0b", preparazione: "#3b82f6", pronto: "#10b981" };
+    const statusLabels = { nuovo: "Nuovo", preparazione: "In prep.", pronto: "Pronto" };
+
+    return (
+      <div style={{ minHeight: "100vh", background: "#f1f5f9" }}>
+        {/* Header */}
+        <div style={{ background: theme.text, color: "#fff", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 20, letterSpacing: 1 }}>Dashboard Scivedda</div>
+            <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>Aggiornamento in tempo reale</div>
+          </div>
+          <button onClick={adminLogout} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "8px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>Esci</button>
+        </div>
+
+        {/* Stats */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, padding: "16px 16px 0" }}>
+          {[
+            { label: "Ordini oggi", value: todayOrders.length },
+            { label: "Incasso oggi", value: `€${todayTotal.toFixed(2)}` },
+            { label: "Totale ordini", value: adminOrders.length },
+          ].map(s => (
+            <div key={s.label} style={{ background: "#fff", borderRadius: 14, padding: "14px 12px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
+              <div style={{ fontSize: 20, fontWeight: 800, color: theme.accent, fontFamily: "'Jaapokki', sans-serif" }}>{s.value}</div>
+              <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 4 }}>{s.label}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Orders list */}
+        <div style={{ padding: 16 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: theme.textSoft, marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>Ordini recenti</div>
+          {adminOrders.length === 0 && (
+            <div style={{ textAlign: "center", padding: 40, color: theme.textSoft }}>Nessun ordine ancora</div>
+          )}
+          {adminOrders.map(order => (
+            <div key={order.id} style={{ background: "#fff", borderRadius: 14, padding: 16, marginBottom: 10, boxShadow: "0 2px 8px rgba(0,0,0,0.05)", borderLeft: `4px solid ${statusColors[order.status] || "#ccc"}` }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: theme.text }}>{order.customer_name || "Cliente anonimo"}</div>
+                  <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2 }}>
+                    {new Date(order.created_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  </div>
+                </div>
+                <div style={{ fontWeight: 800, fontSize: 16, color: theme.accent }}>€{Number(order.total).toFixed(2)}</div>
+              </div>
+              {order.order_items?.map((item, i) => (
+                <div key={i} style={{ fontSize: 12, color: theme.textSoft, marginBottom: 2 }}>
+                  {item.qty}× {item.item_name} — €{Number(item.price).toFixed(2)}
+                </div>
+              ))}
+              {order.customer_note && (
+                <div style={{ marginTop: 8, fontSize: 12, color: "#7c3aed", background: "#f5f3ff", borderRadius: 6, padding: "4px 8px" }}>
+                  Nota: {order.customer_note}
+                </div>
+              )}
+              {/* Status buttons */}
+              <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+                {["nuovo", "preparazione", "pronto"].map(s => (
+                  <button key={s} onClick={() => updateOrderStatus(order.id, s)} style={{
+                    flex: 1, padding: "7px 4px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700,
+                    background: order.status === s ? statusColors[s] : "#f1f5f9",
+                    color: order.status === s ? "#fff" : theme.textSoft,
+                  }}>{statusLabels[s]}</button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // ── Render: Confirmation ──────────────────────────────────────────────
   const renderConfirm = () => (
     <div style={{
@@ -1472,7 +1631,9 @@ export default function BowlOrderApp() {
         </div>
       )}
 
-      {orderSent ? renderConfirm() : (
+      {adminView ? (
+        adminSession ? renderAdmin() : renderAdminLogin()
+      ) : orderSent ? renderConfirm() : (
         <>
           {view === "menu" && renderMenu()}
           {view === "build" && renderBuild()}
