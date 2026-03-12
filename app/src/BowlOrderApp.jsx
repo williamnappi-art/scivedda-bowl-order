@@ -411,9 +411,36 @@ export default function BowlOrderApp() {
     setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, whatsapp_confirmed: true } : o));
   };
 
+  const resolveIngredients = (details) => {
+    if (!details) return [];
+    const size = SIZE_OPTIONS.find(s => s.id === details.size)?.label;
+    const lines = [];
+    if (size) lines.push(`Taglia: ${size}`);
+    [
+      { key: "basi", label: "Base", src: MENU_CATEGORIES.basi.items },
+      { key: "proteine", label: "Proteine", src: MENU_CATEGORIES.proteine.items },
+      { key: "verdure", label: "Verdure", src: MENU_CATEGORIES.verdure.items },
+      { key: "croccanti", label: "Croccanti", src: MENU_CATEGORIES.croccanti.items },
+      { key: "salse", label: "Salse", src: MENU_CATEGORIES.salse.items },
+      { key: "special", label: "Special", src: MENU_CATEGORIES.special.items },
+    ].forEach(({ key, label, src }) => {
+      const ids = details[key] || [];
+      if (!ids.length) return;
+      lines.push(`${label}: ${ids.map(id => src.find(i => i.id === id)?.name ?? id).join(", ")}`);
+    });
+    return lines;
+  };
+
   const printOrder = (order) => {
     const time = new Date(order.created_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-    const items = (order.order_items || []).map(i => `${i.qty}x  ${i.item_name}`).join("\n");
+    const items = (order.order_items || []).map(i => {
+      const base = `${i.qty}x  ${i.item_name}`;
+      if (i.item_type === "custom" && i.details) {
+        const ingr = resolveIngredients(i.details).join("\n       ");
+        return `${base}\n       ${ingr}`;
+      }
+      return base;
+    }).join("\n\n");
     const note = order.customer_note ? `\nNOTA: ${order.customer_note}` : "";
     const win = window.open("", "_blank", "width=400,height=600");
     win.document.write(`<html><head><title>Ordine</title><style>
@@ -1510,8 +1537,13 @@ export default function BowlOrderApp() {
                 <div style={{ fontWeight: 800, fontSize: 16, color: theme.accent }}>€{Number(order.total).toFixed(2)}</div>
               </div>
               {order.order_items?.map((item, i) => (
-                <div key={i} style={{ fontSize: 12, color: theme.textSoft, marginBottom: 2 }}>
-                  {item.qty}× {item.item_name} — €{Number(item.price).toFixed(2)}
+                <div key={i} style={{ marginBottom: 6 }}>
+                  <div style={{ fontSize: 12, color: theme.textSoft }}>
+                    {item.qty}× <strong>{item.item_name}</strong> — €{Number(item.price).toFixed(2)}
+                  </div>
+                  {item.item_type === "custom" && item.details && resolveIngredients(item.details).map((line, j) => (
+                    <div key={j} style={{ fontSize: 11, color: theme.textSoft, paddingLeft: 14, opacity: 0.8 }}>{line}</div>
+                  ))}
                 </div>
               ))}
               {order.customer_note && (
