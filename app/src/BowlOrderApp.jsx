@@ -573,6 +573,7 @@ export default function BowlOrderApp() {
     // Salva su Supabase (non bloccante — WhatsApp parte sempre)
     try {
       const orderId = crypto.randomUUID();
+      console.log("SUPABASE: tentativo salvataggio ordine", orderId);
       const { error: orderError } = await supabase.from("orders").insert({
         id: orderId,
         customer_name: customerName || null,
