@@ -936,6 +936,29 @@ export default function BowlOrderApp() {
           {/* ── SIZE STEP ── */}
           {isSize && (
             <>
+              {/* Nome cliente */}
+              <div style={{ marginBottom: 20 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: theme.text, marginBottom: 6 }}>
+                  Il tuo nome
+                </div>
+                <input
+                  value={customerName}
+                  onChange={e => setCustomerName(e.target.value)}
+                  placeholder="Scrivi il tuo nome..."
+                  autoComplete="given-name"
+                  style={{
+                    width: "100%", padding: "13px 14px",
+                    borderRadius: 12, fontSize: 15, fontFamily: "inherit",
+                    border: customerName ? `2px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
+                    background: theme.bg, color: theme.text, outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+                <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 4 }}>
+                  Apparira nell'ordine in cucina
+                </div>
+              </div>
+
               <div style={{ fontSize: 15, fontWeight: 700, color: theme.text, marginBottom: 4 }}>
                 Scegli la dimensione
               </div>
