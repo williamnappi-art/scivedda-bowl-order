@@ -1584,19 +1584,22 @@ export default function BowlOrderApp() {
               )}
               {/* Status buttons + stampa — visibili solo se confermato */}
               {confirmed && (
-                <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-                  {["nuovo", "preparazione", "pronto"].map(s => (
-                    <button key={s} onClick={() => updateOrderStatus(order.id, s)} style={{
-                      flex: 1, padding: "7px 4px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700,
-                      background: order.status === s ? statusColors[s] : "#f1f5f9",
-                      color: order.status === s ? "#fff" : theme.textSoft,
-                    }}>{statusLabels[s]}</button>
-                  ))}
+                <>
+                  <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+                    {["nuovo", "preparazione", "pronto"].map(s => (
+                      <button key={s} onClick={() => updateOrderStatus(order.id, s)} style={{
+                        flex: 1, padding: "7px 4px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700,
+                        background: order.status === s ? statusColors[s] : "#f1f5f9",
+                        color: order.status === s ? "#fff" : theme.textSoft,
+                      }}>{statusLabels[s]}</button>
+                    ))}
+                  </div>
                   <button onClick={() => printOrder(order)} style={{
-                    padding: "7px 10px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 14,
-                    background: "#f1f5f9", color: theme.textSoft,
-                  }}>🖨</button>
-                </div>
+                    width: "100%", marginTop: 8, padding: "13px 0", borderRadius: 10, border: "none",
+                    cursor: "pointer", fontSize: 15, fontWeight: 700,
+                    background: "#e2e8f0", color: "#475569",
+                  }}>🖨 Stampa ordine</button>
+                </>
               )}
             </div>
             );
