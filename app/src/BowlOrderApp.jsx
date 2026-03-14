@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabase";
 
 // ── Menu Data (in production, this comes from admin panel / API) ──────────
