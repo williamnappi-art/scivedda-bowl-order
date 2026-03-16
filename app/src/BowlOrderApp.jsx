@@ -682,7 +682,7 @@ export default function BowlOrderApp() {
 
   // ── Render: Menu ──────────────────────────────────────────────────────
   const renderMenu = () => (
-    <div style={{ paddingBottom: 32 }}>
+    <div style={{ paddingBottom: cart.length > 0 ? 100 : 32 }}>
       {/* Hero */}
       <div style={{
         textAlign: "center",
