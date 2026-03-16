@@ -1199,7 +1199,7 @@ export default function BowlOrderApp() {
         {cart.length === 0 ? (
           <div style={{ textAlign: "center", padding: "48px 20px", color: theme.textSoft }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>🥣</div>
-            <div style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>Il carrello è vuoto</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>Il tuo ordine è vuoto</div>
             <div style={{ fontSize: 13, marginTop: 6 }}>Aggiungi una scivedda per iniziare</div>
             <button onClick={() => setView("menu")} style={{
               marginTop: 20, padding: "12px 28px",
@@ -1807,7 +1807,7 @@ export default function BowlOrderApp() {
                     padding: "2px 8px", borderRadius: 8,
                     fontSize: 13, fontWeight: 800,
                   }}>{totalItems}</span>
-                  <span style={{ fontSize: 14, fontWeight: 600 }}>Vedi carrello</span>
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>Il tuo ordine</span>
                 </div>
                 <span style={{ fontSize: 16, fontWeight: 800 }}>€{totalPrice.toFixed(2)}</span>
               </button>
@@ -1826,7 +1826,7 @@ export default function BowlOrderApp() {
               fontSize: 22, zIndex: 100,
               animation: showCartBounce ? "cartBounce 0.5s ease" : "none",
             }}>
-              🛒
+              📋
               <span style={{
                 position: "absolute", top: -4, right: -4,
                 width: 22, height: 22, borderRadius: "50%",
