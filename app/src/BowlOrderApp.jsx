@@ -422,8 +422,9 @@ export default function BowlOrderApp() {
   };
 
   const confirmWhatsapp = async (orderId) => {
-    await supabase.from("orders").update({ whatsapp_confirmed: true }).eq("id", orderId);
-    setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, whatsapp_confirmed: true } : o));
+    const orderCode = await generateOrderCode();
+    await supabase.from("orders").update({ whatsapp_confirmed: true, order_code: orderCode }).eq("id", orderId);
+    setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, whatsapp_confirmed: true, order_code: orderCode } : o));
   };
 
   const resolveIngredients = (details) => {
@@ -668,14 +669,12 @@ export default function BowlOrderApp() {
     // Salva su Supabase (non bloccante — WhatsApp parte sempre)
     try {
       const orderId = crypto.randomUUID();
-      const orderCode = await generateOrderCode();
       const { error: orderError } = await supabase.from("orders").insert({
         id: orderId,
         customer_name: customerName || null,
         customer_note: customerNote || null,
         total: totalPrice,
         status: "nuovo",
-        order_code: orderCode,
       });
       if (orderError) { console.error("ORDER INSERT ERROR:", orderError); return; }
 
