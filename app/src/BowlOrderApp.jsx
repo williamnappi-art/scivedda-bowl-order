@@ -372,6 +372,20 @@ export default function BowlOrderApp() {
     if (data) setAdminOrders(data);
   };
 
+  const generateOrderCode = async () => {
+    const now = new Date();
+    const hour = now.getHours();
+    const prefix = (hour >= 11 && hour < 16) ? "L" : "D";
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+    const { data } = await supabase.from("orders").select("order_code").gte("created_at", startOfDay.toISOString()).like("order_code", `${prefix}%`);
+    const maxNum = (data || []).reduce((max, o) => {
+      const num = parseInt(o.order_code?.slice(1) || "0");
+      return Math.max(max, isNaN(num) ? 0 : num);
+    }, 0);
+    return `${prefix}${String(maxNum + 1).padStart(2, "0")}`;
+  };
+
   useEffect(() => {
     if (!adminSession || !adminView) return;
     fetchOrders();
@@ -434,29 +448,52 @@ export default function BowlOrderApp() {
 
   const printOrder = (order) => {
     const time = new Date(order.created_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-    const items = (order.order_items || []).map(i => {
-      const base = `${i.qty}x  ${i.item_name}`;
-      if (i.item_type === "custom" && i.details) {
-        const ingr = resolveIngredients(i.details).join("\n       ");
-        return `${base}\n       ${ingr}`;
-      }
-      return base;
-    }).join("\n\n");
-    const note = order.customer_note ? `\nNOTA: ${order.customer_note}` : "";
-    const win = window.open("", "_blank", "width=400,height=600");
-    win.document.write(`<html><head><title>Ordine</title><style>
-      body { font-family: monospace; font-size: 14px; padding: 20px; }
-      h2 { font-size: 18px; margin-bottom: 4px; }
-      .time { color: #666; font-size: 12px; margin-bottom: 16px; }
-      pre { font-size: 14px; line-height: 1.8; }
-      .total { font-size: 16px; font-weight: bold; margin-top: 16px; border-top: 1px dashed #000; padding-top: 8px; }
-      @media print { button { display: none; } }
+    const code = order.order_code || "—";
+    const note = order.customer_note ? `<div class="note">NOTA: ${order.customer_note}</div>` : "";
+
+    // Espandi ogni item per qty — ogni bowl = ticket separato
+    const bowls = [];
+    (order.order_items || []).forEach(item => {
+      for (let i = 0; i < (item.qty || 1); i++) bowls.push(item);
+    });
+    const total = bowls.length;
+
+    const tickets = bowls.map((item, idx) => {
+      const ingr = item.item_type === "custom" && item.details
+        ? resolveIngredients(item.details).map(l => `<div class="ing-line">${l}</div>`).join("")
+        : "";
+      return `
+        <div class="ticket">
+          <div class="code">${code}</div>
+          <div class="bowl-num">Bowl ${idx + 1} di ${total}</div>
+          <div class="divider">- - - - - - - - - - - - -</div>
+          <div class="cname">${order.customer_name || "Cliente"}</div>
+          <div class="time-lbl">${time}</div>
+          <div class="divider">- - - - - - - - - - - - -</div>
+          <div class="iname">${item.item_name}</div>
+          ${ingr}
+          ${note}
+        </div>`;
+    }).join('<div class="pb"></div>');
+
+    const win = window.open("", "_blank", "width=420,height=700");
+    win.document.write(`<html><head><title>Ordine ${code}</title><style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: monospace; }
+      .ticket { padding: 24px 20px; width: 100%; }
+      .code { font-size: 52px; font-weight: 900; text-align: center; letter-spacing: 3px; margin-bottom: 2px; }
+      .bowl-num { font-size: 15px; text-align: center; color: #555; margin-bottom: 14px; }
+      .divider { text-align: center; color: #aaa; font-size: 12px; margin: 8px 0; }
+      .cname { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+      .time-lbl { font-size: 12px; color: #666; margin-bottom: 10px; }
+      .iname { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+      .ing-line { font-size: 14px; line-height: 1.9; }
+      .note { margin-top: 10px; font-size: 13px; font-weight: 700; border-top: 1px dashed #000; padding-top: 8px; }
+      .pb { page-break-after: always; }
+      @media print { button { display: none; } .pb { page-break-after: always; } }
     </style></head><body>
-      <h2>${order.customer_name || "Cliente"}</h2>
-      <div class="time">${time}</div>
-      <pre>${items}${note}</pre>
-      <div class="total">TOTALE: EUR ${Number(order.total).toFixed(2)}</div>
-      <br/><button onclick="window.print()">Stampa</button>
+      ${tickets}
+      <div style="padding:20px"><button onclick="window.print()" style="width:100%;padding:14px;font-size:16px;cursor:pointer;font-family:monospace;font-weight:700">Stampa tutti i ticket (${total})</button></div>
     </body></html>`);
     win.document.close();
     win.focus();
@@ -631,13 +668,14 @@ export default function BowlOrderApp() {
     // Salva su Supabase (non bloccante — WhatsApp parte sempre)
     try {
       const orderId = crypto.randomUUID();
-      console.log("SUPABASE: tentativo salvataggio ordine", orderId);
+      const orderCode = await generateOrderCode();
       const { error: orderError } = await supabase.from("orders").insert({
         id: orderId,
         customer_name: customerName || null,
         customer_note: customerNote || null,
         total: totalPrice,
         status: "nuovo",
+        order_code: orderCode,
       });
       if (orderError) { console.error("ORDER INSERT ERROR:", orderError); return; }
 
@@ -1565,7 +1603,10 @@ export default function BowlOrderApp() {
                     transition: "background 0.3s, border-color 0.3s"
                   }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                      <div>
+                      <div style={{ flex: 1 }}>
+                        {order.order_code && (
+                          <div style={{ fontSize: 36, fontWeight: 900, color: isYesterday ? "#94a3b8" : theme.accent, letterSpacing: 2, lineHeight: 1, marginBottom: 6 }}>{order.order_code}</div>
+                        )}
                         <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                           <div style={{ fontWeight: 700, fontSize: 15, color: theme.text }}>{order.customer_name || "Cliente anonimo"}</div>
                           {confirmed && !isYesterday && <div style={{ fontSize: 10, fontWeight: 700, color: "#16a34a", background: "#dcfce7", borderRadius: 6, padding: "2px 6px" }}>WA CONFERMATO</div>}
