@@ -987,13 +987,14 @@ export default function BowlOrderApp() {
                   style={{
                     width: "100%", padding: "13px 14px",
                     borderRadius: 12, fontSize: 15, fontFamily: "inherit",
-                    border: customerName ? `2px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
-                    background: theme.bg, color: theme.text, outline: "none",
+                    border: customerName.trim() ? `2px solid ${theme.accent}` : `2px solid #ef4444`,
+                    background: customerName.trim() ? theme.bg : "#fff5f5",
+                    color: theme.text, outline: "none",
                     boxSizing: "border-box",
                   }}
                 />
-                <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 4 }}>
-                  Apparira nell'ordine in cucina
+                <div style={{ fontSize: 11, color: customerName.trim() ? theme.textSoft : "#ef4444", marginTop: 4, fontWeight: customerName.trim() ? 400 : 600 }}>
+                  {customerName.trim() ? "Apparirà nell'ordine in cucina" : "Il nome è obbligatorio"}
                 </div>
               </div>
 
@@ -1181,14 +1182,26 @@ export default function BowlOrderApp() {
 
           {/* Forward / Add to cart */}
           {catIdx < catOrder.length - 1 ? (
-            <button onClick={() => setActiveCategory(catOrder[catIdx + 1])} style={{
-              flex: 1, padding: "13px",
-              background: theme.accent, border: "none", borderRadius: 12,
-              cursor: "pointer", fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "inherit",
-              boxShadow: "0 2px 10px rgba(212,118,60,0.3)",
-            }}>
-              {catIdx === 0 ? "Base →" : `${MENU_CATEGORIES[catOrder[catIdx + 1]].label} →`}
-            </button>
+            <>
+              {catIdx === 0 && !customerName.trim() && (
+                <div style={{ position: "absolute", bottom: "100%", left: 14, right: 14, marginBottom: 8, textAlign: "center", fontSize: 13, fontWeight: 700, color: "#ef4444" }}>
+                  Inserisci il tuo nome per andare avanti!
+                </div>
+              )}
+              <button
+                onClick={() => { if (catIdx === 0 && !customerName.trim()) return; setActiveCategory(catOrder[catIdx + 1]); }}
+                style={{
+                  flex: 1, padding: "13px",
+                  background: catIdx === 0 && !customerName.trim() ? "#ccc" : theme.accent,
+                  border: "none", borderRadius: 12,
+                  cursor: catIdx === 0 && !customerName.trim() ? "not-allowed" : "pointer",
+                  fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "inherit",
+                  boxShadow: catIdx === 0 && !customerName.trim() ? "none" : "0 2px 10px rgba(212,118,60,0.3)",
+                  transition: "background 0.2s",
+                }}>
+                {catIdx === 0 ? "Base →" : `${MENU_CATEGORIES[catOrder[catIdx + 1]].label} →`}
+              </button>
+            </>
           ) : (
             <button onClick={addCustomToCart} disabled={!customBowlValid} style={{
               flex: 1, padding: "13px",
