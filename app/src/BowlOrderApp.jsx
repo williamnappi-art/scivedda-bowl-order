@@ -346,6 +346,7 @@ export default function BowlOrderApp() {
   const [customerNote, setCustomerNote] = useState("");
   const [orderSent, setOrderSent] = useState(false);
   const [showCartBounce, setShowCartBounce] = useState(false);
+  const [warnedStep, setWarnedStep] = useState(null);
   const [openSections, setOpenSections] = useState({});
   const [photoModal, setPhotoModal] = useState(null);
 
@@ -1183,24 +1184,50 @@ export default function BowlOrderApp() {
           {/* Forward / Add to cart */}
           {catIdx < catOrder.length - 1 ? (
             <>
-              {catIdx === 0 && !customerName.trim() && (
-                <div style={{ position: "absolute", bottom: "100%", left: 14, right: 14, marginBottom: 8, textAlign: "center", fontSize: 13, fontWeight: 700, color: "#ef4444" }}>
-                  Inserisci il tuo nome per andare avanti!
-                </div>
-              )}
-              <button
-                onClick={() => { if (catIdx === 0 && !customerName.trim()) return; setActiveCategory(catOrder[catIdx + 1]); }}
-                style={{
-                  flex: 1, padding: "13px",
-                  background: catIdx === 0 && !customerName.trim() ? "#ccc" : theme.accent,
-                  border: "none", borderRadius: 12,
-                  cursor: catIdx === 0 && !customerName.trim() ? "not-allowed" : "pointer",
-                  fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "inherit",
-                  boxShadow: catIdx === 0 && !customerName.trim() ? "none" : "0 2px 10px rgba(212,118,60,0.3)",
-                  transition: "background 0.2s",
-                }}>
-                {catIdx === 0 ? "Base →" : `${MENU_CATEGORIES[catOrder[catIdx + 1]].label} →`}
-              </button>
+              {(() => {
+                // Calcola blocco e messaggio per ogni step
+                const hardBlock =
+                  (catIdx === 0 && (!customerName.trim() || !selected.size)) ||
+                  (catIdx === 1 && selected.basi.length === 0);
+                const softWarn =
+                  (catIdx === 2 && selected.proteine.length === 0) ||
+                  (catIdx === 3 && selected.verdure.length < 4);
+
+                let msg = null;
+                if (catIdx === 0 && !customerName.trim()) msg = "Inserisci il tuo nome per andare avanti!";
+                else if (catIdx === 0 && !selected.size) msg = "Scegli la dimensione per andare avanti!";
+                else if (catIdx === 1 && selected.basi.length === 0) msg = "Seleziona almeno una base per andare avanti!";
+                else if (catIdx === 2 && selected.proteine.length === 0 && warnedStep === catIdx) msg = "Non hai scelto nessuna proteina! Se vuoi comunque andare avanti clicca nuovamente.";
+                else if (catIdx === 3 && selected.verdure.length < 4 && warnedStep === catIdx) msg = "Non hai scelto le 4 verdure! Se è la tua scelta clicca nuovamente per andare avanti!";
+
+                const handleClick = () => {
+                  if (hardBlock) return;
+                  if (softWarn && warnedStep !== catIdx) { setWarnedStep(catIdx); return; }
+                  setWarnedStep(null);
+                  setActiveCategory(catOrder[catIdx + 1]);
+                };
+
+                return (
+                  <>
+                    {msg && (
+                      <div style={{ position: "absolute", bottom: "100%", left: 14, right: 14, marginBottom: 8, textAlign: "center", fontSize: 13, fontWeight: 700, color: hardBlock ? "#ef4444" : "#e57c3c", background: "#fff", borderRadius: 8, padding: "6px 10px", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" }}>
+                        {msg}
+                      </div>
+                    )}
+                    <button onClick={handleClick} style={{
+                      flex: 1, padding: "13px",
+                      background: hardBlock ? "#ccc" : theme.accent,
+                      border: "none", borderRadius: 12,
+                      cursor: hardBlock ? "not-allowed" : "pointer",
+                      fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "inherit",
+                      boxShadow: hardBlock ? "none" : "0 2px 10px rgba(212,118,60,0.3)",
+                      transition: "background 0.2s",
+                    }}>
+                      {catIdx === 0 ? "Base →" : `${MENU_CATEGORIES[catOrder[catIdx + 1]].label} →`}
+                    </button>
+                  </>
+                );
+              })()}
             </>
           ) : (
             <button onClick={addCustomToCart} disabled={!customBowlValid} style={{
