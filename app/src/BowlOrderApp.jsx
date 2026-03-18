@@ -534,7 +534,7 @@ export default function BowlOrderApp() {
       : selected[category] === itemId;
   };
 
-  const customBowlValid = selected.size && selected.basi.length > 0 && selected.proteine.length > 0 && selected.verdure.length > 0;
+  const customBowlValid = selected.size && selected.basi.length > 0;
   const proteinItemExtra = selected.proteine.reduce((sum, id) => sum + (MENU_CATEGORIES.proteine.items.find(i => i.id === id)?.extra ?? 0) * getPortion("proteine", id), 0);
   const proteinCountExtra = Math.max(0, selected.proteine.length - 1) * 3;
   const verdureItemExtra = selected.verdure.reduce((sum, id) => sum + (MENU_CATEGORIES.verdure.items.find(i => i.id === id)?.extra ?? 0) * getPortion("verdure", id), 0);
