@@ -8,14 +8,14 @@ const MENU_CATEGORIES = {
     emoji: "🍚",
     color: "#f5e6d3",
     items: [
-      { id: "fregola", name: "Fregula Sarda", cal: 150, icon: "🟤" },
-      { id: "riso-bianco", name: "Riso Bianco di Oristano", cal: 130, icon: "🍚" },
-      { id: "riso-rosso", name: "Riso Rosso Integrale di Oristano", cal: 125, icon: "🔴" },
-      { id: "riso-nero", name: "Riso Nero Integrale di Oristano", cal: 120, icon: "⚫" },
-      { id: "farro", name: "Farro di Sardegna", cal: 140, icon: "🌾" },
-      { id: "insalata", name: "Insalata Verde", cal: 20, icon: "🥬" },
-      { id: "riso-insalata", name: "Riso + Insalata", cal: 90, icon: "🍱" },
-      { id: "fregola-insalata", name: "Fregula + Insalata", cal: 95, icon: "🥗" },
+      { id: "fregola", name: "Fregula Sarda", cal: 150, icon: "🟤", cardImage: "/basi-fregola.gif" },
+      { id: "riso-bianco", name: "Riso Bianco di Oristano", cal: 130, icon: "🍚", cardImage: "/basi-riso-bianco.gif" },
+      { id: "riso-rosso", name: "Riso Rosso Integrale di Oristano", cal: 125, icon: "🔴", cardImage: "/basi-riso-rosso.gif" },
+      { id: "riso-nero", name: "Riso Nero Integrale di Oristano", cal: 120, icon: "⚫", cardImage: "/basi-riso-nero.gif" },
+      { id: "farro", name: "Farro di Sardegna", cal: 140, icon: "🌾", cardImage: "/basi-farro.gif" },
+      { id: "insalata", name: "Insalata di Stagione", cal: 20, icon: "🥬", cardImage: "/basi-insalata.gif" },
+      { id: "riso-insalata", name: "Riso + Insalata", cal: 90, icon: "🍱", cardImage: "/basi-riso-insalata.gif" },
+      { id: "fregola-insalata", name: "Fregula + Insalata", cal: 95, icon: "🥗", cardImage: "/basi-fregola-insalata.gif" },
     ],
   },
   proteine: {
@@ -42,11 +42,11 @@ const MENU_CATEGORIES = {
     color: "#d4edda",
     items: [
       { id: "avocado",           name: "Avocado",              cal: 80,  icon: "🥑", extra: 1.5 },
-      { id: "cipolla-rossa",     name: "Cipolla Rossa",        cal: 10,  icon: "🧅" },
+      { id: "cipolla-rossa",     name: "Cipolla Rossa",        cal: 10,  icon: "🧅", cardImage: "/verdure-cipolla-rossa.gif" },
       { id: "olive-parteolla",   name: "Olive del Parteolla",  cal: 40,  icon: "🫒" },
       { id: "cetriolo",          name: "Cetriolo",             cal: 15,  icon: "🥒" },
-      { id: "frutta-stagione",   name: "Frutta di Stagione",   cal: 50,  icon: "🍓" },
-      { id: "pomodorini-pula",   name: "Pomodorini di Pula",   cal: 18,  icon: "🍅" },
+      { id: "frutta-stagione",   name: "Frutta di Stagione",   cal: 50,  icon: "🍓", cardImage: "/verdure-frutta-stagione.gif" },
+      { id: "pomodorini-pula",   name: "Pomodorini di Pula",   cal: 18,  icon: "🍅", cardImage: "/verdure-pomodorini.gif" },
       { id: "edamame",           name: "Edamame",              cal: 120, icon: "🫛" },
       { id: "ananas",            name: "Ananas",               cal: 40,  icon: "🍍" },
       { id: "mais",              name: "Mais",                 cal: 35,  icon: "🌽" },
@@ -56,7 +56,7 @@ const MENU_CATEGORIES = {
       { id: "ceci",              name: "Ceci",                 cal: 130, icon: "🫘" },
       { id: "zucchina-fritta",   name: "Zucchina Fritta",      cal: 70,  icon: "🥬", extra: 1.5 },
       { id: "cavolo-viola",      name: "Cavolo Viola",         cal: 25,  icon: "🫐" },
-      { id: "finocchio",         name: "Finocchio",            cal: 20,  icon: "🌿" },
+      { id: "finocchio",         name: "Finocchio",            cal: 20,  icon: "🌿", cardImage: "/verdure-finocchio.gif" },
       { id: "verdura-stagione",  name: "Verdura di Stagione",  cal: 30,  icon: "🥦", extra: 1.5 },
       { id: "pomodoro-secco",    name: "Pomodoro Secco",       cal: 45,  icon: "🔴" },
     ],
@@ -1105,38 +1105,50 @@ export default function BowlOrderApp() {
                         if (activeCategory !== "basi") togglePortion(activeCategory, item.id);
                       }}
                       style={{
-                        background: isDouble ? `linear-gradient(135deg, #fde8e0, #fff8f5)` : sel ? `linear-gradient(135deg, ${theme.accentLight}, #fff)` : theme.bg,
-                        border: isDouble ? `2px solid #e53e3e` : sel ? `2px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
-                        borderRadius: 14, padding: "14px 8px 10px", cursor: "pointer",
-                        display: "flex", flexDirection: "column", alignItems: "center", gap: 4,
-                        transition: "all 0.2s", transform: sel ? "scale(1.03)" : "scale(1)",
-                        boxShadow: sel ? "0 3px 12px rgba(212,118,60,0.15)" : "none",
-                        position: "relative", userSelect: "none",
+                        background: "#faf7f2",
+                        border: isDouble ? `2px solid #e53e3e` : sel ? `2.5px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
+                        borderRadius: 16, padding: 0, cursor: "pointer",
+                        display: "flex", flexDirection: "column",
+                        transition: "all 0.2s", transform: sel ? "scale(1.04)" : "scale(1)",
+                        boxShadow: isDouble ? `0 2px 8px rgba(229,62,62,0.2)` : sel ? `0 4px 16px rgba(212,118,60,0.25)` : `0 1px 4px rgba(0,0,0,0.07)`,
+                        overflow: "hidden", position: "relative", userSelect: "none",
                       }}>
                       {isDouble && (
                         <div style={{
-                          position: "absolute", top: 4, left: 4, width: 18, height: 18,
+                          position: "absolute", top: 6, left: 6, width: 18, height: 18,
                           borderRadius: "50%", background: "#e53e3e", color: "#fff",
-                          fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800,
+                          fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, zIndex: 2,
                         }}>2</div>
                       )}
                       {sel && (
                         <div style={{
-                          position: "absolute", top: 4, right: 4, width: 16, height: 16,
+                          position: "absolute", top: 6, right: 6, width: 18, height: 18,
                           borderRadius: "50%", background: isDouble ? "#e53e3e" : theme.accent, color: "#fff",
-                          fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700,
+                          fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, zIndex: 2,
                         }}>✓</div>
                       )}
-                      <span style={{ fontSize: 28 }}>{item.icon}</span>
-                      <span style={{ fontSize: 11, fontWeight: 600, color: theme.text, textAlign: "center", lineHeight: 1.2 }}>{item.name}</span>
-                      <span style={{ fontSize: 9, color: theme.textSoft }}>{item.cal} cal</span>
-                      {item.extra && (
-                        <span style={{
-                          fontSize: 9, fontWeight: 700, color: "#fff",
-                          background: theme.accent, borderRadius: 4,
-                          padding: "1px 5px",
-                        }}>+€{item.extra}</span>
+                      {item.cardImage ? (
+                        <img src={item.cardImage} alt={item.name} style={{
+                          width: "100%", height: 62, objectFit: "cover", objectPosition: "center", display: "block",
+                        }}/>
+                      ) : (
+                        <div style={{
+                          width: "100%", height: 62, background: cat.color,
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                        }}>
+                          <span style={{ fontSize: 32 }}>{item.icon}</span>
+                        </div>
                       )}
+                      <div style={{
+                        height: 62, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                        borderTop: `1px solid ${theme.border}`, padding: "0 6px", width: "100%",
+                      }}>
+                        <div style={{ fontSize: 10, fontWeight: 600, color: theme.text, textAlign: "center", lineHeight: 1.2 }}>{item.name}</div>
+                        <div style={{ fontSize: 9, color: theme.textSoft, marginTop: 1 }}>{item.cal} cal</div>
+                        {item.extra && (
+                          <span style={{ fontSize: 9, fontWeight: 700, color: "#fff", background: theme.accent, borderRadius: 4, padding: "1px 5px", marginTop: 2 }}>+€{item.extra}</span>
+                        )}
+                      </div>
                     </button>
                   );
                 })}
