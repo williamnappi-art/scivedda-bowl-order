@@ -456,9 +456,8 @@ export default function BowlOrderApp() {
   };
 
   const confirmWhatsapp = async (orderId) => {
-    const orderCode = await generateOrderCode();
-    await supabase.from("orders").update({ whatsapp_confirmed: true, order_code: orderCode }).eq("id", orderId);
-    setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, whatsapp_confirmed: true, order_code: orderCode } : o));
+    await supabase.from("orders").update({ whatsapp_confirmed: true }).eq("id", orderId);
+    setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, whatsapp_confirmed: true } : o));
   };
 
   const resolveIngredients = (details) => {
