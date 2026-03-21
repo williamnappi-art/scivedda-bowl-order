@@ -383,6 +383,7 @@ export default function BowlOrderApp() {
   const [animatingItem, setAnimatingItem] = useState(null);
   const [customerName, setCustomerName] = useState("");
   const [customerNote, setCustomerNote] = useState("");
+  const [diningOption, setDiningOption] = useState(null); // "qui" | "via"
   const [orderSent, setOrderSent] = useState(false);
   const [showCartBounce, setShowCartBounce] = useState(false);
   const [warnedStep, setWarnedStep] = useState(null);
@@ -666,6 +667,8 @@ export default function BowlOrderApp() {
 
     let text = `*-- ORDINE SCIVEDDA --*\n`;
     if (customerName) text += `*Cliente: ${customerName}*\n`;
+    if (diningOption === "qui") text += `*🍽 Mangia qui*\n`;
+    if (diningOption === "via") text += `*🥡 Porta via*\n`;
     text += `\n`;
 
     cart.forEach((item, idx) => {
@@ -1542,6 +1545,28 @@ export default function BowlOrderApp() {
               fontSize: 24, fontWeight: 800, color: theme.accent,
               fontFamily: "'Jaapokki', sans-serif",
             }}>€{totalPrice.toFixed(2)}</span>
+          </div>
+
+          {/* Mangia qui / Porta via */}
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, color: theme.textSoft, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>
+              Come preferisci?
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              {[{ id: "qui", label: "Mangi qui?", icon: "🍽" }, { id: "via", label: "Porti via", icon: "🥡" }].map(opt => (
+                <button key={opt.id} onClick={() => setDiningOption(diningOption === opt.id ? null : opt.id)} style={{
+                  flex: 1, padding: "14px 8px",
+                  background: diningOption === opt.id ? theme.accent : theme.card,
+                  border: diningOption === opt.id ? `2px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
+                  borderRadius: 14, cursor: "pointer", fontFamily: "inherit",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                  transition: "all 0.2s",
+                }}>
+                  <span style={{ fontSize: 28 }}>{opt.icon}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: diningOption === opt.id ? "#fff" : theme.text }}>{opt.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Aggiungi un'altra scivedda */}
