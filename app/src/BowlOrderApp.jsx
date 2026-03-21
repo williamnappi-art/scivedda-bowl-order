@@ -415,16 +415,14 @@ export default function BowlOrderApp() {
 
   const generateOrderCode = async () => {
     const now = new Date();
-    const hour = now.getHours();
-    const prefix = (hour >= 11 && hour < 16) ? "L" : "D";
     const startOfDay = new Date(now);
     startOfDay.setHours(0, 0, 0, 0);
-    const { data } = await supabase.from("orders").select("order_code").gte("created_at", startOfDay.toISOString()).like("order_code", `${prefix}%`);
+    const { data } = await supabase.from("orders").select("order_code").gte("created_at", startOfDay.toISOString());
     const maxNum = (data || []).reduce((max, o) => {
-      const num = parseInt(o.order_code?.slice(1) || "0");
+      const num = parseInt(o.order_code || "0");
       return Math.max(max, isNaN(num) ? 0 : num);
     }, 0);
-    return `${prefix}${String(maxNum + 1).padStart(2, "0")}`;
+    return String(maxNum + 1).padStart(3, "0");
   };
 
   useEffect(() => {
@@ -655,7 +653,7 @@ export default function BowlOrderApp() {
   const totalPrice = cart.reduce((s, c) => s + c.price * c.qty, 0);
   const totalItems = cart.reduce((s, c) => s + c.qty, 0);
 
-  const buildOrderText = () => {
+  const buildOrderText = (orderCode = null) => {
     const catLabels = {
       basi: "Base",
       proteine: "Proteine",
@@ -665,10 +663,11 @@ export default function BowlOrderApp() {
       special: "Special",
     };
 
-    let text = `*-- ORDINE SCIVEDDA --*\n`;
-    if (customerName) text += `*Cliente: ${customerName}*\n`;
-    if (diningOption === "qui") text += `*🍽 Mangia qui*\n`;
-    if (diningOption === "via") text += `*🥡 Porta via*\n`;
+    let text = `*Ecco il mio ordine!*\n`;
+    if (orderCode) text += `n. ${orderCode}\n`;
+    if (customerName) text += `*${customerName}*\n`;
+    if (diningOption === "qui") text += `Mangio qui\n`;
+    if (diningOption === "via") text += `Porto via\n`;
     text += `\n`;
 
     cart.forEach((item, idx) => {
@@ -704,7 +703,8 @@ export default function BowlOrderApp() {
   const WA_BUSINESS_NUMBER = "393475157410";
 
   const sendOrder = async () => {
-    const text = buildOrderText();
+    const orderCode = await generateOrderCode();
+    const text = buildOrderText(orderCode);
     const waUrl = WA_BUSINESS_NUMBER
       ? `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`
       : `https://wa.me/?text=${encodeURIComponent(text)}`;
@@ -720,6 +720,7 @@ export default function BowlOrderApp() {
         customer_note: customerNote || null,
         total: totalPrice,
         status: "nuovo",
+        order_code: orderCode,
       });
       if (orderError) { console.error("ORDER INSERT ERROR:", orderError); return; }
 
