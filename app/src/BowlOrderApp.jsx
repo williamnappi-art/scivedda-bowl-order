@@ -384,6 +384,7 @@ export default function BowlOrderApp() {
   const [customerName, setCustomerName] = useState("");
   const [customerNote, setCustomerNote] = useState("");
   const [diningOption, setDiningOption] = useState(null); // "qui" | "via"
+  const [pendingOrderCode, setPendingOrderCode] = useState(null);
   const [orderSent, setOrderSent] = useState(false);
   const [showCartBounce, setShowCartBounce] = useState(false);
   const [warnedStep, setWarnedStep] = useState(null);
@@ -617,6 +618,7 @@ export default function BowlOrderApp() {
     setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
     setPortions(prev => { const next = { ...prev }; Object.keys(bowlPortions).forEach(k => delete next[k]); return next; });
     setActiveCategory("size");
+    generateOrderCode().then(code => setPendingOrderCode(code));
     setView("summary");
   };
 
@@ -703,24 +705,25 @@ export default function BowlOrderApp() {
   const WA_BUSINESS_NUMBER = "393475157410";
 
   const sendOrder = async () => {
-    const orderCode = await generateOrderCode();
+    // Usa il codice già pronto (generato all'ingresso nel riepilogo)
+    const orderCode = pendingOrderCode || String(Date.now()).slice(-3);
     const text = buildOrderText(orderCode);
-    const waUrl = WA_BUSINESS_NUMBER
-      ? `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`
-      : `https://wa.me/?text=${encodeURIComponent(text)}`;
+    const waUrl = `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
+    // WhatsApp apre PRIMA di qualsiasi await — il browser non lo blocca
     window.open(waUrl, "_blank");
     setOrderSent(true);
 
-    // Salva su Supabase (non bloccante — WhatsApp parte sempre)
+    // Salva su Supabase in background
     try {
       const orderId = crypto.randomUUID();
+      const finalCode = pendingOrderCode || await generateOrderCode();
       const { error: orderError } = await supabase.from("orders").insert({
         id: orderId,
         customer_name: customerName || null,
         customer_note: customerNote || null,
         total: totalPrice,
         status: "nuovo",
-        order_code: orderCode,
+        order_code: finalCode,
       });
       if (orderError) { console.error("ORDER INSERT ERROR:", orderError); return; }
 
@@ -1405,7 +1408,7 @@ export default function BowlOrderApp() {
                   fontFamily: "'Jaapokki', sans-serif",
                 }}>€{totalPrice.toFixed(2)}</span>
               </div>
-              <button onClick={() => setView("summary")} style={{
+              <button onClick={() => { generateOrderCode().then(code => setPendingOrderCode(code)); setView("summary"); }} style={{
                 width: "100%", padding: "16px",
                 background: theme.accent,
                 border: "none", borderRadius: 14,
