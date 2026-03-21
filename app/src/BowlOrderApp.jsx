@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useTransition } from "react";
 import { supabase } from "./supabase";
 
 // ── Menu Data (in production, this comes from admin panel / API) ──────────
@@ -336,6 +336,7 @@ const BowlVisual = ({ selected, animatingItem }) => {
 
 // ── Main App ────────────────────────────────────────────────────────────
 export default function BowlOrderApp() {
+  const [, startTransition] = useTransition();
   const [view, setView] = useState("menu"); // menu | build | cart | summary | confirm
   const [cart, setCart] = useState([]);
   const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
@@ -517,7 +518,7 @@ export default function BowlOrderApp() {
     setAnimatingItem(itemId);
     setTimeout(() => setAnimatingItem(null), 500);
 
-    setSelected(prev => {
+    startTransition(() => setSelected(prev => {
       const next = { ...prev };
       const MAX = { basi: MAX_BASI, proteine: MAX_PROTEINE, verdure: MAX_VERDURE, croccanti: MAX_CROCCANTI, salse: MAX_SALSE };
       const max = MAX[category] ?? Infinity;
@@ -527,7 +528,7 @@ export default function BowlOrderApp() {
         next[category] = [...next[category], itemId];
       }
       return next;
-    });
+    }));
   };
 
   const isSelected = (category, itemId) => {
