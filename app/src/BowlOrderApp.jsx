@@ -415,15 +415,9 @@ export default function BowlOrderApp() {
   };
 
   const generateOrderCode = async () => {
-    const now = new Date();
-    const startOfDay = new Date(now);
-    startOfDay.setHours(0, 0, 0, 0);
-    const { data } = await supabase.from("orders").select("order_code").gte("created_at", startOfDay.toISOString());
-    const maxNum = (data || []).reduce((max, o) => {
-      const num = parseInt(o.order_code || "0");
-      return Math.max(max, isNaN(num) ? 0 : num);
-    }, 0);
-    return String(maxNum + 1).padStart(3, "0");
+    const { data, error } = await supabase.rpc("get_next_order_number");
+    if (error || !data) return String(Date.now()).slice(-3);
+    return data;
   };
 
   useEffect(() => {
