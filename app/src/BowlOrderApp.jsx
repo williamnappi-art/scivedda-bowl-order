@@ -334,6 +334,44 @@ const BowlVisual = ({ selected, animatingItem }) => {
   );
 };
 
+const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble, catColor, theme, onSelect, onDoubleSelect }) {
+  return (
+    <button
+      onClick={(e) => { if (e.detail >= 2) return; onSelect(); }}
+      onDoubleClick={onDoubleSelect}
+      style={{
+        background: "#faf7f2",
+        border: isDouble ? `2px solid #e53e3e` : sel ? `2.5px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
+        borderRadius: 16, padding: 0, cursor: "pointer",
+        display: "flex", flexDirection: "column",
+        transition: "all 0.2s", transform: sel ? "scale(1.04)" : "scale(1)",
+        boxShadow: isDouble ? `0 2px 8px rgba(229,62,62,0.2)` : sel ? `0 4px 16px rgba(212,118,60,0.25)` : `0 1px 4px rgba(0,0,0,0.07)`,
+        overflow: "hidden", position: "relative", userSelect: "none",
+      }}>
+      {isDouble && (
+        <div style={{ position: "absolute", top: 6, left: 6, width: 18, height: 18, borderRadius: "50%", background: "#e53e3e", color: "#fff", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, zIndex: 2 }}>2</div>
+      )}
+      {sel && (
+        <div style={{ position: "absolute", top: 6, right: 6, width: 18, height: 18, borderRadius: "50%", background: isDouble ? "#e53e3e" : theme.accent, color: "#fff", fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, zIndex: 2 }}>✓</div>
+      )}
+      {item.cardImage ? (
+        <img src={item.cardImage} alt={item.name} style={{ width: "100%", height: 62, objectFit: "cover", objectPosition: "center", display: "block" }} />
+      ) : (
+        <div style={{ width: "100%", height: 62, background: catColor, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontSize: 32 }}>{item.icon}</span>
+        </div>
+      )}
+      <div style={{ height: 62, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", borderTop: `1px solid ${theme.border}`, padding: "0 6px", width: "100%" }}>
+        <div style={{ fontSize: 10, fontWeight: 600, color: theme.text, textAlign: "center", lineHeight: 1.2 }}>{item.name}</div>
+        <div style={{ fontSize: 9, color: theme.textSoft, marginTop: 1 }}>{item.cal} cal</div>
+        {item.extra && (
+          <span style={{ fontSize: 9, fontWeight: 700, color: "#fff", background: theme.accent, borderRadius: 4, padding: "1px 5px", marginTop: 2 }}>+€{item.extra}</span>
+        )}
+      </div>
+    </button>
+  );
+});
+
 // ── Main App ────────────────────────────────────────────────────────────
 export default function BowlOrderApp() {
   const [, startTransition] = useTransition();
@@ -1095,64 +1133,24 @@ export default function BowlOrderApp() {
                   const portion = activeCategory !== "basi" ? getPortion(activeCategory, item.id) : 1;
                   const isDouble = sel && portion === 2;
                   return (
-                    <button key={item.id}
-                      onClick={(e) => {
-                        if (e.detail >= 2) return;
+                    <IngredientCard
+                      key={item.id}
+                      item={item}
+                      sel={sel}
+                      isDouble={isDouble}
+                      catColor={cat.color}
+                      theme={theme}
+                      onSelect={() => {
                         if (sel && activeCategory !== "basi") {
                           setPortions(prev => { const n = { ...prev }; delete n[`${activeCategory}_${item.id}`]; return n; });
                         }
                         selectIngredient(activeCategory, item.id);
                       }}
-                      onDoubleClick={() => {
+                      onDoubleSelect={() => {
                         if (!sel) selectIngredient(activeCategory, item.id);
                         if (activeCategory !== "basi") togglePortion(activeCategory, item.id);
                       }}
-                      style={{
-                        background: "#faf7f2",
-                        border: isDouble ? `2px solid #e53e3e` : sel ? `2.5px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
-                        borderRadius: 16, padding: 0, cursor: "pointer",
-                        display: "flex", flexDirection: "column",
-                        transition: "all 0.2s", transform: sel ? "scale(1.04)" : "scale(1)",
-                        boxShadow: isDouble ? `0 2px 8px rgba(229,62,62,0.2)` : sel ? `0 4px 16px rgba(212,118,60,0.25)` : `0 1px 4px rgba(0,0,0,0.07)`,
-                        overflow: "hidden", position: "relative", userSelect: "none",
-                      }}>
-                      {isDouble && (
-                        <div style={{
-                          position: "absolute", top: 6, left: 6, width: 18, height: 18,
-                          borderRadius: "50%", background: "#e53e3e", color: "#fff",
-                          fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, zIndex: 2,
-                        }}>2</div>
-                      )}
-                      {sel && (
-                        <div style={{
-                          position: "absolute", top: 6, right: 6, width: 18, height: 18,
-                          borderRadius: "50%", background: isDouble ? "#e53e3e" : theme.accent, color: "#fff",
-                          fontSize: 10, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, zIndex: 2,
-                        }}>✓</div>
-                      )}
-                      {item.cardImage ? (
-                        <img src={item.cardImage} alt={item.name} style={{
-                          width: "100%", height: 62, objectFit: "cover", objectPosition: "center", display: "block",
-                        }}/>
-                      ) : (
-                        <div style={{
-                          width: "100%", height: 62, background: cat.color,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                        }}>
-                          <span style={{ fontSize: 32 }}>{item.icon}</span>
-                        </div>
-                      )}
-                      <div style={{
-                        height: 62, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                        borderTop: `1px solid ${theme.border}`, padding: "0 6px", width: "100%",
-                      }}>
-                        <div style={{ fontSize: 10, fontWeight: 600, color: theme.text, textAlign: "center", lineHeight: 1.2 }}>{item.name}</div>
-                        <div style={{ fontSize: 9, color: theme.textSoft, marginTop: 1 }}>{item.cal} cal</div>
-                        {item.extra && (
-                          <span style={{ fontSize: 9, fontWeight: 700, color: "#fff", background: theme.accent, borderRadius: 4, padding: "1px 5px", marginTop: 2 }}>+€{item.extra}</span>
-                        )}
-                      </div>
-                    </button>
+                    />
                   );
                 })}
               </div>
