@@ -449,6 +449,8 @@ export default function BowlOrderApp() {
   };
 
   const printOrder = (order) => {
+    supabase.from("orders").update({ print_requested_at: new Date().toISOString() }).eq("id", order.id);
+
     const time = new Date(order.created_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
     const code = order.order_code || "—";
     const note = order.customer_note ? `<div class="note">NOTA: ${order.customer_note}</div>` : "";
