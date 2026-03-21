@@ -1585,14 +1585,14 @@ export default function BowlOrderApp() {
           </button>
 
           {/* Bottone invio WA */}
-          {!customerName.trim() && (
+          {(!customerName.trim() || !diningOption) && (
             <div style={{ textAlign: "center", marginBottom: 10, fontSize: 13, fontWeight: 700, color: "#ef4444" }}>
-              Inserisci il nome per inviare l'ordine!
+              {!customerName.trim() ? "Inserisci il nome per inviare l'ordine!" : "Scegli se mangi qui o porti via!"}
             </div>
           )}
-          <button onClick={sendOrder} disabled={!customerName.trim()} style={{
+          <button onClick={sendOrder} disabled={!customerName.trim() || !diningOption} style={{
             width: "100%", padding: "17px",
-            background: customerName.trim() ? "linear-gradient(135deg, #25d366, #128c7e)" : "#ccc",
+            background: customerName.trim() && diningOption ? "linear-gradient(135deg, #25d366, #128c7e)" : "#ccc",
             border: "none", borderRadius: 14,
             color: "#fff", fontSize: 16, fontWeight: 700,
             cursor: customerName.trim() ? "pointer" : "not-allowed", fontFamily: "inherit",
