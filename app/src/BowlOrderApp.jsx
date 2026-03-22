@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabase";
 
 // ── Menu Data (in production, this comes from admin panel / API) ──────────
@@ -334,11 +334,11 @@ const BowlVisual = ({ selected, animatingItem }) => {
   );
 };
 
-const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble, catColor, theme, onSelect, onDoubleSelect }) {
+const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble, catColor, theme, category, onSelect, onTogglePortion }) {
   return (
     <button
-      onClick={(e) => { if (e.detail >= 2) return; onSelect(); }}
-      onDoubleClick={onDoubleSelect}
+      onClick={(e) => { if (e.detail >= 2) return; onSelect(category, item.id); }}
+      onDoubleClick={() => { if (!sel) onSelect(category, item.id); if (category !== "basi") onTogglePortion(category, item.id); }}
       style={{
         background: "#faf7f2",
         border: isDouble ? `2px solid #e53e3e` : sel ? `2.5px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
@@ -539,14 +539,14 @@ export default function BowlOrderApp() {
   const toggleSection = (id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
 
   const getPortion = (category, itemId) => portions[`${category}_${itemId}`] || 1;
-  const togglePortion = (category, itemId) => {
+  const togglePortion = useCallback((category, itemId) => {
     const key = `${category}_${itemId}`;
     setPortions(prev => ({ ...prev, [key]: prev[key] === 2 ? 1 : 2 }));
-  };
+  }, []);
 
   const catOrder = ["size", "basi", "proteine", "verdure", "croccanti", "salse", "special"];
 
-  const selectIngredient = (category, itemId) => {
+  const selectIngredient = useCallback((category, itemId) => {
     setAnimatingItem(itemId);
     setTimeout(() => setAnimatingItem(null), 500);
 
@@ -561,7 +561,16 @@ export default function BowlOrderApp() {
       }
       return next;
     });
-  };
+
+    // Pulisce la porzione quando si deseleziona
+    setPortions(prev => {
+      const key = `${category}_${itemId}`;
+      if (!prev[key]) return prev;
+      const n = { ...prev };
+      delete n[key];
+      return n;
+    });
+  }, []);
 
   const isSelected = (category, itemId) => {
     return Array.isArray(selected[category])
@@ -1144,16 +1153,9 @@ export default function BowlOrderApp() {
                       isDouble={isDouble}
                       catColor={cat.color}
                       theme={theme}
-                      onSelect={() => {
-                        if (sel && activeCategory !== "basi") {
-                          setPortions(prev => { const n = { ...prev }; delete n[`${activeCategory}_${item.id}`]; return n; });
-                        }
-                        selectIngredient(activeCategory, item.id);
-                      }}
-                      onDoubleSelect={() => {
-                        if (!sel) selectIngredient(activeCategory, item.id);
-                        if (activeCategory !== "basi") togglePortion(activeCategory, item.id);
-                      }}
+                      category={activeCategory}
+                      onSelect={selectIngredient}
+                      onTogglePortion={togglePortion}
                     />
                   );
                 })}
