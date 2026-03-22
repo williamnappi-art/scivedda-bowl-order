@@ -674,19 +674,18 @@ export default function BowlOrderApp() {
       {/* Hero */}
       <div style={{
         textAlign: "center",
-        padding: "32px 20px 24px",
-        background: "#6b8c6e",
+        padding: "32px 20px 20px",
+        background: `linear-gradient(180deg, ${theme.warm} 0%, ${theme.bg} 100%)`,
       }}>
-        <img
-          src="/logo-scivedda.png"
-          alt="Scivedda"
-          onClick={handleLogoTap}
-          style={{
-            width: 220, display: "block", margin: "0 auto 10px",
-            mixBlendMode: "multiply", cursor: "default", userSelect: "none",
-          }}
-        />
-        <p style={{ color: "rgba(255,255,255,0.85)", fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 48, marginBottom: 8, cursor: "default", userSelect: "none" }} onClick={handleLogoTap}>🥣</div>
+        <h1 style={{
+          fontFamily: "'Jaapokki', sans-serif",
+          fontSize: 30, color: theme.text,
+          margin: 0, letterSpacing: 1,
+        }}>
+          Scivedda
+        </h1>
+        <p style={{ color: theme.textSoft, fontSize: 13, margin: "6px 0 0", lineHeight: 1.5 }}>
           Scegli dal menù oppure crea la tua scivedda
         </p>
       </div>
@@ -699,11 +698,11 @@ export default function BowlOrderApp() {
           onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
           style={{
             width: "100%", padding: "18px 20px",
-            background: "linear-gradient(135deg, #f5c842, #e6b020)",
+            background: `linear-gradient(135deg, ${theme.green}, #3d7a40)`,
             border: "none", borderRadius: 18,
-            color: "#2d2418", cursor: "pointer",
+            color: "#fff", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
-            boxShadow: "0 6px 24px rgba(245,200,66,0.4)",
+            boxShadow: "0 6px 24px rgba(90,143,92,0.35)",
             fontFamily: "'Jaapokki', sans-serif",
             transition: "transform 0.15s",
           }}
