@@ -1730,7 +1730,7 @@ export default function BowlOrderApp() {
   return (
     <div style={{
       fontFamily: "'DM Sans', 'Segoe UI', system-ui, sans-serif",
-      background: theme.bg,
+      background: view === "menu" && !adminView && !orderSent ? "#6b8c6e" : theme.bg,
       color: theme.text,
       minHeight: "100vh",
       width: "100%",
