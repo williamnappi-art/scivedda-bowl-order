@@ -233,106 +233,6 @@ const MAX_VERDURE = 4;
 const MAX_CROCCANTI = 3;
 const MAX_SALSE = 2;
 
-// ── Bowl Visual Component ───────────────────────────────────────────────
-const BowlVisual = React.memo(function BowlVisual({ selected, animatingItem }) {
-  const allItems = [];
-  Object.entries(selected).forEach(([cat, val]) => {
-    if (!val) return;
-    if (Array.isArray(val)) {
-      val.forEach(id => {
-        const item = MENU_CATEGORIES[cat]?.items.find(i => i.id === id);
-        if (item) allItems.push({ ...item, category: cat });
-      });
-    } else {
-      const item = MENU_CATEGORIES[cat]?.items.find(i => i.id === val);
-      if (item) allItems.push({ ...item, category: cat });
-    }
-  });
-
-  // Position items in the bowl
-  const positionedItems = allItems.map((item, i) => {
-    const total = allItems.length;
-    const angle = (i / Math.max(total, 1)) * Math.PI * 2 - Math.PI / 2;
-    const radiusX = 28 + (i % 2) * 8;
-    const radiusY = 16 + (i % 2) * 5;
-    const cx = 50 + Math.cos(angle) * radiusX;
-    const cy = 48 + Math.sin(angle) * radiusY;
-    return { ...item, cx, cy, delay: i * 0.08 };
-  });
-
-  return (
-    <div style={{ position: "relative", width: "100%", maxWidth: 320, margin: "0 auto" }}>
-      <svg viewBox="0 0 100 80" style={{ width: "100%", filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.15))" }}>
-        {/* Bowl shadow */}
-        <ellipse cx="50" cy="72" rx="40" ry="5" fill="rgba(0,0,0,0.08)" />
-        {/* Bowl body */}
-        <path
-          d="M10,35 Q10,68 50,70 Q90,68 90,35 Z"
-          fill="url(#bowlGradient)"
-          stroke="#d4a373"
-          strokeWidth="0.8"
-        />
-        {/* Bowl rim */}
-        <ellipse cx="50" cy="35" rx="42" ry="14" fill="url(#rimGradient)" stroke="#d4a373" strokeWidth="0.6" />
-        {/* Inner bowl */}
-        <ellipse cx="50" cy="36" rx="38" ry="11.5" fill="url(#innerGradient)" />
-
-        {/* Ingredients */}
-        {positionedItems.map((item, i) => (
-          <g key={item.id + i} style={{
-            animation: animatingItem === item.id ? "dropIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)" : "none",
-          }}>
-            <text
-              x={item.cx}
-              y={item.cy}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={item.category === "basi" ? "9" : item.category === "proteine" ? "10" : "7.5"}
-              style={{
-                filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.2))",
-                opacity: 1,
-              }}
-            >
-              {item.icon}
-            </text>
-          </g>
-        ))}
-
-        <defs>
-          <linearGradient id="bowlGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#e8d5b7" />
-            <stop offset="100%" stopColor="#c9a96e" />
-          </linearGradient>
-          <linearGradient id="rimGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#f5e6d3" />
-            <stop offset="100%" stopColor="#e8d5b7" />
-          </linearGradient>
-          <radialGradient id="innerGradient">
-            <stop offset="0%" stopColor="#faf6f0" />
-            <stop offset="100%" stopColor="#f0e6d8" />
-          </radialGradient>
-        </defs>
-      </svg>
-
-      {allItems.length === 0 && (
-        <div style={{
-          position: "absolute", top: "38%", left: "50%", transform: "translate(-50%, -50%)",
-          textAlign: "center", pointerEvents: "none",
-        }}>
-          <div style={{ fontSize: 11, color: "#b8a080", fontWeight: 500 }}>Scegli gli ingredienti</div>
-        </div>
-      )}
-
-      <style>{`
-        @keyframes dropIn {
-          0% { transform: translateY(-15px) scale(1.5); opacity: 0; }
-          60% { transform: translateY(2px) scale(0.9); opacity: 1; }
-          100% { transform: translateY(0) scale(1); opacity: 1; }
-        }
-      `}</style>
-    </div>
-  );
-});
 
 const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble, catColor, theme, category, onSelect, onTogglePortion }) {
   return (
@@ -379,7 +279,6 @@ export default function BowlOrderApp() {
   const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
   const [portions, setPortions] = useState({});
   const [activeCategory, setActiveCategory] = useState("size");
-  const [animatingItem, setAnimatingItem] = useState(null);
   const [customerName, setCustomerName] = useState("");
   const [customerNote, setCustomerNote] = useState("");
   const [diningOption, setDiningOption] = useState(null); // "qui" | "via"
@@ -547,9 +446,6 @@ export default function BowlOrderApp() {
   const catOrder = ["size", "basi", "proteine", "verdure", "croccanti", "salse", "special"];
 
   const selectIngredient = useCallback((category, itemId) => {
-    setAnimatingItem(itemId);
-    setTimeout(() => setAnimatingItem(null), 500);
-
     setSelected(prev => {
       const next = { ...prev };
       const MAX = { basi: MAX_BASI, proteine: MAX_PROTEINE, verdure: MAX_VERDURE, croccanti: MAX_CROCCANTI, salse: MAX_SALSE };
@@ -1009,12 +905,35 @@ export default function BowlOrderApp() {
           })}
         </div>
 
-        {/* Bowl Visual — compact strip */}
-        <div style={{ background: theme.bg, display: "flex", justifyContent: "center", paddingTop: 2 }}>
-          <div style={{ width: 100, pointerEvents: "none" }}>
-            <BowlVisual selected={selected} animatingItem={animatingItem} />
-          </div>
-        </div>
+        {/* Chips riepilogo selezioni */}
+        {(() => {
+          const chips = [];
+          if (selected.size) chips.push({ label: SIZE_OPTIONS.find(s => s.id === selected.size)?.label || selected.size, cat: "size" });
+          ["basi","proteine","verdure","croccanti","salse","special"].forEach(cat => {
+            (selected[cat] || []).forEach(id => {
+              const item = MENU_CATEGORIES[cat]?.items.find(i => i.id === id);
+              if (item) chips.push({ label: item.name, cat });
+            });
+          });
+          if (!chips.length) return (
+            <div style={{ padding: "6px 16px 2px", minHeight: 32, display: "flex", alignItems: "center" }}>
+              <span style={{ fontSize: 11, color: theme.textSoft, fontStyle: "italic" }}>Nessuna selezione ancora...</span>
+            </div>
+          );
+          return (
+            <div style={{ padding: "6px 16px 2px", display: "flex", flexWrap: "wrap", gap: 6, minHeight: 32 }}>
+              {chips.map((chip, i) => (
+                <span key={i} style={{
+                  fontSize: 11, fontWeight: 600,
+                  background: theme.accentLight, color: theme.accent,
+                  border: `1px solid ${theme.accent}33`,
+                  borderRadius: 20, padding: "3px 10px",
+                  whiteSpace: "nowrap",
+                }}>{chip.label}</span>
+              ))}
+            </div>
+          );
+        })()}
 
         {/* Selector panel */}
         <div style={{
