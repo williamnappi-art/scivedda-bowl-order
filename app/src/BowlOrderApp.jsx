@@ -677,7 +677,7 @@ export default function BowlOrderApp() {
           src="/logo-home-scivedda.png"
           alt="Scivedda"
           onClick={handleLogoTap}
-          style={{ width: 200, display: "block", margin: "0 auto 12px", cursor: "default", userSelect: "none", mixBlendMode: "multiply" }}
+          style={{ width: 200, display: "block", margin: "0 auto 12px", cursor: "default", userSelect: "none" }}
         />
         <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, margin: 0, lineHeight: 1.5 }}>
           Scegli dal menù oppure crea la tua scivedda
