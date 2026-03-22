@@ -1826,8 +1826,6 @@ export default function BowlOrderApp() {
       overflowX: "hidden",
       boxShadow: "0 0 60px rgba(0,0,0,0.08)",
     }}>
-      <link href="https://fonts.cdnfonts.com/css/jaapokki" rel="stylesheet" />
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
       {/* ── Photo Modal ───────────────────────────────────────────────── */}
       {photoModal && (
