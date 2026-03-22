@@ -10,7 +10,7 @@ html, body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #faf7f2;
+  background-color: transparent;
 }
 
 body {
