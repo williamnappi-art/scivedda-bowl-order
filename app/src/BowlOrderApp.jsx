@@ -308,6 +308,10 @@ export default function BowlOrderApp() {
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    document.body.style.background = view === "menu" && !adminView && !orderSent ? "#6b8c6e" : "#faf7f2";
+  }, [view, adminView, orderSent]);
+
   const fetchOrders = async () => {
     const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     const { data } = await supabase.from("orders").select("*, order_items(*)").gte("created_at", cutoff).order("created_at", { ascending: false }).limit(200);
