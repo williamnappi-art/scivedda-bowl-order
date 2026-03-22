@@ -234,7 +234,7 @@ const MAX_CROCCANTI = 3;
 const MAX_SALSE = 2;
 
 // ── Bowl Visual Component ───────────────────────────────────────────────
-const BowlVisual = ({ selected, animatingItem }) => {
+const BowlVisual = React.memo(function BowlVisual({ selected, animatingItem }) {
   const allItems = [];
   Object.entries(selected).forEach(([cat, val]) => {
     if (!val) return;
@@ -332,7 +332,7 @@ const BowlVisual = ({ selected, animatingItem }) => {
       `}</style>
     </div>
   );
-};
+});
 
 const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble, catColor, theme, category, onSelect, onTogglePortion }) {
   return (
@@ -344,7 +344,7 @@ const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble,
         border: isDouble ? `2px solid #e53e3e` : sel ? `2.5px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
         borderRadius: 16, padding: 0, cursor: "pointer",
         display: "flex", flexDirection: "column",
-        transition: "all 0.2s", transform: sel ? "scale(1.04)" : "scale(1)",
+        transition: "transform 0.2s, box-shadow 0.2s, border-color 0.2s", transform: sel ? "scale(1.04)" : "scale(1)",
         boxShadow: isDouble ? `0 2px 8px rgba(229,62,62,0.2)` : sel ? `0 4px 16px rgba(212,118,60,0.25)` : `0 1px 4px rgba(0,0,0,0.07)`,
         overflow: "hidden", position: "relative", userSelect: "none",
       }}>
@@ -1071,7 +1071,7 @@ export default function BowlOrderApp() {
                         border: sel ? `2px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
                         borderRadius: 16, cursor: "pointer",
                         display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
-                        transition: "all 0.2s",
+                        transition: "transform 0.2s, box-shadow 0.2s, border-color 0.2s",
                         transform: sel ? "scale(1.04)" : "scale(1)",
                         boxShadow: sel ? "0 4px 14px rgba(212,118,60,0.15)" : "none",
                         position: "relative",
@@ -1087,15 +1087,15 @@ export default function BowlOrderApp() {
                       )}
                       {/* Bowl SVG scalata */}
                       <svg viewBox="0 0 100 80" style={{ width: sz.bowlW, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.1))" }}>
-                        <ellipse cx="50" cy="72" rx="40" ry="5" fill="rgba(0,0,0,0.06)" />
-                        <path d="M10,35 Q10,68 50,70 Q90,68 90,35 Z" fill="url(#bG)" stroke="#d4a373" strokeWidth="0.8" />
-                        <ellipse cx="50" cy="35" rx="42" ry="14" fill="url(#rG)" stroke="#d4a373" strokeWidth="0.6" />
-                        <ellipse cx="50" cy="36" rx="38" ry="11.5" fill="url(#iG)" />
                         <defs>
-                          <linearGradient id="bG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#e8d5b7" /><stop offset="100%" stopColor="#c9a96e" /></linearGradient>
-                          <linearGradient id="rG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#f5e6d3" /><stop offset="100%" stopColor="#e8d5b7" /></linearGradient>
-                          <radialGradient id="iG"><stop offset="0%" stopColor="#faf6f0" /><stop offset="100%" stopColor="#f0e6d8" /></radialGradient>
+                          <linearGradient id={`bG-${sz.id}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#e8d5b7" /><stop offset="100%" stopColor="#c9a96e" /></linearGradient>
+                          <linearGradient id={`rG-${sz.id}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#f5e6d3" /><stop offset="100%" stopColor="#e8d5b7" /></linearGradient>
+                          <radialGradient id={`iG-${sz.id}`}><stop offset="0%" stopColor="#faf6f0" /><stop offset="100%" stopColor="#f0e6d8" /></radialGradient>
                         </defs>
+                        <ellipse cx="50" cy="72" rx="40" ry="5" fill="rgba(0,0,0,0.06)" />
+                        <path d="M10,35 Q10,68 50,70 Q90,68 90,35 Z" fill={`url(#bG-${sz.id})`} stroke="#d4a373" strokeWidth="0.8" />
+                        <ellipse cx="50" cy="35" rx="42" ry="14" fill={`url(#rG-${sz.id})`} stroke="#d4a373" strokeWidth="0.6" />
+                        <ellipse cx="50" cy="36" rx="38" ry="11.5" fill={`url(#iG-${sz.id})`} />
                       </svg>
                       <div style={{
                         fontFamily: "'Jaapokki', sans-serif",
