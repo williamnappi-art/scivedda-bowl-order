@@ -399,6 +399,7 @@ export default function BowlOrderApp() {
   const [adminPassword, setAdminPassword] = useState("");
   const [adminLoginError, setAdminLoginError] = useState("");
   const [adminLoading, setAdminLoading] = useState(false);
+  const [dbSaveError, setDbSaveError] = useState(false);
   const logoTapCount = useRef(0);
   const logoTapTimer = useRef(null);
 
@@ -718,7 +719,7 @@ export default function BowlOrderApp() {
         status: "nuovo",
         order_code: finalCode,
       });
-      if (orderError) { console.error("ORDER INSERT ERROR:", orderError); return; }
+      if (orderError) { console.error("ORDER INSERT ERROR:", orderError); setDbSaveError(true); return; }
 
       const items = cart.map(item => ({
         order_id: orderId,
@@ -729,9 +730,10 @@ export default function BowlOrderApp() {
         details: item.type === "custom" ? item.items : null,
       }));
       const { error: itemsError } = await supabase.from("order_items").insert(items);
-      if (itemsError) console.error("ITEMS INSERT ERROR:", itemsError);
+      if (itemsError) { console.error("ITEMS INSERT ERROR:", itemsError); setDbSaveError(true); }
     } catch (e) {
       console.error("Supabase exception:", e);
+      setDbSaveError(true);
     }
   };
 
@@ -1677,6 +1679,11 @@ export default function BowlOrderApp() {
 
         {/* Orders list */}
         <div style={{ padding: 16 }}>
+          {dbSaveError && (
+            <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 12, padding: "12px 16px", marginBottom: 14, color: "#b91c1c", fontSize: 14, fontWeight: 600 }}>
+              ⚠️ Errore database — l'ordine potrebbe non essere stato salvato, ma il messaggio WhatsApp potrebbe essere arrivato comunque. Gestisci manualmente.
+            </div>
+          )}
           <div style={{ fontSize: 13, fontWeight: 700, color: theme.textSoft, marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>Ordini recenti (48h)</div>
           {adminOrders.length === 0 && (
             <div style={{ textAlign: "center", padding: 40, color: theme.textSoft }}>Nessun ordine ancora</div>
