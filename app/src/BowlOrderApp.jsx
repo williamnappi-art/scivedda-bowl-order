@@ -692,11 +692,11 @@ export default function BowlOrderApp() {
           onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
           style={{
             width: "100%", padding: "18px 20px",
-            background: "linear-gradient(135deg, #c8a832, #b8941e)",
+            background: "linear-gradient(135deg, #f5c842, #e6b020)",
             border: "none", borderRadius: 18,
             color: "#2d2418", cursor: "pointer",
             display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
-            boxShadow: "0 6px 24px rgba(200,168,50,0.4)",
+            boxShadow: "0 6px 24px rgba(245,200,66,0.4)",
             fontFamily: "'Jaapokki', sans-serif",
             transition: "transform 0.15s",
           }}
