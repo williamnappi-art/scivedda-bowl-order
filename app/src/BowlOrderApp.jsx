@@ -124,25 +124,24 @@ const ALLERGEN_LABELS = {
 
 const MENU_SECTIONS = [
   {
-    id: "brodu",
-    label: "Brodu",
-    subtitle: "Brodi e minestre tradizionali, reinterpretate",
-    emoji: "🫕",
-    items: [
-      { id: "brodu-berbeghe", name: "Brodu de Puddha", desc: "Fregula tradizionale tostata in Brodo semplice di Polletto ruspante, Manzo e Maiale. Servito con carne di maiale sfilacciata nella sua salsa d'arrosto e verdure cotte di stagione.", price: 16.00, allergens: ["glutine", "sedano", "soia"], vegetarian: false, vegan: false, image: "/brodo-scivedda.svg" },
-      { id: "brodu-puddha", name: "Brodu 'e Puddha", desc: "Brodo di gallina ruspante con verdure di stagione, zafferano di Sardegna e fregola piccola. Un classico della domenica sarda.", price: 7.50, allergens: ["glutine", "sedano"], vegetarian: false, vegan: false },
-      { id: "fregola-arselle", name: "Fregula con le Arselle", desc: "Fregula sarda tostata con vongole veraci, pomodorino, aglio e prezzemolo. Il mare della Sardegna in un piatto.", price: 12.00, allergens: ["glutine", "molluschi", "sedano"], vegetarian: false, vegan: false },
-      { id: "minestra-verdure", name: "Minestra di Verdure", desc: "Minestrone ricco con legumi sardi, verdure dell'orto e un giro d'olio extravergine. Semplice, nutriente, vegan.", price: 7.00, allergens: ["sedano"], vegetarian: true, vegan: true },
-    ],
-  },
-  {
     id: "special",
-    label: "Special del Giorno",
+    label: "Da Condividere",
     subtitle: "Cosa bolle in pentola? Guarda un po' cosa abbiamo oggi!",
     emoji: "⭐",
     items: [
       { id: "special-today", name: "Il Piatto del Giorno", desc: "Ogni giorno una sorpresa. Cambia ogni giorno in base alla stagione e all'umore dello chef. Chiedi al banco per ingredienti e prezzo.", price: null, allergens: [], vegetarian: null, vegan: null },
       { id: "zuppa-ceci", name: "Zuppa di Ceci e Rosmarino", desc: "Ceci sardi cotti con rosmarino, aglio, olio e peperoncino. Servita con crostoni di pane carasau. Oggi questo!", price: 9.00, allergens: ["glutine"], vegetarian: true, vegan: true },
+    ],
+  },
+  {
+    id: "pistoccu",
+    label: "Pistoccu",
+    subtitle: "L'unico Pistoccu tradizionale, solo da Scivedda",
+    emoji: "🫓",
+    items: [
+      { id: "pistoccu-lardo", name: "Pistoccu con Lardo e Miele", desc: "Pistoccu tradizionale dell'Ogliastra con lardo di colonnata, miele di corbezzolo e scaglie di pecorino stagionato. Dolce e salato in perfetto equilibrio.", price: 7.50, allergens: ["glutine", "latte"], vegetarian: false, vegan: false },
+      { id: "pistoccu-ricotta", name: "Pistoccu con Ricotta e Pomodoro", desc: "Pistoccu con ricotta fresca di pecora, pomodorino arrosto, origano e olio extravergine del Sulcis.", price: 6.50, allergens: ["glutine", "latte"], vegetarian: true, vegan: false },
+      { id: "pistoccu-tonno", name: "Pistoccu con Tonno e Olive", desc: "Pistoccu con tonno pinna gialla sott'olio, olive taggiasche, capperi e pomodorino. Semplice e perfetto.", price: 8.00, allergens: ["glutine", "pesce"], vegetarian: false, vegan: false },
     ],
   },
   {
@@ -159,17 +158,6 @@ const MENU_SECTIONS = [
     ],
   },
   {
-    id: "pistoccu",
-    label: "Pistoccu",
-    subtitle: "L'unico Pistoccu tradizionale, solo da Scivedda",
-    emoji: "🫓",
-    items: [
-      { id: "pistoccu-lardo", name: "Pistoccu con Lardo e Miele", desc: "Pistoccu tradizionale dell'Ogliastra con lardo di colonnata, miele di corbezzolo e scaglie di pecorino stagionato. Dolce e salato in perfetto equilibrio.", price: 7.50, allergens: ["glutine", "latte"], vegetarian: false, vegan: false },
-      { id: "pistoccu-ricotta", name: "Pistoccu con Ricotta e Pomodoro", desc: "Pistoccu con ricotta fresca di pecora, pomodorino arrosto, origano e olio extravergine del Sulcis.", price: 6.50, allergens: ["glutine", "latte"], vegetarian: true, vegan: false },
-      { id: "pistoccu-tonno", name: "Pistoccu con Tonno e Olive", desc: "Pistoccu con tonno pinna gialla sott'olio, olive taggiasche, capperi e pomodorino. Semplice e perfetto.", price: 8.00, allergens: ["glutine", "pesce"], vegetarian: false, vegan: false },
-    ],
-  },
-  {
     id: "culurgionis",
     label: "Culurgionis",
     subtitle: "Culurgionis arrosto, sempre e solo fatti a mano",
@@ -178,18 +166,6 @@ const MENU_SECTIONS = [
       { id: "culurgionis-classici", name: "Culurgionis Classici Arrosto", desc: "I culurgionis dell'Ogliastra, ripieni di patate, menta e pecorino, arrostiti in padella con burro e salvia. Fatti a mano ogni mattina.", price: 12.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
       { id: "culurgionis-cinghiale", name: "Culurgionis con Ragù di Cinghiale", desc: "Culurgionis fatti a mano, arrostiti, con ragù lento di cinghiale sardo, mirto e bacche di ginepro.", price: 14.00, allergens: ["glutine", "uova", "sedano", "solfiti"], vegetarian: false, vegan: false },
       { id: "culurgionis-bottarga", name: "Culurgionis con Bottarga", desc: "Culurgionis di patate e menta, arrostiti, con bottarga di muggine grattugiata, olio e limone. Il mare nel piatto.", price: 15.00, allergens: ["glutine", "uova", "pesce"], vegetarian: false, vegan: false },
-    ],
-  },
-  {
-    id: "dolcetti",
-    label: "Dolcetti",
-    subtitle: "I nostri dolcetti, la frutta e qualche fine pasto",
-    emoji: "🍯",
-    items: [
-      { id: "seadas", name: "Seadas con Miele", desc: "La seada sarda fritta al momento, ripiena di formaggio fresco acidulo, con miele di corbezzolo amaro. Croccante fuori, morbida dentro.", price: 5.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
-      { id: "formagelle", name: "Formagella con Miele", desc: "Formagella di pecora fresca con miele millefiori sardo e noci tostate.", price: 4.50, allergens: ["latte", "fruttaGuscio"], vegetarian: true, vegan: false },
-      { id: "frutta", name: "Frutta di Stagione", desc: "Frutta fresca di stagione, selezionata ogni mattina. Pulita, tagliata e pronta.", price: 4.00, allergens: [], vegetarian: true, vegan: true },
-      { id: "pistoccu-dolce", name: "Pistoccu Dolce", desc: "Pistoccu con crema di mandorle sarde, miele e scorza d'arancia. Un fine pasto leggero e profumato.", price: 4.50, allergens: ["glutine", "fruttaGuscio"], vegetarian: true, vegan: true },
     ],
   },
   {
@@ -203,6 +179,18 @@ const MENU_SECTIONS = [
       { id: "panedda-tonno", name: "Panedda col Tonno", desc: "Pane carasau morbidito, tonno pinna gialla, olive verdi, capperi di Pantelleria, pomodorino e origano selvatico.", price: 8.50, allergens: ["glutine", "pesce"], vegetarian: false, vegan: false },
       { id: "panedda-culurgionis", name: "Panedda con Culurgionis", desc: "Pane di semola aperto, culurgionis arrosto tagliati a metà, pecorino fondente, rucola e riduzione di mirto. Il nostro signature.", price: 11.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
       { id: "panedda-veggie", name: "Panedda Veggie", desc: "Pane di segale tostato, hummus di ceci sardi, verdure grigliate, avocado, spinacino e tahini al limone. 100% vegetale.", price: 8.00, allergens: ["glutine", "sesamo"], vegetarian: true, vegan: true },
+    ],
+  },
+  {
+    id: "dolcetti",
+    label: "Dolcetti",
+    subtitle: "I nostri dolcetti, la frutta e qualche fine pasto",
+    emoji: "🍯",
+    items: [
+      { id: "seadas", name: "Seadas con Miele", desc: "La seada sarda fritta al momento, ripiena di formaggio fresco acidulo, con miele di corbezzolo amaro. Croccante fuori, morbida dentro.", price: 5.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
+      { id: "formagelle", name: "Formagella con Miele", desc: "Formagella di pecora fresca con miele millefiori sardo e noci tostate.", price: 4.50, allergens: ["latte", "fruttaGuscio"], vegetarian: true, vegan: false },
+      { id: "frutta", name: "Frutta di Stagione", desc: "Frutta fresca di stagione, selezionata ogni mattina. Pulita, tagliata e pronta.", price: 4.00, allergens: [], vegetarian: true, vegan: true },
+      { id: "pistoccu-dolce", name: "Pistoccu Dolce", desc: "Pistoccu con crema di mandorle sarde, miele e scorza d'arancia. Un fine pasto leggero e profumato.", price: 4.50, allergens: ["glutine", "fruttaGuscio"], vegetarian: true, vegan: true },
     ],
   },
   {
