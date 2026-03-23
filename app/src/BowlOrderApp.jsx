@@ -1553,137 +1553,186 @@ export default function BowlOrderApp() {
     const todayOrders = adminOrders.filter(o => new Date(o.created_at).toDateString() === today);
 
     const statusColors = { nuovo: "#f59e0b", preparazione: "#3b82f6", pronto: "#10b981" };
-    const statusLabels = { nuovo: "Nuovo", preparazione: "In prep.", pronto: "Pronto" };
+    const statusLabels = { nuovo: "Nuovo", preparazione: "In prep.", pronto: "Pronto ✓" };
     const isConfirmed = (order) => order.whatsapp_confirmed === true;
 
-    return (
-      <div style={{ minHeight: "100vh", background: "#f1f5f9" }}>
-        {/* Header */}
-        <div style={{ background: theme.text, color: "#fff", padding: "16px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div>
-            <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 20, letterSpacing: 1 }}>Dashboard Scivedda</div>
-            <div style={{ fontSize: 12, opacity: 0.6, marginTop: 2 }}>Ordini in tempo reale</div>
-          </div>
-          <div style={{ display: "flex", gap: 8 }}>
-            <button onClick={fetchOrders} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "8px 14px", borderRadius: 8, cursor: "pointer", fontSize: 16 }}>↻</button>
-            <button onClick={adminLogout} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "8px 14px", borderRadius: 8, cursor: "pointer", fontSize: 13 }}>Esci</button>
-          </div>
-        </div>
+    const todayActive = adminOrders.filter(o => new Date(o.created_at).toDateString() === today);
+    const daFare = todayActive.filter(o => isConfirmed(o) && o.status !== "pronto").length;
+    const inPrep = todayActive.filter(o => o.status === "preparazione").length;
+    const pronti = todayActive.filter(o => o.status === "pronto").length;
 
-        {/* Stats */}
-        <div style={{ padding: "16px 16px 0", display: "flex", gap: 12 }}>
-          {/* Ordini da fare — grande */}
-          <div style={{ flex: 2, background: "#fff", borderRadius: 14, padding: "16px 12px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.06)", borderBottom: `3px solid ${theme.accent}` }}>
-            <div style={{ fontSize: 48, fontWeight: 800, color: theme.accent, fontFamily: "'Jaapokki', sans-serif", lineHeight: 1 }}>
-              {todayOrders.filter(o => isConfirmed(o) && o.status !== "pronto").length}
-            </div>
-            <div style={{ fontSize: 12, color: theme.textSoft, marginTop: 6, fontWeight: 600 }}>Da fare oggi</div>
-          </div>
-          {/* Ordini oggi — piccolo */}
-          <div style={{ flex: 1, background: "#fff", borderRadius: 14, padding: "16px 12px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.06)" }}>
-            <div style={{ fontSize: 28, fontWeight: 800, color: theme.text, fontFamily: "'Jaapokki', sans-serif", lineHeight: 1 }}>{todayOrders.length}</div>
-            <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 6 }}>Ordini oggi</div>
-          </div>
-        </div>
+    const todayStr = new Date().toDateString();
+    const todayList = adminOrders.filter(o => new Date(o.created_at).toDateString() === todayStr);
+    const yesterdayList = adminOrders.filter(o => new Date(o.created_at).toDateString() !== todayStr);
 
-        {/* Orders list */}
-        <div style={{ padding: 16 }}>
-          {dbSaveError && (
-            <div style={{ background: "#fef2f2", border: "1.5px solid #fca5a5", borderRadius: 12, padding: "12px 16px", marginBottom: 14, color: "#b91c1c", fontSize: 14, fontWeight: 600 }}>
-              ⚠️ Errore database — l'ordine potrebbe non essere stato salvato, ma il messaggio WhatsApp potrebbe essere arrivato comunque. Gestisci manualmente.
+    const renderOrderCard = (order, isYesterday) => {
+      const confirmed = isConfirmed(order);
+      const orderDate = new Date(order.created_at);
+      let borderColor = "#cbd5e1";
+      if (!isYesterday) {
+        if (order.status === "pronto") borderColor = statusColors.pronto;
+        else if (order.status === "preparazione") borderColor = statusColors.preparazione;
+        else if (confirmed) borderColor = "#22c55e";
+        else borderColor = "#f59e0b";
+      }
+      return (
+        <div key={order.id} style={{
+          background: isYesterday ? "#f4f4f4" : order.status === "pronto" ? "#f0fdf4" : confirmed ? "#fff" : "#fffbeb",
+          borderRadius: 16,
+          boxShadow: isYesterday ? "none" : "0 4px 16px rgba(0,0,0,0.08)",
+          border: `2px solid ${borderColor}`,
+          opacity: isYesterday ? 0.65 : 1,
+          display: "flex",
+          flexDirection: "column",
+          overflow: "hidden",
+        }}>
+          {/* Card top */}
+          <div style={{ padding: "16px 18px 10px", flex: 1 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+              <div>
+                {order.order_code && (
+                  <div style={{ fontSize: 44, fontWeight: 900, color: isYesterday ? "#94a3b8" : theme.accent, letterSpacing: 2, lineHeight: 1 }}>{order.order_code}</div>
+                )}
+                <div style={{ fontWeight: 700, fontSize: 18, color: theme.text, marginTop: 4 }}>{order.customer_name || "Anonimo"}</div>
+                <div style={{ fontSize: 12, color: theme.textSoft, marginTop: 1 }}>
+                  {orderDate.toLocaleString("it-IT", { hour: "2-digit", minute: "2-digit" })}
+                  {isYesterday && " · IERI"}
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div style={{ fontWeight: 800, fontSize: 20, color: isYesterday ? theme.textSoft : theme.accent }}>€{Number(order.total).toFixed(2)}</div>
+                {confirmed && !isYesterday && (
+                  <div style={{ fontSize: 10, fontWeight: 700, color: "#16a34a", background: "#dcfce7", borderRadius: 6, padding: "3px 8px", marginTop: 4 }}>✓ WA</div>
+                )}
+              </div>
             </div>
-          )}
-          <div style={{ fontSize: 13, fontWeight: 700, color: theme.textSoft, marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>Ordini recenti (48h)</div>
-          {adminOrders.length === 0 && (
-            <div style={{ textAlign: "center", padding: 40, color: theme.textSoft }}>Nessun ordine ancora</div>
-          )}
-          {(() => {
-            const todayStr = new Date().toDateString();
-            let shownYesterdayLabel = false;
-            return adminOrders.map(order => {
-              const confirmed = isConfirmed(order);
-              const orderDate = new Date(order.created_at);
-              const isYesterday = orderDate.toDateString() !== todayStr;
-              const showLabel = isYesterday && !shownYesterdayLabel;
-              if (showLabel) shownYesterdayLabel = true;
-              return (
-                <React.Fragment key={order.id}>
-                  {showLabel && (
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "16px 0 10px" }}>
-                      <div style={{ flex: 1, height: 1, background: "#cbd5e1" }} />
-                      <div style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Ordini di ieri</div>
-                      <div style={{ flex: 1, height: 1, background: "#cbd5e1" }} />
-                    </div>
-                  )}
-                  <div style={{
-                    background: isYesterday ? "#f8f8f8" : confirmed ? "#f0fdf4" : "#fff",
-                    borderRadius: 14, padding: 16, marginBottom: 10,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                    borderLeft: `4px solid ${isYesterday ? "#cbd5e1" : confirmed ? "#22c55e" : (statusColors[order.status] || "#ccc")}`,
-                    opacity: isYesterday ? 0.75 : 1,
-                    transition: "background 0.3s, border-color 0.3s"
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
-                      <div style={{ flex: 1 }}>
-                        {order.order_code && (
-                          <div style={{ fontSize: 36, fontWeight: 900, color: isYesterday ? "#94a3b8" : theme.accent, letterSpacing: 2, lineHeight: 1, marginBottom: 6 }}>{order.order_code}</div>
-                        )}
-                        <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                          <div style={{ fontWeight: 700, fontSize: 15, color: theme.text }}>{order.customer_name || "Cliente anonimo"}</div>
-                          {confirmed && !isYesterday && <div style={{ fontSize: 10, fontWeight: 700, color: "#16a34a", background: "#dcfce7", borderRadius: 6, padding: "2px 6px" }}>WA CONFERMATO</div>}
-                          {isYesterday && <div style={{ fontSize: 10, fontWeight: 700, color: "#64748b", background: "#e2e8f0", borderRadius: 6, padding: "2px 6px" }}>IERI</div>}
-                        </div>
-                        <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2 }}>
-                          {orderDate.toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
-                        </div>
-                      </div>
-                      <div style={{ fontWeight: 800, fontSize: 16, color: isYesterday ? theme.textSoft : theme.accent }}>€{Number(order.total).toFixed(2)}</div>
-                    </div>
-                    {order.order_items?.map((item, i) => (
-                      <div key={i} style={{ marginBottom: 6 }}>
-                        <div style={{ fontSize: 12, color: theme.textSoft }}>
-                          {item.qty}× <strong>{item.item_name}</strong> — €{Number(item.price).toFixed(2)}
-                        </div>
-                        {item.item_type === "custom" && item.details && resolveIngredients(item.details).map((line, j) => (
-                          <div key={j} style={{ fontSize: 11, color: theme.textSoft, paddingLeft: 14, opacity: 0.8 }}>{line}</div>
-                        ))}
-                      </div>
-                    ))}
-                    {order.customer_note && (
-                      <div style={{ marginTop: 8, fontSize: 12, color: "#7c3aed", background: "#f5f3ff", borderRadius: 6, padding: "4px 8px" }}>
-                        Nota: {order.customer_note}
-                      </div>
-                    )}
-                    {!confirmed && (
-                      <button onClick={() => confirmWhatsapp(order.id)} style={{
-                        width: "100%", marginTop: 10, padding: "9px 0", borderRadius: 8, border: "none",
-                        cursor: "pointer", fontSize: 12, fontWeight: 700,
-                        background: "#25d366", color: "#fff", letterSpacing: 0.5
-                      }}>Conferma WhatsApp</button>
-                    )}
-                    {confirmed && (
-                      <>
-                        <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-                          {["nuovo", "preparazione", "pronto"].map(s => (
-                            <button key={s} onClick={() => updateOrderStatus(order.id, s)} style={{
-                              flex: 1, padding: "7px 4px", borderRadius: 8, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700,
-                              background: order.status === s ? statusColors[s] : "#f1f5f9",
-                              color: order.status === s ? "#fff" : theme.textSoft,
-                            }}>{statusLabels[s]}</button>
-                          ))}
-                        </div>
-                        <button onClick={() => printOrder(order)} style={{
-                          width: "100%", marginTop: 8, padding: "13px 0", borderRadius: 10, border: "none",
-                          cursor: "pointer", fontSize: 15, fontWeight: 700,
-                          background: "#e2e8f0", color: "#475569",
-                        }}>🖨 Stampa ordine</button>
-                      </>
-                    )}
+            {/* Items */}
+            <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 8, marginTop: 4 }}>
+              {order.order_items?.map((item, i) => (
+                <div key={i} style={{ marginBottom: 4 }}>
+                  <div style={{ fontSize: 14, color: theme.text, fontWeight: 600 }}>
+                    {item.qty}× {item.item_name}
                   </div>
-                </React.Fragment>
-              );
-            });
-          })()}
+                  {item.item_type === "custom" && item.details && resolveIngredients(item.details).map((line, j) => (
+                    <div key={j} style={{ fontSize: 12, color: theme.textSoft, paddingLeft: 12, opacity: 0.85 }}>{line}</div>
+                  ))}
+                </div>
+              ))}
+              {order.customer_note && (
+                <div style={{ marginTop: 8, fontSize: 13, color: "#7c3aed", background: "#f5f3ff", borderRadius: 8, padding: "6px 10px", fontWeight: 600 }}>
+                  📝 {order.customer_note}
+                </div>
+              )}
+            </div>
+          </div>
+          {/* Card actions */}
+          {!isYesterday && (
+            <div style={{ padding: "10px 14px 14px", borderTop: "1px solid #e8ecf0" }}>
+              {!confirmed ? (
+                <button onClick={() => confirmWhatsapp(order.id)} style={{
+                  width: "100%", padding: "16px 0", borderRadius: 12, border: "none",
+                  cursor: "pointer", fontSize: 16, fontWeight: 700,
+                  background: "#25d366", color: "#fff", letterSpacing: 0.3,
+                }}>✓ Conferma WhatsApp</button>
+              ) : (
+                <>
+                  <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+                    {["nuovo", "preparazione", "pronto"].map(s => (
+                      <button key={s} onClick={() => updateOrderStatus(order.id, s)} style={{
+                        flex: 1, padding: "14px 4px", borderRadius: 10, border: "none", cursor: "pointer",
+                        fontSize: 13, fontWeight: 700,
+                        background: order.status === s ? statusColors[s] : "#edf2f7",
+                        color: order.status === s ? "#fff" : "#64748b",
+                        boxShadow: order.status === s ? `0 2px 8px ${statusColors[s]}55` : "none",
+                        transition: "background 0.2s",
+                      }}>{statusLabels[s]}</button>
+                    ))}
+                  </div>
+                  <button onClick={() => printOrder(order)} style={{
+                    width: "100%", padding: "14px 0", borderRadius: 10, border: "none",
+                    cursor: "pointer", fontSize: 14, fontWeight: 700,
+                    background: "#e2e8f0", color: "#475569",
+                  }}>🖨 Stampa ordine</button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    return (
+      <div style={{ minHeight: "100vh", background: "#f1f5f9", display: "flex", flexDirection: "column" }}>
+        {/* Header */}
+        <div style={{ background: theme.text, color: "#fff", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
+            <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 22, letterSpacing: 1 }}>Scivedda · Cucina</div>
+            {/* Stat pills */}
+            <div style={{ display: "flex", gap: 10 }}>
+              <div style={{ background: "#f59e0b", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{daFare}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>da fare</span>
+              </div>
+              <div style={{ background: "#3b82f6", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{inPrep}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>in prep.</span>
+              </div>
+              <div style={{ background: "#10b981", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{pronti}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>pronti</span>
+              </div>
+              <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{todayOrders.length}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.7 }}>oggi</span>
+              </div>
+            </div>
+          </div>
+          {dbSaveError && (
+            <div style={{ fontSize: 12, fontWeight: 700, color: "#fca5a5", background: "rgba(239,68,68,0.15)", borderRadius: 8, padding: "6px 12px" }}>
+              ⚠️ Errore DB — gestisci manualmente
+            </div>
+          )}
+          <div style={{ display: "flex", gap: 8 }}>
+            <button onClick={fetchOrders} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "10px 18px", borderRadius: 10, cursor: "pointer", fontSize: 18 }}>↻</button>
+            <button onClick={adminLogout} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "10px 18px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Esci</button>
+          </div>
+        </div>
+
+        {/* Orders grid */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 24px" }}>
+          {adminOrders.length === 0 && (
+            <div style={{ textAlign: "center", padding: 80, color: theme.textSoft, fontSize: 18 }}>Nessun ordine ancora</div>
+          )}
+
+          {/* Today */}
+          {todayList.length > 0 && (
+            <div style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+              gap: 16,
+              marginBottom: yesterdayList.length > 0 ? 28 : 0,
+            }}>
+              {todayList.map(order => renderOrderCard(order, false))}
+            </div>
+          )}
+
+          {/* Yesterday divider + grid */}
+          {yesterdayList.length > 0 && (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "8px 0 16px" }}>
+                <div style={{ flex: 1, height: 1, background: "#cbd5e1" }} />
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Ordini di ieri</div>
+                <div style={{ flex: 1, height: 1, background: "#cbd5e1" }} />
+              </div>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                gap: 12,
+              }}>
+                {yesterdayList.map(order => renderOrderCard(order, true))}
+              </div>
+            </>
+          )}
         </div>
       </div>
     );
