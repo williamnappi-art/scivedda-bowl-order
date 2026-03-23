@@ -509,8 +509,7 @@ export default function BowlOrderApp() {
     setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
     setPortions(prev => { const next = { ...prev }; Object.keys(bowlPortions).forEach(k => delete next[k]); return next; });
     setActiveCategory("size");
-    generateOrderCode().then(code => setPendingOrderCode(code));
-    setView("summary");
+    setView("cart");
   };
 
   const addMenuItemToCart = (item) => {
