@@ -1775,11 +1775,11 @@ export default function BowlOrderApp() {
       color: theme.text,
       minHeight: "100vh",
       width: "100%",
-      maxWidth: 1024,
-      margin: "0 auto",
+      maxWidth: adminView ? "none" : 1024,
+      margin: adminView ? 0 : "0 auto",
       position: "relative",
       overflowX: "hidden",
-      boxShadow: "0 0 60px rgba(0,0,0,0.08)",
+      boxShadow: adminView ? "none" : "0 0 60px rgba(0,0,0,0.08)",
     }}>
 
       {/* ── Photo Modal ───────────────────────────────────────────────── */}
