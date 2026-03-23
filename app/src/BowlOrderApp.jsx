@@ -1068,6 +1068,64 @@ export default function BowlOrderApp() {
             </>
           )}
 
+          {/* Upsell Da Condividere + dining option — solo sull'ultimo step */}
+          {!isSize && catIdx === catOrder.length - 1 && (
+            <>
+              {/* Da Condividere */}
+              <div style={{ marginTop: 24, paddingBottom: 8 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: theme.text, marginBottom: 4 }}>⭐ Da Condividere</div>
+                <div style={{ fontSize: 11, color: theme.textSoft, marginBottom: 12 }}>Aggiungi qualcosa da condividere al tuo ordine</div>
+                {MENU_SECTIONS.find(s => s.id === "special")?.items.map(item => (
+                  <div key={item.id} style={{
+                    background: theme.card, borderRadius: 14, border: `1px solid ${theme.border}`,
+                    padding: "12px 14px", marginBottom: 8,
+                    display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10,
+                  }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: theme.text }}>{item.name}</div>
+                      <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2, lineHeight: 1.4 }}>{item.desc}</div>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6, flexShrink: 0 }}>
+                      <span style={{ fontSize: 14, fontWeight: 800, color: theme.accent }}>
+                        {item.price ? `€${item.price.toFixed(2)}` : "—"}
+                      </span>
+                      {item.price && (
+                        <button onClick={() => addMenuItemToCart(item)} style={{
+                          background: theme.accent, border: "none", borderRadius: 8,
+                          color: "#fff", fontSize: 16, width: 30, height: 30,
+                          cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                          boxShadow: "0 2px 6px rgba(212,118,60,0.3)",
+                        }}>+</button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Mangi qui / Porti via */}
+              <div style={{ marginTop: 8, marginBottom: 8 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: theme.textSoft, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>
+                  Come preferisci?
+                </div>
+                <div style={{ display: "flex", gap: 10 }}>
+                  {[{ id: "qui", label: "Mangi qui?", icon: "🍽" }, { id: "via", label: "Porti via", icon: "🥡" }].map(opt => (
+                    <button key={opt.id} onClick={() => setDiningOption(diningOption === opt.id ? null : opt.id)} style={{
+                      flex: 1, padding: "14px 8px",
+                      background: diningOption === opt.id ? theme.accent : theme.card,
+                      border: diningOption === opt.id ? `2px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
+                      borderRadius: 14, cursor: "pointer", fontFamily: "inherit",
+                      display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                      transition: "all 0.2s",
+                    }}>
+                      <span style={{ fontSize: 28 }}>{opt.icon}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: diningOption === opt.id ? "#fff" : theme.text }}>{opt.label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
         </div>
 
         {/* Fixed bottom bar: price + navigation always visible */}
@@ -1154,16 +1212,16 @@ export default function BowlOrderApp() {
               })()}
             </>
           ) : (
-            <button onClick={addCustomToCart} disabled={!customBowlValid} style={{
+            <button onClick={addCustomToCart} disabled={!customBowlValid || !diningOption} style={{
               flex: 1, padding: "13px",
-              background: customBowlValid ? theme.green : "#ccc",
+              background: customBowlValid && diningOption ? theme.green : "#ccc",
               border: "none", borderRadius: 12,
-              cursor: customBowlValid ? "pointer" : "not-allowed",
+              cursor: customBowlValid && diningOption ? "pointer" : "not-allowed",
               fontSize: 13, fontWeight: 700, color: "#fff", fontFamily: "inherit",
-              boxShadow: customBowlValid ? "0 2px 10px rgba(90,143,92,0.3)" : "none",
-              letterSpacing: 0.5, textTransform: "uppercase",
+              boxShadow: customBowlValid && diningOption ? "0 2px 10px rgba(90,143,92,0.3)" : "none",
+              letterSpacing: 0.5,
             }}>
-              Invia ordine →
+              Riepilogo e invia ordine →
             </button>
           )}
         </div>
