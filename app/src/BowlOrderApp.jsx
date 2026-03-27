@@ -841,7 +841,7 @@ export default function BowlOrderApp() {
     const currentCount = isMulti ? selected[activeCategory].length : 0;
 
     return (
-      <div style={{ display: "flex", flexDirection: "column", height: "100svh", overflow: "hidden" }}>
+      <div style={{ position: "fixed", inset: 0, display: "flex", flexDirection: "column", background: theme.bg, zIndex: 10 }}>
         {/* Header */}
         <div style={{
           padding: "16px",
@@ -925,7 +925,7 @@ export default function BowlOrderApp() {
           flex: 1, background: theme.card,
           borderTopLeftRadius: 20, borderTopRightRadius: 20,
           border: `1px solid ${theme.border}`, borderBottom: "none",
-          padding: "16px 16px 86px",
+          padding: "16px 16px 24px",
           marginTop: 4, boxShadow: "0 -4px 20px rgba(0,0,0,0.05)",
           overflowY: "auto",
         }}>
@@ -1069,15 +1069,13 @@ export default function BowlOrderApp() {
 
         </div>
 
-        {/* Fixed bottom bar: price + navigation always visible */}
+        {/* Bottom bar: price + navigation — fixed via flex layout */}
         <div style={{
-          position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
-          width: "100%", maxWidth: 1024,
+          flexShrink: 0,
           background: "#fff",
           borderTop: `1px solid ${theme.border}`,
           padding: "10px 14px 22px",
           display: "flex", alignItems: "center", gap: 8,
-          zIndex: 90,
           boxShadow: "0 -4px 20px rgba(0,0,0,0.08)",
         }}>
           {/* Price chip */}
