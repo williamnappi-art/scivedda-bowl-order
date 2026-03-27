@@ -841,7 +841,7 @@ export default function BowlOrderApp() {
     const currentCount = isMulti ? selected[activeCategory].length : 0;
 
     return (
-      <div style={{ display: "flex", flexDirection: "column", minHeight: "100svh" }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100svh", overflow: "hidden" }}>
         {/* Header */}
         <div style={{
           padding: "16px",
