@@ -299,6 +299,12 @@ export default function BowlOrderApp() {
 
   useEffect(() => {
     document.body.style.background = view === "menu" && !adminView && !orderSent ? "#6b8c6e" : "#faf7f2";
+    const viewport = document.querySelector("meta[name=viewport]");
+    if (viewport) {
+      viewport.content = view === "build"
+        ? "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        : "width=device-width, initial-scale=1";
+    }
   }, [view, adminView, orderSent]);
 
   const fetchOrders = async () => {
