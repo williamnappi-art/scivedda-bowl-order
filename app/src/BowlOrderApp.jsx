@@ -1161,7 +1161,7 @@ export default function BowlOrderApp() {
               boxShadow: customBowlValid ? "0 2px 10px rgba(90,143,92,0.3)" : "none",
               letterSpacing: 0.5, textTransform: "uppercase",
             }}>
-              Invia ordine →
+              Riepilogo →
             </button>
           )}
         </div>
@@ -1293,6 +1293,19 @@ export default function BowlOrderApp() {
                 }}
               />
             </div>
+
+            {/* Aggiungi un'altra Scivedda */}
+            <button onClick={() => { setActiveCategory("size"); setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] }); setPortions({}); setView("build"); }} style={{
+              width: "100%", padding: "14px",
+              background: theme.accentLight,
+              border: `2px dashed ${theme.accent}`,
+              borderRadius: 14, marginBottom: 12,
+              color: theme.accent, fontSize: 14, fontWeight: 700,
+              cursor: "pointer", fontFamily: "inherit",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            }}>
+              🥣 Aggiungi un'altra Scivedda
+            </button>
 
             {/* Total & Proceed */}
             <div style={{
