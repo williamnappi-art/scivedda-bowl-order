@@ -604,17 +604,17 @@ export default function BowlOrderApp() {
   const sendOrder = async () => {
     if (sending) return;
     setSending(true);
-    const orderCode = String(Date.now()).slice(-3);
-    const text = buildOrderText(orderCode);
+
+    // Genera il codice PRIMA di aprire WhatsApp — stesso numero ovunque
+    const finalCode = await generateOrderCode();
+    const text = buildOrderText(finalCode);
     const waUrl = `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
-    // WhatsApp apre PRIMA di qualsiasi await — il browser non lo blocca
     window.open(waUrl, "_blank");
     setOrderSent(true);
 
     // Salva su Supabase in background
     try {
       const orderId = crypto.randomUUID();
-      const finalCode = await generateOrderCode();
       const { error: orderError } = await supabase.from("orders").insert({
         id: orderId,
         customer_name: customerName || null,
