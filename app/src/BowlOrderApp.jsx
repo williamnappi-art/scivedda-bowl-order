@@ -1224,6 +1224,15 @@ export default function BowlOrderApp() {
       </div>
 
       <div style={{ padding: 16 }}>
+        {customerName.trim() && (
+          <div style={{
+            fontFamily: "'Jaapokki', sans-serif",
+            fontSize: 22, fontWeight: 900, color: theme.text,
+            letterSpacing: 1, marginBottom: 16,
+          }}>
+            {customerName.trim()}
+          </div>
+        )}
         {cart.length === 0 ? (
           <div style={{ textAlign: "center", padding: "48px 20px", color: theme.textSoft }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>🥣</div>
@@ -1285,43 +1294,6 @@ export default function BowlOrderApp() {
                 </div>
               </div>
             ))}
-
-            {/* Customer info */}
-            <div style={{
-              background: theme.card, borderRadius: 14,
-              border: `1px solid ${theme.border}`,
-              padding: 16, marginBottom: 12,
-            }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: theme.text, marginBottom: 10 }}>
-                📝 Dettagli ordine
-              </div>
-              <input
-                value={customerName}
-                onChange={e => setCustomerName(e.target.value)}
-                placeholder="Il tuo nome"
-                style={{
-                  width: "100%", padding: "10px 12px",
-                  background: customerName.trim() ? theme.bg : "#fff5f5",
-                  border: customerName.trim() ? `1px solid ${theme.border}` : `2px solid #ef4444`,
-                  borderRadius: 10, fontSize: 14, color: theme.text,
-                  fontFamily: "inherit", marginBottom: 8,
-                  outline: "none", boxSizing: "border-box",
-                }}
-              />
-              <textarea
-                value={customerNote}
-                onChange={e => setCustomerNote(e.target.value)}
-                placeholder="Note (allergie, consegna, ecc.)"
-                rows={2}
-                style={{
-                  width: "100%", padding: "10px 12px",
-                  background: theme.bg, border: `1px solid ${theme.border}`,
-                  borderRadius: 10, fontSize: 14, color: theme.text,
-                  fontFamily: "inherit", resize: "none",
-                  outline: "none", boxSizing: "border-box",
-                }}
-              />
-            </div>
 
             {/* Aggiungi un'altra Scivedda */}
             <button onClick={() => { setActiveCategory("size"); setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] }); setPortions({}); setBowlName(""); setView("build"); }} style={{
