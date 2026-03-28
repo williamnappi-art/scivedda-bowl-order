@@ -605,11 +605,13 @@ export default function BowlOrderApp() {
     if (sending) return;
     setSending(true);
 
-    // Genera il codice PRIMA di aprire WhatsApp — stesso numero ovunque
+    // Apre la finestra subito (gesto utente) — poi ci mettiamo l'URL dopo l'await
+    const waWindow = window.open("", "_blank");
     const finalCode = await generateOrderCode();
     const text = buildOrderText(finalCode);
     const waUrl = `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
-    window.open(waUrl, "_blank");
+    if (waWindow) waWindow.location.href = waUrl;
+    else window.location.href = waUrl; // fallback se popup bloccato
     setOrderSent(true);
 
     // Salva su Supabase in background
