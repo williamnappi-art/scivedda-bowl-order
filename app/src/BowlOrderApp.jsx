@@ -1308,6 +1308,25 @@ export default function BowlOrderApp() {
               🥣 Aggiungi un'altra Scivedda
             </button>
 
+            {/* Mangi qui / Porti via */}
+            <div style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: theme.text, marginBottom: 8 }}>Dove mangi?</div>
+              <div style={{ display: "flex", gap: 8 }}>
+                {[{ id: "qui", label: "🍽 Mangio qui" }, { id: "via", label: "🛍 Porto via" }].map(opt => (
+                  <button key={opt.id} onClick={() => setDiningOption(opt.id)} style={{
+                    flex: 1, padding: "13px 8px",
+                    background: diningOption === opt.id ? theme.accent : theme.card,
+                    border: `2px solid ${diningOption === opt.id ? theme.accent : theme.border}`,
+                    borderRadius: 12, cursor: "pointer",
+                    fontSize: 14, fontWeight: 700,
+                    color: diningOption === opt.id ? "#fff" : theme.text,
+                    fontFamily: "inherit",
+                    transition: "all 0.15s",
+                  }}>{opt.label}</button>
+                ))}
+              </div>
+            </div>
+
             {/* Total & Proceed */}
             <div style={{
               background: theme.card, borderRadius: 14,
