@@ -631,7 +631,7 @@ export default function BowlOrderApp() {
         item_type: item.type,
         price: item.price,
         qty: item.qty,
-        details: item.type === "custom" ? item.items : null,
+        details: item.type === "custom" ? { ...item.items, portions: item.portions || {} } : null,
       }));
       const { error: itemsError } = await supabase.from("order_items").insert(items);
       if (itemsError) { console.error("ITEMS INSERT ERROR:", itemsError); setDbSaveError(true); }
