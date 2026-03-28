@@ -1957,7 +1957,7 @@ export default function BowlOrderApp() {
           {/* Floating cart on build view */}
           {view === "build" && cart.length > 0 && (
             <button onClick={() => setView("cart")} style={{
-              position: "fixed", bottom: 20, right: 20,
+              position: "fixed", bottom: 96, right: 20,
               width: 56, height: 56, borderRadius: "50%",
               background: theme.accent, border: "none",
               color: "#fff", cursor: "pointer",
