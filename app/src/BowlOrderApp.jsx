@@ -1072,6 +1072,7 @@ export default function BowlOrderApp() {
         {/* Bottom bar: price + navigation — fixed via flex layout */}
         <div style={{
           flexShrink: 0,
+          position: "relative",
           background: "#fff",
           borderTop: `1px solid ${theme.border}`,
           padding: "10px 14px 22px",
