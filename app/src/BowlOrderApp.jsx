@@ -621,6 +621,7 @@ export default function BowlOrderApp() {
         id: orderId,
         customer_name: customerName || null,
         customer_note: customerNote || null,
+        dining_option: diningOption || null,
         total: totalPrice,
         status: "nuovo",
         order_code: finalCode,
@@ -1448,7 +1449,14 @@ export default function BowlOrderApp() {
                 {order.order_code && (
                   <div style={{ fontSize: 44, fontWeight: 900, color: isYesterday ? "#94a3b8" : theme.accent, letterSpacing: 2, lineHeight: 1 }}>{order.order_code}</div>
                 )}
-                <div style={{ fontWeight: 700, fontSize: 18, color: theme.text, marginTop: 4 }}>{order.customer_name || "Anonimo"}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                  <div style={{ fontWeight: 700, fontSize: 18, color: theme.text }}>{order.customer_name || "Anonimo"}</div>
+                  {order.dining_option && (
+                    <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 8px", borderRadius: 8, background: order.dining_option === "qui" ? "#dbeafe" : "#fef9c3", color: order.dining_option === "qui" ? "#1d4ed8" : "#854d0e" }}>
+                      {order.dining_option === "qui" ? "🍽 Qui" : "🛍 Via"}
+                    </span>
+                  )}
+                </div>
                 <div style={{ fontSize: 12, color: theme.textSoft, marginTop: 1 }}>
                   {orderDate.toLocaleString("it-IT", { hour: "2-digit", minute: "2-digit" })}
                   {isYesterday && " · IERI"}
