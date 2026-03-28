@@ -275,6 +275,7 @@ export default function BowlOrderApp() {
   const [sending, setSending] = useState(false);
   const [showCartBounce, setShowCartBounce] = useState(false);
   const [warnedStep, setWarnedStep] = useState(null);
+  const [bowlName, setBowlName] = useState("");
   const [openSections, setOpenSections] = useState({});
   const [photoModal, setPhotoModal] = useState(null);
 
@@ -495,11 +496,11 @@ export default function BowlOrderApp() {
       });
     });
 
-    const sizeLabel = SIZE_OPTIONS.find(s => s.id === selected.size)?.label ?? "";
+    const resolvedBowlName = bowlName.trim() || customerName.trim() || "Anonimo";
     setCart(prev => [...prev, {
       id: Date.now(),
       type: "custom",
-      name: `Scivedda Custom ${sizeLabel}`,
+      name: `Scivedda di ${resolvedBowlName}`,
       desc,
       items: bowlItems,
       portions: bowlPortions,
@@ -508,6 +509,7 @@ export default function BowlOrderApp() {
     }]);
     setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
     setPortions(prev => { const next = { ...prev }; Object.keys(bowlPortions).forEach(k => delete next[k]); return next; });
+    setBowlName("");
     setActiveCategory("size");
     setView("cart");
   };
@@ -933,27 +935,54 @@ export default function BowlOrderApp() {
           {/* ── SIZE STEP ── */}
           {isSize && (
             <>
-              {/* Nome cliente */}
+              {/* Nome cliente — solo sulla prima bowl */}
+              {cart.filter(i => i.type === "custom").length === 0 && (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: theme.text, marginBottom: 6 }}>
+                    Il tuo nome
+                  </div>
+                  <input
+                    value={customerName}
+                    onChange={e => { setCustomerName(e.target.value); if (!bowlName) setBowlName(e.target.value); }}
+                    placeholder="Scrivi il tuo nome..."
+                    autoComplete="given-name"
+                    style={{
+                      width: "100%", padding: "13px 14px",
+                      borderRadius: 12, fontSize: 15, fontFamily: "inherit",
+                      border: customerName.trim() ? `2px solid ${theme.accent}` : `2px solid #ef4444`,
+                      background: customerName.trim() ? theme.bg : "#fff5f5",
+                      color: theme.text, outline: "none",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                  <div style={{ fontSize: 11, color: customerName.trim() ? theme.textSoft : "#ef4444", marginTop: 4, fontWeight: customerName.trim() ? 400 : 600 }}>
+                    {customerName.trim() ? "Apparirà nell'ordine in cucina" : "Il nome è obbligatorio"}
+                  </div>
+                </div>
+              )}
+
+              {/* Per chi è questa Scivedda? */}
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: theme.text, marginBottom: 6 }}>
-                  Il tuo nome
+                  {cart.filter(i => i.type === "custom").length === 0 ? "Per chi è questa Scivedda?" : "🥣 Per chi è questa Scivedda?"}
                 </div>
                 <input
-                  value={customerName}
-                  onChange={e => setCustomerName(e.target.value)}
-                  placeholder="Scrivi il tuo nome..."
-                  autoComplete="given-name"
+                  value={bowlName}
+                  onChange={e => setBowlName(e.target.value)}
+                  placeholder={cart.filter(i => i.type === "custom").length === 0 ? `${customerName || "il tuo nome"}` : "Nome dell'amico..."}
                   style={{
                     width: "100%", padding: "13px 14px",
                     borderRadius: 12, fontSize: 15, fontFamily: "inherit",
-                    border: customerName.trim() ? `2px solid ${theme.accent}` : `2px solid #ef4444`,
-                    background: customerName.trim() ? theme.bg : "#fff5f5",
+                    border: `2px solid ${cart.filter(i => i.type === "custom").length > 0 && !bowlName.trim() ? "#ef4444" : theme.accent}`,
+                    background: theme.bg,
                     color: theme.text, outline: "none",
                     boxSizing: "border-box",
                   }}
                 />
-                <div style={{ fontSize: 11, color: customerName.trim() ? theme.textSoft : "#ef4444", marginTop: 4, fontWeight: customerName.trim() ? 400 : 600 }}>
-                  {customerName.trim() ? "Apparirà nell'ordine in cucina" : "Il nome è obbligatorio"}
+                <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 4 }}>
+                  {cart.filter(i => i.type === "custom").length === 0
+                    ? "Lascia vuoto per usare il tuo nome"
+                    : "Servirà per distinguere le Scivedde in cucina"}
                 </div>
               </div>
 
@@ -1295,7 +1324,7 @@ export default function BowlOrderApp() {
             </div>
 
             {/* Aggiungi un'altra Scivedda */}
-            <button onClick={() => { setActiveCategory("size"); setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] }); setPortions({}); setView("build"); }} style={{
+            <button onClick={() => { setActiveCategory("size"); setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] }); setPortions({}); setBowlName(""); setView("build"); }} style={{
               width: "100%", padding: "14px",
               background: theme.accentLight,
               border: `2px dashed ${theme.accent}`,
