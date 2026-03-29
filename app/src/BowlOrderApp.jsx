@@ -1793,8 +1793,7 @@ export default function BowlOrderApp() {
                 display: "flex", alignItems: "center", justifyContent: "space-between",
                 boxShadow: "0 6px 24px rgba(212,118,60,0.4)",
                 fontFamily: "inherit",
-                animation: showCartBounce ? "cartBounce 0.5s ease" : "none",
-              }}>
+                              }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <span style={{
                     background: "rgba(255,255,255,0.25)",
@@ -1818,8 +1817,7 @@ export default function BowlOrderApp() {
               boxShadow: "0 4px 16px rgba(212,118,60,0.4)",
               display: "flex", alignItems: "center", justifyContent: "center",
               fontSize: 22, zIndex: 100,
-              animation: showCartBounce ? "cartBounce 0.5s ease" : "none",
-            }}>
+                          }}>
               📋
               <span style={{
                 position: "absolute", top: -4, right: -4,
