@@ -1234,7 +1234,7 @@ export default function BowlOrderApp() {
       </div>
 
       <div style={{ padding: 16 }}>
-        {customerName.trim() ? (
+        {cart.some(i => i.type === "custom") ? (
           <div style={{
             fontFamily: "'Jaapokki', sans-serif",
             fontSize: 22, fontWeight: 900, color: theme.text,
@@ -1252,14 +1252,14 @@ export default function BowlOrderApp() {
               style={{
                 width: "100%", padding: "13px 14px",
                 borderRadius: 12, fontSize: 15, fontFamily: "inherit",
-                border: `2px solid #ef4444`,
-                background: "#fff5f5",
+                border: `2px solid ${customerName.trim() ? theme.accent : "#ef4444"}`,
+                background: customerName.trim() ? theme.bg : "#fff5f5",
                 color: theme.text, outline: "none",
                 boxSizing: "border-box",
               }}
             />
-            <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4, fontWeight: 600 }}>
-              Il nome è obbligatorio per inviare l'ordine
+            <div style={{ fontSize: 11, color: customerName.trim() ? theme.textSoft : "#ef4444", marginTop: 4, fontWeight: customerName.trim() ? 400 : 600 }}>
+              {customerName.trim() ? "Apparirà nell'ordine" : "Il nome è obbligatorio per inviare l'ordine"}
             </div>
           </div>
         )}
