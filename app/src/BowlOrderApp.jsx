@@ -1234,13 +1234,33 @@ export default function BowlOrderApp() {
       </div>
 
       <div style={{ padding: 16 }}>
-        {customerName.trim() && (
+        {customerName.trim() ? (
           <div style={{
             fontFamily: "'Jaapokki', sans-serif",
             fontSize: 22, fontWeight: 900, color: theme.text,
             letterSpacing: 1, marginBottom: 16,
           }}>
             {customerName.trim()}
+          </div>
+        ) : (
+          <div style={{ marginBottom: 16 }}>
+            <input
+              value={customerName}
+              onChange={e => setCustomerName(e.target.value)}
+              placeholder="Il tuo nome..."
+              autoComplete="given-name"
+              style={{
+                width: "100%", padding: "13px 14px",
+                borderRadius: 12, fontSize: 15, fontFamily: "inherit",
+                border: `2px solid #ef4444`,
+                background: "#fff5f5",
+                color: theme.text, outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+            <div style={{ fontSize: 11, color: "#ef4444", marginTop: 4, fontWeight: 600 }}>
+              Il nome è obbligatorio per inviare l'ordine
+            </div>
           </div>
         )}
         {cart.length === 0 ? (
