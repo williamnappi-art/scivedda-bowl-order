@@ -384,6 +384,7 @@ export default function BowlOrderApp() {
     const time = new Date(order.created_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
     const code = order.order_code || "—";
     const note = order.customer_note ? `<div class="note">NOTA: ${order.customer_note}</div>` : "";
+    const dining = order.dining_option === "qui" ? `<div class="dining">🍽 MANGIO QUI</div>` : order.dining_option === "via" ? `<div class="dining">🛍 PORTO VIA</div>` : "";
 
     // Espandi ogni item per qty — ogni bowl = ticket separato
     const bowls = [];
@@ -402,6 +403,7 @@ export default function BowlOrderApp() {
           <div class="bowl-num">Bowl ${idx + 1} di ${total}</div>
           <div class="divider">- - - - - - - - - - - - -</div>
           <div class="cname">${order.customer_name || "Cliente"}</div>
+          ${dining}
           <div class="time-lbl">${time}</div>
           <div class="divider">- - - - - - - - - - - - -</div>
           <div class="iname">${item.item_name}</div>
@@ -422,6 +424,7 @@ export default function BowlOrderApp() {
       .time-lbl { font-size: 12px; color: #666; margin-bottom: 10px; }
       .iname { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
       .ing-line { font-size: 14px; line-height: 1.9; }
+      .dining { font-size: 16px; font-weight: 900; margin-bottom: 4px; }
       .note { margin-top: 10px; font-size: 13px; font-weight: 700; border-top: 1px dashed #000; padding-top: 8px; }
       .pb { page-break-after: always; }
       @media print { button { display: none; } .pb { page-break-after: always; } }
