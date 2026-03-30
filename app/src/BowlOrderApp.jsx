@@ -1579,6 +1579,7 @@ export default function BowlOrderApp() {
             </div>
           )}
           <div style={{ display: "flex", gap: 8 }}>
+            <a href="https://scivedda-linea.vercel.app" target="_blank" rel="noreferrer" style={{ background: "#d4763c", color: "#fff", padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center" }}>LINEA ↗</a>
             <button onClick={fetchOrders} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "10px 18px", borderRadius: 10, cursor: "pointer", fontSize: 18 }}>↻</button>
             <button onClick={adminLogout} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "10px 18px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Esci</button>
           </div>
