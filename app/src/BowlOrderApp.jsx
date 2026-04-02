@@ -1431,8 +1431,8 @@ export default function BowlOrderApp() {
     const today = new Date().toDateString();
     const todayOrders = adminOrders.filter(o => new Date(o.created_at).toDateString() === today);
 
-    const statusColors = { nuovo: "#f59e0b", preparazione: "#3b82f6", pronto: "#10b981" };
-    const statusLabels = { nuovo: "Nuovo", preparazione: "In prep.", pronto: "Pronto ✓" };
+    const statusColors = { preparazione: "#3b82f6", pronto: "#10b981" };
+    const statusLabels = { preparazione: "In prep.", pronto: "Pronto ✓" };
     const isConfirmed = (order) => order.whatsapp_confirmed === true;
 
     const todayActive = adminOrders.filter(o => new Date(o.created_at).toDateString() === today);
@@ -1523,7 +1523,21 @@ export default function BowlOrderApp() {
               ) : (
                 <>
                   <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                    {["nuovo", "preparazione", "pronto"].map(s => (
+                    {/* Tasto Da Pagare / Pagato */}
+                    <button onClick={async () => {
+                      const next = !order.paid;
+                      await supabase.from("orders").update({ paid: next }).eq("id", order.id);
+                      setAdminOrders(prev => prev.map(o => o.id === order.id ? { ...o, paid: next } : o));
+                    }} style={{
+                      flex: 1, padding: "14px 4px", borderRadius: 10, border: "none", cursor: "pointer",
+                      fontSize: 13, fontWeight: 700,
+                      background: order.paid ? "#10b981" : "#ef4444",
+                      color: "#fff",
+                      boxShadow: `0 2px 8px ${order.paid ? "#10b98155" : "#ef444455"}`,
+                      transition: "background 0.2s",
+                    }}>{order.paid ? "Pagato ✓" : "Da Pagare"}</button>
+                    {/* Tasti In prep / Pronto */}
+                    {["preparazione", "pronto"].map(s => (
                       <button key={s} onClick={() => updateOrderStatus(order.id, s)} style={{
                         flex: 1, padding: "14px 4px", borderRadius: 10, border: "none", cursor: "pointer",
                         fontSize: 13, fontWeight: 700,
