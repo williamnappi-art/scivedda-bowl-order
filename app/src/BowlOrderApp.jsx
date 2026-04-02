@@ -126,11 +126,14 @@ const MENU_SECTIONS = [
   {
     id: "special",
     label: "Da Condividere",
-    subtitle: "Cosa bolle in pentola? Guarda un po' cosa abbiamo oggi!",
+    subtitle: "Qualcosa da mettere al centro del tavolo",
     emoji: "⭐",
     items: [
-      { id: "special-today", name: "Il Piatto del Giorno", desc: "Ogni giorno una sorpresa. Cambia ogni giorno in base alla stagione e all'umore dello chef. Chiedi al banco per ingredienti e prezzo.", price: null, allergens: [], vegetarian: null, vegan: null },
-      { id: "zuppa-ceci", name: "Zuppa di Ceci e Rosmarino", desc: "Ceci sardi cotti con rosmarino, aglio, olio e peperoncino. Servita con crostoni di pane carasau. Oggi questo!", price: 9.00, allergens: ["glutine"], vegetarian: true, vegan: true },
+      { id: "hummus-polpette", name: "Hummus e Polpette", desc: "Hummus di ceci, yogurt e limone, polpette Veg di soia e bietola, noci e cipolla fresca e paprika dolce.", price: 12.90, allergens: ["latte", "fruttaAGuscio", "soia"], vegetarian: true, vegan: false },
+      { id: "civraxu-crudo-mare", name: "Civraxu e Crudo di Mare", desc: "Crostone di pane Civraxu, guacamole, philadelphia e salmone crudo, teriyaki, sesamo.", price: 12.90, allergens: ["glutine", "latte", "pesce", "fruttaAGuscio"], vegetarian: false, vegan: false },
+      { id: "civraxu-orto", name: "Civraxu dell'Orto", desc: "Civraxu, crema di caprino, pomodorini di Pula e basilico, verdurine di stagione.", price: 12.90, allergens: ["glutine", "latte", "fruttaAGuscio"], vegetarian: true, vegan: false },
+      { id: "crudi-giorno", name: "Crudi del Giorno", desc: "Tartare di mare del giorno (150gr), frutta di stagione, pomodorini di Pula, teriyaki, sesamo.", price: 12.90, allergens: ["glutine", "pesce", "fruttaAGuscio"], vegetarian: false, vegan: false },
+      { id: "guttiau-chips", name: "Guttiau Chips", desc: "Chips di Guttiau, guacamole casereccio, salmone crudo e spicy maio.", price: 12.90, allergens: ["glutine", "pesce", "uova"], vegetarian: false, vegan: false },
     ],
   },
   {
