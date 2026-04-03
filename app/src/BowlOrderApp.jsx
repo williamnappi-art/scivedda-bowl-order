@@ -293,6 +293,7 @@ export default function BowlOrderApp() {
   const [openSections, setOpenSections] = useState({});
   const [photoModal, setPhotoModal] = useState(null);
   const [modalSize, setModalSize] = useState(null);
+  const [langOpen, setLangOpen] = useState(false);
 
   // ── Admin state ──────────────────────────────────────────────────────
   const [adminSession, setAdminSession] = useState(null);
@@ -692,42 +693,51 @@ export default function BowlOrderApp() {
   const renderMenu = () => (
     <div style={{ paddingBottom: cart.length > 0 ? 100 : 32, background: "#6b8c6e", minHeight: "100vh" }}>
       {/* Language selector */}
-      <div style={{ padding: "12px 16px 0" }}>
-        {/* Mobile: dropdown pill */}
-        <div className="lang-mobile">
-          <select
-            value={i18n.language}
-            onChange={e => i18n.changeLanguage(e.target.value)}
-            style={{
-              background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.3)",
-              color: "#fff", borderRadius: 20, padding: "7px 14px", fontSize: 13,
-              cursor: "pointer", fontFamily: "inherit", fontWeight: 700,
-              appearance: "none", WebkitAppearance: "none",
-              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.7)'/%3E%3C/svg%3E")`,
-              backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center",
-              paddingRight: 28,
-            }}
-          >
-            {LANGUAGES.map(lang => (
-              <option key={lang.code} value={lang.code} style={{ background: "#4a6b4a", color: "#fff" }}>
-                {lang.flag} {lang.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        {/* Desktop: segmented control */}
-        <div className="lang-desktop" style={{ gap: 0, background: "rgba(0,0,0,0.2)", borderRadius: 20, padding: 3, width: "fit-content" }}>
-          {LANGUAGES.map((lang) => (
-            <button key={lang.code} onClick={() => i18n.changeLanguage(lang.code)} style={{
-              background: i18n.language === lang.code ? "rgba(255,255,255,0.9)" : "transparent",
-              border: "none",
-              color: i18n.language === lang.code ? "#3d5c40" : "rgba(255,255,255,0.75)",
-              borderRadius: 17, padding: "5px 12px", fontSize: 12, fontWeight: 700,
-              cursor: "pointer", letterSpacing: 0.5, display: "flex", alignItems: "center", gap: 5,
-              transition: "all 0.15s ease",
-            }}>{lang.flag} {lang.label}</button>
-          ))}
-        </div>
+      <div style={{ padding: "12px 16px 0", position: "relative", width: "fit-content" }}>
+        {/* Trigger pill */}
+        <button
+          onClick={() => setLangOpen(o => !o)}
+          style={{
+            display: "flex", alignItems: "center", gap: 7,
+            background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.35)",
+            color: "#fff", borderRadius: 20, padding: "7px 14px",
+            fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
+          }}
+        >
+          {LANGUAGES.find(l => l.code === i18n.language)?.flag}{" "}
+          {LANGUAGES.find(l => l.code === i18n.language)?.label}
+          <span style={{ fontSize: 10, opacity: 0.7, marginLeft: 2 }}>▾</span>
+        </button>
+        {/* Dropdown */}
+        {langOpen && (
+          <>
+            {/* overlay per chiudere cliccando fuori */}
+            <div onClick={() => setLangOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 99 }} />
+            <div style={{
+              position: "absolute", top: "calc(100% + 6px)", left: 0, zIndex: 100,
+              background: "#3d5c40", borderRadius: 14, overflow: "hidden",
+              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+              border: "1px solid rgba(255,255,255,0.15)",
+              minWidth: 120,
+            }}>
+              {LANGUAGES.map(lang => (
+                <button
+                  key={lang.code}
+                  onClick={() => { i18n.changeLanguage(lang.code); setLangOpen(false); }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10,
+                    width: "100%", padding: "10px 16px",
+                    background: i18n.language === lang.code ? "rgba(255,255,255,0.15)" : "transparent",
+                    border: "none", color: "#fff", fontSize: 13, fontWeight: 700,
+                    cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+                  }}
+                >
+                  {lang.flag} {lang.label}
+                </button>
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Hero */}
