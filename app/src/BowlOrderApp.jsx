@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "./supabase";
+import { useTranslation } from "react-i18next";
 
 // ── Menu Data (in production, this comes from admin panel / API) ──────────
 const MENU_CATEGORIES = {
@@ -266,7 +267,15 @@ const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble,
 });
 
 // ── Main App ────────────────────────────────────────────────────────────
+const LANGUAGES = [
+  { code: "it", label: "ITA" },
+  { code: "en", label: "ENG" },
+  { code: "de", label: "DEU" },
+  { code: "fr", label: "FRA" },
+];
+
 export default function BowlOrderApp() {
+  const { t, i18n } = useTranslation();
   const [view, setView] = useState("menu"); // menu | build | cart | summary | confirm
   const [cart, setCart] = useState([]);
   const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
@@ -682,8 +691,20 @@ export default function BowlOrderApp() {
   // ── Render: Menu ──────────────────────────────────────────────────────
   const renderMenu = () => (
     <div style={{ paddingBottom: cart.length > 0 ? 100 : 32, background: "#6b8c6e", minHeight: "100vh" }}>
+      {/* Language selector */}
+      <div style={{ display: "flex", justifyContent: "flex-end", padding: "12px 16px 0", gap: 6 }}>
+        {LANGUAGES.map(lang => (
+          <button key={lang.code} onClick={() => i18n.changeLanguage(lang.code)} style={{
+            background: i18n.language === lang.code ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)",
+            border: i18n.language === lang.code ? "1px solid rgba(255,255,255,0.6)" : "1px solid rgba(255,255,255,0.2)",
+            color: "#fff", borderRadius: 6, padding: "4px 8px", fontSize: 11, fontWeight: 700,
+            cursor: "pointer", letterSpacing: 0.5,
+          }}>{lang.label}</button>
+        ))}
+      </div>
+
       {/* Hero */}
-      <div style={{ textAlign: "center", padding: "36px 20px 24px" }}>
+      <div style={{ textAlign: "center", padding: "24px 20px 24px" }}>
         <img
           src="/logo-home-scivedda.png"
           alt="Scivedda"
@@ -691,7 +712,7 @@ export default function BowlOrderApp() {
           style={{ width: 200, display: "block", margin: "0 auto 12px", cursor: "default", userSelect: "none" }}
         />
         <p style={{ color: "rgba(255,255,255,0.8)", fontSize: 13, margin: 0, lineHeight: 1.5 }}>
-          Scegli dal menù oppure crea la tua scivedda
+          {t("ui.tagline")}
         </p>
       </div>
 
