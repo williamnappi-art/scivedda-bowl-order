@@ -693,15 +693,19 @@ export default function BowlOrderApp() {
     <div style={{ paddingBottom: cart.length > 0 ? 100 : 32, background: "#6b8c6e", minHeight: "100vh" }}>
       {/* Language selector */}
       <div style={{ padding: "12px 16px 0" }}>
-        {/* Mobile: dropdown */}
+        {/* Mobile: dropdown pill */}
         <div className="lang-mobile">
           <select
             value={i18n.language}
             onChange={e => i18n.changeLanguage(e.target.value)}
             style={{
-              background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)",
-              color: "#fff", borderRadius: 8, padding: "6px 10px", fontSize: 14,
-              cursor: "pointer", fontFamily: "inherit", fontWeight: 600,
+              background: "rgba(0,0,0,0.25)", border: "1px solid rgba(255,255,255,0.3)",
+              color: "#fff", borderRadius: 20, padding: "7px 14px", fontSize: 13,
+              cursor: "pointer", fontFamily: "inherit", fontWeight: 700,
+              appearance: "none", WebkitAppearance: "none",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.7)'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center",
+              paddingRight: 28,
             }}
           >
             {LANGUAGES.map(lang => (
@@ -711,14 +715,16 @@ export default function BowlOrderApp() {
             ))}
           </select>
         </div>
-        {/* Desktop: tasti */}
-        <div className="lang-desktop" style={{ display: "flex", gap: 6 }}>
-          {LANGUAGES.map(lang => (
+        {/* Desktop: segmented control */}
+        <div className="lang-desktop" style={{ gap: 0, background: "rgba(0,0,0,0.2)", borderRadius: 20, padding: 3, width: "fit-content" }}>
+          {LANGUAGES.map((lang) => (
             <button key={lang.code} onClick={() => i18n.changeLanguage(lang.code)} style={{
-              background: i18n.language === lang.code ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)",
-              border: i18n.language === lang.code ? "1px solid rgba(255,255,255,0.6)" : "1px solid rgba(255,255,255,0.2)",
-              color: "#fff", borderRadius: 6, padding: "5px 10px", fontSize: 12, fontWeight: 700,
+              background: i18n.language === lang.code ? "rgba(255,255,255,0.9)" : "transparent",
+              border: "none",
+              color: i18n.language === lang.code ? "#3d5c40" : "rgba(255,255,255,0.75)",
+              borderRadius: 17, padding: "5px 12px", fontSize: 12, fontWeight: 700,
               cursor: "pointer", letterSpacing: 0.5, display: "flex", alignItems: "center", gap: 5,
+              transition: "all 0.15s ease",
             }}>{lang.flag} {lang.label}</button>
           ))}
         </div>
