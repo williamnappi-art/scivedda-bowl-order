@@ -142,9 +142,7 @@ const MENU_SECTIONS = [
     subtitle: "L'unico Pistoccu tradizionale, solo da Scivedda",
     emoji: "🫓",
     items: [
-      { id: "pistoccu-lardo", name: "Pistoccu con Lardo e Miele", desc: "Pistoccu tradizionale dell'Ogliastra con lardo di colonnata, miele di corbezzolo e scaglie di pecorino stagionato. Dolce e salato in perfetto equilibrio.", price: 7.50, allergens: ["glutine", "latte"], vegetarian: false, vegan: false },
-      { id: "pistoccu-ricotta", name: "Pistoccu con Ricotta e Pomodoro", desc: "Pistoccu con ricotta fresca di pecora, pomodorino arrosto, origano e olio extravergine del Sulcis.", price: 6.50, allergens: ["glutine", "latte"], vegetarian: true, vegan: false },
-      { id: "pistoccu-tonno", name: "Pistoccu con Tonno e Olive", desc: "Pistoccu con tonno pinna gialla sott'olio, olive taggiasche, capperi e pomodorino. Semplice e perfetto.", price: 8.00, allergens: ["glutine", "pesce"], vegetarian: false, vegan: false },
+      { id: "pistoccu-maialetto", name: "Pistoccu col Maialetto", desc: "Maialetto sfilacciato cotto a bassa temperatura per un giorno intero, guacamole con cetriolo, cipolla e pomodoro secco, ricotta mustia, pomodorini di Pula e cetriolo, teriyaki e maionese piccante.", sizes: { regular: 13.90, xl: 16.90 }, allergens: ["latte", "glutine", "sesamo", "fruttaAGuscio"], vegetarian: false, vegan: false },
     ],
   },
   {
@@ -281,6 +279,7 @@ export default function BowlOrderApp() {
   const [bowlNameEdited, setBowlNameEdited] = useState(false);
   const [openSections, setOpenSections] = useState({});
   const [photoModal, setPhotoModal] = useState(null);
+  const [modalSize, setModalSize] = useState(null);
 
   // ── Admin state ──────────────────────────────────────────────────────
   const [adminSession, setAdminSession] = useState(null);
@@ -781,7 +780,7 @@ export default function BowlOrderApp() {
                         boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
                         cursor: "pointer",
                         flexShrink: 0,
-                      }} onClick={() => setPhotoModal({ ...item, sectionEmoji: section.emoji })}>
+                      }} onClick={() => { setPhotoModal({ ...item, sectionEmoji: section.emoji }); setModalSize(null); }}>
                         {/* Image area */}
                         <div style={{
                           height: 120,
@@ -1764,25 +1763,56 @@ export default function BowlOrderApp() {
               )}
 
               {/* Price + Add */}
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-                <span style={{
-                  fontFamily: "'Jaapokki', sans-serif",
-                  fontSize: 26, color: theme.accent, letterSpacing: 0.5,
-                }}>
-                  {photoModal.price ? `€${photoModal.price.toFixed(2)}` : "Chiedi al banco"}
-                </span>
-                {photoModal.price && (
-                  <button onClick={() => { addMenuItemToCart(photoModal); setPhotoModal(null); }} style={{
-                    flex: 1, maxWidth: 180, padding: "14px",
-                    background: theme.accent, border: "none", borderRadius: 14,
-                    color: "#fff", fontSize: 15, fontWeight: 700,
-                    cursor: "pointer", fontFamily: "inherit",
-                    boxShadow: "0 4px 14px rgba(212,118,60,0.3)",
-                  }}>
-                    + Aggiungi
+              {photoModal.sizes ? (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: theme.textSoft, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Scegli la taglia</div>
+                  <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
+                    {Object.entries(photoModal.sizes).map(([sizeKey, sizePrice]) => (
+                      <button key={sizeKey} onClick={() => setModalSize(sizeKey)} style={{
+                        flex: 1, padding: "12px 8px", borderRadius: 12, cursor: "pointer",
+                        border: `2px solid ${modalSize === sizeKey ? theme.accent : theme.border}`,
+                        background: modalSize === sizeKey ? theme.accentLight : theme.card,
+                        fontFamily: "inherit", transition: "all 0.15s",
+                      }}>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: theme.text, textTransform: "uppercase" }}>{sizeKey}</div>
+                        <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 18, color: theme.accent, marginTop: 2 }}>€{sizePrice.toFixed(2)}</div>
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    disabled={!modalSize}
+                    onClick={() => {
+                      addMenuItemToCart({ ...photoModal, price: photoModal.sizes[modalSize], name: `${photoModal.name} (${modalSize.toUpperCase()})` });
+                      setPhotoModal(null);
+                      setModalSize(null);
+                    }}
+                    style={{
+                      width: "100%", padding: "14px",
+                      background: modalSize ? theme.accent : "#ccc",
+                      border: "none", borderRadius: 14,
+                      color: "#fff", fontSize: 15, fontWeight: 700,
+                      cursor: modalSize ? "pointer" : "not-allowed", fontFamily: "inherit",
+                      boxShadow: modalSize ? "0 4px 14px rgba(212,118,60,0.3)" : "none",
+                    }}>
+                    {modalSize ? `+ Aggiungi (${modalSize.toUpperCase()})` : "Scegli la taglia"}
                   </button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+                  <span style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 26, color: theme.accent, letterSpacing: 0.5 }}>
+                    {photoModal.price ? `€${photoModal.price.toFixed(2)}` : "Chiedi al banco"}
+                  </span>
+                  {photoModal.price && (
+                    <button onClick={() => { addMenuItemToCart(photoModal); setPhotoModal(null); }} style={{
+                      flex: 1, maxWidth: 180, padding: "14px",
+                      background: theme.accent, border: "none", borderRadius: 14,
+                      color: "#fff", fontSize: 15, fontWeight: 700,
+                      cursor: "pointer", fontFamily: "inherit",
+                      boxShadow: "0 4px 14px rgba(212,118,60,0.3)",
+                    }}>+ Aggiungi</button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
