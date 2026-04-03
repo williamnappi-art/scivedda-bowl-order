@@ -873,10 +873,10 @@ export default function BowlOrderApp() {
                               <span style={{ background: "#e65100", color: "#fff", fontSize: 7, fontWeight: 700, padding: "2px 5px", borderRadius: 4, textTransform: "uppercase" }}>⭐</span>
                             )}
                             {item.vegan && (
-                              <span style={{ background: "#2e7d32", color: "#fff", fontSize: 7, fontWeight: 700, padding: "2px 5px", borderRadius: 4 }}>VG</span>
+                              <span style={{ background: "#2e7d32", color: "#fff", fontSize: 9, fontWeight: 700, padding: "3px 6px", borderRadius: 5, display: "flex", alignItems: "center", gap: 2 }}>🌱 Vegan</span>
                             )}
                             {!item.vegan && item.vegetarian && (
-                              <span style={{ background: "#558b2f", color: "#fff", fontSize: 7, fontWeight: 700, padding: "2px 5px", borderRadius: 4 }}>V</span>
+                              <span style={{ background: "#558b2f", color: "#fff", fontSize: 9, fontWeight: 700, padding: "3px 6px", borderRadius: 5, display: "flex", alignItems: "center", gap: 2 }}>🌿 Veg</span>
                             )}
                           </div>
                         </div>
@@ -1809,8 +1809,8 @@ export default function BowlOrderApp() {
                   fontSize: 20, color: theme.text, margin: 0, letterSpacing: 0.5, lineHeight: 1.3,
                 }}>{photoModal.name}</h2>
                 <div style={{ display: "flex", gap: 4, flexShrink: 0, marginTop: 2 }}>
-                  {photoModal.vegan && <span style={{ background: "#2e7d32", color: "#fff", fontSize: 9, fontWeight: 700, padding: "3px 7px", borderRadius: 5 }}>VG</span>}
-                  {!photoModal.vegan && photoModal.vegetarian && <span style={{ background: "#558b2f", color: "#fff", fontSize: 9, fontWeight: 700, padding: "3px 7px", borderRadius: 5 }}>V</span>}
+                  {photoModal.vegan && <span style={{ background: "#2e7d32", color: "#fff", fontSize: 10, fontWeight: 700, padding: "4px 8px", borderRadius: 6 }}>🌱 Vegan</span>}
+                  {!photoModal.vegan && photoModal.vegetarian && <span style={{ background: "#558b2f", color: "#fff", fontSize: 10, fontWeight: 700, padding: "4px 8px", borderRadius: 6 }}>🌿 Veg</span>}
                 </div>
               </div>
 
