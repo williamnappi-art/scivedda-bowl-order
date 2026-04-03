@@ -278,6 +278,7 @@ export default function BowlOrderApp() {
   const [showCartBounce, setShowCartBounce] = useState(false);
   const [warnedStep, setWarnedStep] = useState(null);
   const [bowlName, setBowlName] = useState("");
+  const [bowlNameEdited, setBowlNameEdited] = useState(false);
   const [openSections, setOpenSections] = useState({});
   const [photoModal, setPhotoModal] = useState(null);
 
@@ -521,6 +522,7 @@ export default function BowlOrderApp() {
     setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
     setPortions(prev => { const next = { ...prev }; Object.keys(bowlPortions).forEach(k => delete next[k]); return next; });
     setBowlName("");
+    setBowlNameEdited(false);
     setActiveCategory("size");
     setView("cart");
   };
@@ -956,7 +958,7 @@ export default function BowlOrderApp() {
                   </div>
                   <input
                     value={customerName}
-                    onChange={e => { setCustomerName(e.target.value); if (!bowlName) setBowlName(e.target.value); }}
+                    onChange={e => { setCustomerName(e.target.value); if (!bowlNameEdited) setBowlName(e.target.value); }}
                     placeholder="Scrivi il tuo nome..."
                     autoComplete="given-name"
                     style={{
@@ -981,7 +983,7 @@ export default function BowlOrderApp() {
                 </div>
                 <input
                   value={bowlName}
-                  onChange={e => setBowlName(e.target.value)}
+                  onChange={e => { setBowlName(e.target.value); setBowlNameEdited(true); }}
                   placeholder={cart.filter(i => i.type === "custom").length === 0 ? `${customerName || "il tuo nome"}` : "Nome dell'amico..."}
                   style={{
                     width: "100%", padding: "13px 14px",
@@ -1329,7 +1331,7 @@ export default function BowlOrderApp() {
             ))}
 
             {/* Aggiungi un'altra Scivedda */}
-            <button onClick={() => { setActiveCategory("size"); setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] }); setPortions({}); setBowlName(""); setView("build"); }} style={{
+            <button onClick={() => { setActiveCategory("size"); setSelected({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] }); setPortions({}); setBowlName(""); setBowlNameEdited(false); setView("build"); }} style={{
               width: "100%", padding: "14px",
               background: theme.accentLight,
               border: `2px dashed ${theme.accent}`,
