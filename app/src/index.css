@@ -32,3 +32,12 @@ button {
 input, textarea {
   font-family: inherit;
 }
+
+/* Language selector responsive */
+.lang-mobile { display: none; }
+.lang-desktop { display: flex; }
+
+@media (max-width: 600px) {
+  .lang-mobile { display: block; }
+  .lang-desktop { display: none; }
+}

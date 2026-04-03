@@ -268,10 +268,10 @@ const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble,
 
 // ── Main App ────────────────────────────────────────────────────────────
 const LANGUAGES = [
-  { code: "it", label: "ITA" },
-  { code: "en", label: "ENG" },
-  { code: "de", label: "DEU" },
-  { code: "fr", label: "FRA" },
+  { code: "it", label: "ITA", flag: "🇮🇹" },
+  { code: "en", label: "ENG", flag: "🇬🇧" },
+  { code: "de", label: "DEU", flag: "🇩🇪" },
+  { code: "fr", label: "FRA", flag: "🇫🇷" },
 ];
 
 export default function BowlOrderApp() {
@@ -692,15 +692,36 @@ export default function BowlOrderApp() {
   const renderMenu = () => (
     <div style={{ paddingBottom: cart.length > 0 ? 100 : 32, background: "#6b8c6e", minHeight: "100vh" }}>
       {/* Language selector */}
-      <div style={{ display: "flex", justifyContent: "flex-end", padding: "12px 16px 0", gap: 6 }}>
-        {LANGUAGES.map(lang => (
-          <button key={lang.code} onClick={() => i18n.changeLanguage(lang.code)} style={{
-            background: i18n.language === lang.code ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)",
-            border: i18n.language === lang.code ? "1px solid rgba(255,255,255,0.6)" : "1px solid rgba(255,255,255,0.2)",
-            color: "#fff", borderRadius: 6, padding: "4px 8px", fontSize: 11, fontWeight: 700,
-            cursor: "pointer", letterSpacing: 0.5,
-          }}>{lang.label}</button>
-        ))}
+      <div style={{ padding: "12px 16px 0" }}>
+        {/* Mobile: dropdown */}
+        <div className="lang-mobile">
+          <select
+            value={i18n.language}
+            onChange={e => i18n.changeLanguage(e.target.value)}
+            style={{
+              background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.4)",
+              color: "#fff", borderRadius: 8, padding: "6px 10px", fontSize: 14,
+              cursor: "pointer", fontFamily: "inherit", fontWeight: 600,
+            }}
+          >
+            {LANGUAGES.map(lang => (
+              <option key={lang.code} value={lang.code} style={{ background: "#4a6b4a", color: "#fff" }}>
+                {lang.flag} {lang.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        {/* Desktop: tasti */}
+        <div className="lang-desktop" style={{ display: "flex", gap: 6 }}>
+          {LANGUAGES.map(lang => (
+            <button key={lang.code} onClick={() => i18n.changeLanguage(lang.code)} style={{
+              background: i18n.language === lang.code ? "rgba(255,255,255,0.3)" : "rgba(255,255,255,0.1)",
+              border: i18n.language === lang.code ? "1px solid rgba(255,255,255,0.6)" : "1px solid rgba(255,255,255,0.2)",
+              color: "#fff", borderRadius: 6, padding: "5px 10px", fontSize: 12, fontWeight: 700,
+              cursor: "pointer", letterSpacing: 0.5, display: "flex", alignItems: "center", gap: 5,
+            }}>{lang.flag} {lang.label}</button>
+          ))}
+        </div>
       </div>
 
       {/* Hero */}
