@@ -143,6 +143,7 @@ const MENU_SECTIONS = [
     emoji: "🫓",
     items: [
       { id: "pistoccu-maialetto", name: "Pistoccu col Maialetto", desc: "Maialetto sfilacciato cotto a bassa temperatura per un giorno intero, guacamole con cetriolo, cipolla e pomodoro secco, ricotta mustia, pomodorini di Pula e cetriolo, teriyaki e maionese piccante.", sizes: { regular: 13.90, xl: 16.90 }, allergens: ["latte", "glutine", "sesamo", "fruttaAGuscio"], vegetarian: false, vegan: false },
+      { id: "pistoccu-crudi-mare", name: "Crudi di Mare", desc: "Crudo del giorno, guacamole casereccio con cipolla, cetriolo e pomodoro secco, frutta di stagione, mango fresco, soia e teriyaki.\n\n*Alcuni prodotti sono trattati a temperature inferiori allo zero per garantire la massima qualità e sicurezza alimentare.", sizes: { regular: 13.90, xl: 16.90 }, allergens: ["glutine", "latte", "soia", "sesamo", "fruttaAGuscio"], vegetarian: false, vegan: false },
     ],
   },
   {
@@ -1775,7 +1776,11 @@ export default function BowlOrderApp() {
                         fontFamily: "inherit", transition: "all 0.15s",
                       }}>
                         <div style={{ fontWeight: 700, fontSize: 14, color: theme.text, textTransform: "uppercase" }}>{sizeKey}</div>
-                        <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 18, color: theme.accent, marginTop: 2 }}>€{sizePrice.toFixed(2)}</div>
+                        <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 18, color: theme.accent, marginTop: 2 }}>
+                          {sizeKey === "regular"
+                            ? `€${sizePrice.toFixed(2)}`
+                            : `+${(sizePrice - photoModal.sizes.regular).toFixed(0)}€`}
+                        </div>
                       </button>
                     ))}
                   </div>
