@@ -3,214 +3,222 @@ import { supabase } from "./supabase";
 import { useTranslation } from "react-i18next";
 
 // ── Menu Data (in production, this comes from admin panel / API) ──────────
-const MENU_CATEGORIES = {
+// Builder categories — built with t() inside component via getMenuCategories(t)
+const getMenuCategories = (t) => ({
   basi: {
-    label: "Base",
+    label: t("builder.basi_label"),
     emoji: "🍚",
     color: "#f5e6d3",
     items: [
-      { id: "fregola", name: "Fregula Sarda", cal: 150, icon: "🟤" },
-      { id: "riso-bianco", name: "Riso Bianco di Oristano", cal: 130, icon: "🍚" },
-      { id: "riso-rosso", name: "Riso Rosso Integrale di Oristano", cal: 125, icon: "🔴" },
-      { id: "riso-nero", name: "Riso Nero Integrale di Oristano", cal: 120, icon: "⚫" },
-      { id: "farro", name: "Farro di Sardegna", cal: 140, icon: "🌾" },
-      { id: "insalata", name: "Insalata di Stagione", cal: 20, icon: "🥬" },
-      { id: "riso-insalata", name: "Riso + Insalata", cal: 90, icon: "🍱" },
-      { id: "fregola-insalata", name: "Fregula + Insalata", cal: 95, icon: "🥗" },
+      { id: "fregola",          name: t("builder.fregola_name"),          cal: 150, icon: "🟤" },
+      { id: "riso-bianco",      name: t("builder.riso-bianco_name"),      cal: 130, icon: "🍚" },
+      { id: "riso-rosso",       name: t("builder.riso-rosso_name"),       cal: 125, icon: "🔴" },
+      { id: "riso-nero",        name: t("builder.riso-nero_name"),        cal: 120, icon: "⚫" },
+      { id: "farro",            name: t("builder.farro_name"),            cal: 140, icon: "🌾" },
+      { id: "insalata",         name: t("builder.insalata_name"),         cal: 20,  icon: "🥬" },
+      { id: "riso-insalata",    name: t("builder.riso-insalata_name"),    cal: 90,  icon: "🍱" },
+      { id: "fregola-insalata", name: t("builder.fregola-insalata_name"), cal: 95,  icon: "🥗" },
     ],
   },
   proteine: {
-    label: "Proteina",
+    label: t("builder.proteine_label"),
     emoji: "🐟",
     color: "#ffd6d6",
     items: [
-      { id: "salmone-crudo",   name: "Salmone Crudo",        cal: 180, icon: "🍣" },
-      { id: "salmone-cotto",   name: "Salmone Cotto",        cal: 170, icon: "🐟" },
-      { id: "tonno-crudo",     name: "Tonno Crudo",          cal: 160, icon: "🔴" },
-      { id: "tonno-cotto",     name: "Tonno Cotto",          cal: 150, icon: "🫙" },
-      { id: "gambero-cotto",   name: "Gambero Cotto",        cal: 100, icon: "🦐", extra: 2 },
-      { id: "polpo",           name: "Polpo Tradizionale",   cal: 120, icon: "🐙", extra: 3 },
-      { id: "uovo-pula",       name: "Uovo Morbido di Pula", cal: 90,  icon: "🥚" },
-      { id: "maiale-sfilacciato", name: "Maiale Sfilacciato", cal: 200, icon: "🥩", extra: 3 },
-      { id: "polletto",        name: "Polletto Ruspante",    cal: 170, icon: "🍗" },
-      { id: "tofu-naturale",   name: "Tofu Naturale",        cal: 90,  icon: "🧈" },
-      { id: "legumi",          name: "Legumi del Campidano", cal: 130, icon: "🫘" },
+      { id: "salmone-crudo",       name: t("builder.salmone-crudo_name"),       cal: 180, icon: "🍣" },
+      { id: "salmone-cotto",       name: t("builder.salmone-cotto_name"),       cal: 170, icon: "🐟" },
+      { id: "tonno-crudo",         name: t("builder.tonno-crudo_name"),         cal: 160, icon: "🔴" },
+      { id: "tonno-cotto",         name: t("builder.tonno-cotto_name"),         cal: 150, icon: "🫙" },
+      { id: "gambero-cotto",       name: t("builder.gambero-cotto_name"),       cal: 100, icon: "🦐", extra: 2 },
+      { id: "polpo",               name: t("builder.polpo_name"),               cal: 120, icon: "🐙", extra: 3 },
+      { id: "uovo-pula",           name: t("builder.uovo-pula_name"),           cal: 90,  icon: "🥚" },
+      { id: "maiale-sfilacciato",  name: t("builder.maiale-sfilacciato_name"),  cal: 200, icon: "🥩", extra: 3 },
+      { id: "polletto",            name: t("builder.polletto_name"),            cal: 170, icon: "🍗" },
+      { id: "tofu-naturale",       name: t("builder.tofu-naturale_name"),       cal: 90,  icon: "🧈" },
+      { id: "legumi",              name: t("builder.legumi_name"),              cal: 130, icon: "🫘" },
     ],
   },
   verdure: {
-    label: "Verdure & Frutta",
+    label: t("builder.verdure_label"),
     emoji: "🥑",
     color: "#d4edda",
     items: [
-      { id: "avocado",           name: "Avocado",              cal: 80,  icon: "🥑", extra: 1.5 },
-      { id: "cipolla-rossa",     name: "Cipolla Rossa",        cal: 10,  icon: "🧅" },
-      { id: "olive-parteolla",   name: "Olive del Parteolla",  cal: 40,  icon: "🫒" },
-      { id: "cetriolo",          name: "Cetriolo",             cal: 15,  icon: "🥒" },
-      { id: "frutta-stagione",   name: "Frutta di Stagione",   cal: 50,  icon: "🍓" },
-      { id: "pomodorini-pula",   name: "Pomodorini di Pula",   cal: 18,  icon: "🍅" },
-      { id: "edamame",           name: "Edamame",              cal: 120, icon: "🫛" },
-      { id: "ananas",            name: "Ananas",               cal: 40,  icon: "🍍" },
-      { id: "mais",              name: "Mais",                 cal: 35,  icon: "🌽" },
-      { id: "jalapeno",          name: "Jalapeño",             cal: 5,   icon: "🌶️" },
-      { id: "mango",             name: "Mango",                cal: 60,  icon: "🥭", extra: 1 },
-      { id: "carote",            name: "Carote",               cal: 20,  icon: "🥕" },
-      { id: "ceci",              name: "Ceci",                 cal: 130, icon: "🫘" },
-      { id: "zucchina-fritta",   name: "Zucchina Fritta",      cal: 70,  icon: "🥬", extra: 1.5 },
-      { id: "cavolo-viola",      name: "Cavolo Viola",         cal: 25,  icon: "🫐" },
-      { id: "finocchio",         name: "Finocchio",            cal: 20,  icon: "🌿" },
-      { id: "verdura-stagione",  name: "Verdura di Stagione",  cal: 30,  icon: "🥦", extra: 1.5 },
-      { id: "pomodoro-secco",    name: "Pomodoro Secco",       cal: 45,  icon: "🔴" },
+      { id: "avocado",          name: t("builder.avocado_name"),          cal: 80,  icon: "🥑", extra: 1.5 },
+      { id: "cipolla-rossa",    name: t("builder.cipolla-rossa_name"),    cal: 10,  icon: "🧅" },
+      { id: "olive-parteolla",  name: t("builder.olive-parteolla_name"),  cal: 40,  icon: "🫒" },
+      { id: "cetriolo",         name: t("builder.cetriolo_name"),         cal: 15,  icon: "🥒" },
+      { id: "frutta-stagione",  name: t("builder.frutta-stagione_name"),  cal: 50,  icon: "🍓" },
+      { id: "pomodorini-pula",  name: t("builder.pomodorini-pula_name"),  cal: 18,  icon: "🍅" },
+      { id: "edamame",          name: t("builder.edamame_name"),          cal: 120, icon: "🫛" },
+      { id: "ananas",           name: t("builder.ananas_name"),           cal: 40,  icon: "🍍" },
+      { id: "mais",             name: t("builder.mais_name"),             cal: 35,  icon: "🌽" },
+      { id: "jalapeno",         name: t("builder.jalapeno_name"),         cal: 5,   icon: "🌶️" },
+      { id: "mango",            name: t("builder.mango_name"),            cal: 60,  icon: "🥭", extra: 1 },
+      { id: "carote",           name: t("builder.carote_name"),           cal: 20,  icon: "🥕" },
+      { id: "ceci",             name: t("builder.ceci_name"),             cal: 130, icon: "🫘" },
+      { id: "zucchina-fritta",  name: t("builder.zucchina-fritta_name"),  cal: 70,  icon: "🥬", extra: 1.5 },
+      { id: "cavolo-viola",     name: t("builder.cavolo-viola_name"),     cal: 25,  icon: "🫐" },
+      { id: "finocchio",        name: t("builder.finocchio_name"),        cal: 20,  icon: "🌿" },
+      { id: "verdura-stagione", name: t("builder.verdura-stagione_name"), cal: 30,  icon: "🥦", extra: 1.5 },
+      { id: "pomodoro-secco",   name: t("builder.pomodoro-secco_name"),   cal: 45,  icon: "🔴" },
     ],
   },
   croccanti: {
-    label: "Croccanti",
+    label: t("builder.croccanti_label"),
     emoji: "✨",
     color: "#fdf3e3",
     items: [
-      { id: "chips-cipolla",   name: "Chips di Cipolla",  cal: 45,  icon: "🧅" },
-      { id: "semi-zucca",      name: "Semi di Zucca",     cal: 35,  icon: "🎃" },
-      { id: "sesamo",          name: "Sesamo",            cal: 20,  icon: "⬜" },
-      { id: "zenzero-rosa",    name: "Zenzero Rosa",      cal: 10,  icon: "🌸", extra: 0.5 },
-      { id: "noci",            name: "Noci",              cal: 65,  icon: "🫘" },
-      { id: "mandorle",        name: "Mandorle",          cal: 60,  icon: "🌰" },
-      { id: "semi-canapa",     name: "Semi di Canapa",    cal: 30,  icon: "🌿" },
-      { id: "anacardi",        name: "Anacardi",          cal: 55,  icon: "🥜", extra: 0.5 },
-      { id: "pistacchio",      name: "Pistacchio",        cal: 60,  icon: "💚", extra: 0.5 },
-      { id: "kataifi",         name: "Kataifi",           cal: 50,  icon: "🥐", extra: 1 },
+      { id: "chips-cipolla", name: t("builder.chips-cipolla_name"), cal: 45, icon: "🧅" },
+      { id: "semi-zucca",    name: t("builder.semi-zucca_name"),    cal: 35, icon: "🎃" },
+      { id: "sesamo",        name: t("builder.sesamo_name"),        cal: 20, icon: "⬜" },
+      { id: "zenzero-rosa",  name: t("builder.zenzero-rosa_name"),  cal: 10, icon: "🌸", extra: 0.5 },
+      { id: "noci",          name: t("builder.noci_name"),          cal: 65, icon: "🫘" },
+      { id: "mandorle",      name: t("builder.mandorle_name"),      cal: 60, icon: "🌰" },
+      { id: "semi-canapa",   name: t("builder.semi-canapa_name"),   cal: 30, icon: "🌿" },
+      { id: "anacardi",      name: t("builder.anacardi_name"),      cal: 55, icon: "🥜", extra: 0.5 },
+      { id: "pistacchio",    name: t("builder.pistacchio_name"),    cal: 60, icon: "💚", extra: 0.5 },
+      { id: "kataifi",       name: t("builder.kataifi_name"),       cal: 50, icon: "🥐", extra: 1 },
     ],
   },
   salse: {
-    label: "Salsa",
+    label: t("builder.salse_label"),
     emoji: "🫗",
     color: "#fff3cd",
     items: [
-      { id: "soia",              name: "Soia",                  cal: 10, icon: "🫗" },
-      { id: "wasabi-maio",       name: "Wasabi Maio",           cal: 40, icon: "🟢" },
-      { id: "sale-zenzero",      name: "Sale allo Zenzero",     cal: 5,  icon: "🧂" },
-      { id: "teriyaki",          name: "Teriyaki",              cal: 25, icon: "🍯" },
-      { id: "zenzero-maio",      name: "Zenzero Maio",          cal: 40, icon: "🫚" },
-      { id: "spicy-maio",        name: "Spicy Maio",            cal: 45, icon: "🌶️" },
-      { id: "yogurt-dressing",   name: "Yogurt Dressing",       cal: 35, icon: "🥛" },
-      { id: "maio-tartufo",      name: "Maionese Tartufo",      cal: 50, icon: "🍄", extra: 0.5 },
-      { id: "olio-evo",          name: "Olio EVO",              cal: 90, icon: "🫒" },
-      { id: "sale",              name: "Sale",                  cal: 0,  icon: "🧂" },
-      { id: "wasabi",            name: "Wasabi",                cal: 5,  icon: "🌿" },
+      { id: "soia",            name: t("builder.soia_name"),            cal: 10, icon: "🫗" },
+      { id: "wasabi-maio",     name: t("builder.wasabi-maio_name"),     cal: 40, icon: "🟢" },
+      { id: "sale-zenzero",    name: t("builder.sale-zenzero_name"),    cal: 5,  icon: "🧂" },
+      { id: "teriyaki",        name: t("builder.teriyaki_name"),        cal: 25, icon: "🍯" },
+      { id: "zenzero-maio",    name: t("builder.zenzero-maio_name"),    cal: 40, icon: "🫚" },
+      { id: "spicy-maio",      name: t("builder.spicy-maio_name"),      cal: 45, icon: "🌶️" },
+      { id: "yogurt-dressing", name: t("builder.yogurt-dressing_name"), cal: 35, icon: "🥛" },
+      { id: "maio-tartufo",    name: t("builder.maio-tartufo_name"),    cal: 50, icon: "🍄", extra: 0.5 },
+      { id: "olio-evo",        name: t("builder.olio-evo_name"),        cal: 90, icon: "🫒" },
+      { id: "sale",            name: t("builder.sale_name"),            cal: 0,  icon: "🧂" },
+      { id: "wasabi",          name: t("builder.wasabi_name"),          cal: 5,  icon: "🌿" },
     ],
   },
   special: {
-    label: "Special",
+    label: t("builder.special_label"),
     emoji: "⭐",
     color: "#f0e6f6",
     items: [
-      { id: "caprino",       name: "Caprino Fresco",                      cal: 70,  icon: "🧀", extra: 1 },
-      { id: "cipolla-cara",  name: "Cipolla Caramellata",                 cal: 55,  icon: "🧅", extra: 1 },
-      { id: "ricotta-mustia",name: "Ricotta Mustia",                      cal: 80,  icon: "🔶", extra: 1 },
-      { id: "philadelphia",  name: "Philadelphia",                        cal: 90,  icon: "🫙", extra: 1 },
-      { id: "bufala",        name: "Mozzarella di Bufala",                cal: 100, icon: "🫗", extra: 1 },
-      { id: "casu-axedu",    name: "Casu Axedu",                         cal: 65,  icon: "🍶", extra: 1 },
-      { id: "bottarga",      name: "Bottarga",                           cal: 40,  icon: "🟠", extra: 1 },
-      { id: "wakame",        name: "Alga Wakame",                        cal: 15,  icon: "🌿", extra: 1 },
-      { id: "pane-guttiau",  name: "Pane Guttiau",                       cal: 60,  icon: "🫓", extra: 1 },
+      { id: "caprino",        name: t("builder.caprino_name"),        cal: 70,  icon: "🧀", extra: 1 },
+      { id: "cipolla-cara",   name: t("builder.cipolla-cara_name"),   cal: 55,  icon: "🧅", extra: 1 },
+      { id: "ricotta-mustia", name: t("builder.ricotta-mustia_name"), cal: 80,  icon: "🔶", extra: 1 },
+      { id: "philadelphia",   name: t("builder.philadelphia_name"),   cal: 90,  icon: "🫙", extra: 1 },
+      { id: "bufala",         name: t("builder.bufala_name"),         cal: 100, icon: "🫗", extra: 1 },
+      { id: "casu-axedu",     name: t("builder.casu-axedu_name"),     cal: 65,  icon: "🍶", extra: 1 },
+      { id: "bottarga",       name: t("builder.bottarga_name"),       cal: 40,  icon: "🟠", extra: 1 },
+      { id: "wakame",         name: t("builder.wakame_name"),         cal: 15,  icon: "🌿", extra: 1 },
+      { id: "pane-guttiau",   name: t("builder.pane-guttiau_name"),   cal: 60,  icon: "🫓", extra: 1 },
     ],
   },
+});
+
+const ALLERGEN_EMOJIS = {
+  glutine: "🌾", uova: "🥚", latte: "🥛",
+  pesce: "🐟", crostacei: "🦐", soia: "🫘",
+  sesamo: "⬜", fruttaGuscio: "🌰",
+  sedano: "🌿", solfiti: "🍷", molluschi: "🦪",
+  arachidi: "🥜", senape: "🌼",
 };
 
-const ALLERGEN_LABELS = {
-  glutine: "🌾 Glutine", uova: "🥚 Uova", latte: "🥛 Latte",
-  pesce: "🐟 Pesce", crostacei: "🦐 Crostacei", soia: "🫘 Soia",
-  sesamo: "⬜ Sesamo", fruttaGuscio: "🌰 Frutta a guscio",
-  sedano: "🌿 Sedano", solfiti: "🍷 Solfiti", molluschi: "🦪 Molluschi",
-  arachidi: "🥜 Arachidi", senape: "🌼 Senape",
+// Returns allergen label using translations
+const getAllergenLabel = (key, t) => {
+  const emoji = ALLERGEN_EMOJIS[key] || "";
+  return `${emoji} ${t(`allergens.${key}`, key)}`;
 };
 
-const MENU_SECTIONS = [
+// MENU_SECTIONS is built dynamically inside the component using t() — see getMenuSections(t) below
+const getMenuSections = (t) => [
   {
     id: "special",
-    label: "Da Condividere",
-    subtitle: "Qualcosa da mettere al centro del tavolo",
+    label: t("menu_sections.special_label"),
+    subtitle: t("menu_sections.special_subtitle"),
     emoji: "⭐",
     items: [
-      { id: "hummus-polpette", name: "Hummus e Polpette", desc: "Hummus di ceci, yogurt e limone, polpette Veg di soia e bietola, noci e cipolla fresca e paprika dolce.", price: 12.90, allergens: ["latte", "fruttaAGuscio", "soia"], vegetarian: true, vegan: false },
-      { id: "civraxu-crudo-mare", name: "Civraxu e Crudo di Mare", desc: "Crostone di pane Civraxu, guacamole, philadelphia e salmone crudo, teriyaki, sesamo.", price: 12.90, allergens: ["glutine", "latte", "pesce", "fruttaAGuscio"], vegetarian: false, vegan: false },
-      { id: "civraxu-orto", name: "Civraxu dell'Orto", desc: "Civraxu, crema di caprino, pomodorini di Pula e basilico, verdurine di stagione.", price: 12.90, allergens: ["glutine", "latte", "fruttaAGuscio"], vegetarian: true, vegan: false },
-      { id: "crudi-giorno", name: "Crudi del Giorno", desc: "Tartare di mare del giorno (150gr), frutta di stagione, pomodorini di Pula, teriyaki, sesamo.", price: 12.90, allergens: ["glutine", "pesce", "fruttaAGuscio"], vegetarian: false, vegan: false },
-      { id: "guttiau-chips", name: "Guttiau Chips", desc: "Chips di Guttiau, guacamole casereccio, salmone crudo e spicy maio.", price: 12.90, allergens: ["glutine", "pesce", "uova"], vegetarian: false, vegan: false },
+      { id: "hummus-polpette", name: t("menu_items.hummus-polpette_name"), desc: t("menu_items.hummus-polpette_desc"), price: 12.90, allergens: ["latte", "fruttaGuscio", "soia"], vegetarian: true, vegan: false },
+      { id: "civraxu-crudo-mare", name: t("menu_items.civraxu-crudo-mare_name"), desc: t("menu_items.civraxu-crudo-mare_desc"), price: 12.90, allergens: ["glutine", "latte", "pesce", "fruttaGuscio"], vegetarian: false, vegan: false },
+      { id: "civraxu-orto", name: t("menu_items.civraxu-orto_name"), desc: t("menu_items.civraxu-orto_desc"), price: 12.90, allergens: ["glutine", "latte", "fruttaGuscio"], vegetarian: true, vegan: false },
+      { id: "crudi-giorno", name: t("menu_items.crudi-giorno_name"), desc: t("menu_items.crudi-giorno_desc"), price: 12.90, allergens: ["glutine", "pesce", "fruttaGuscio"], vegetarian: false, vegan: false },
+      { id: "guttiau-chips", name: t("menu_items.guttiau-chips_name"), desc: t("menu_items.guttiau-chips_desc"), price: 12.90, allergens: ["glutine", "pesce", "uova"], vegetarian: false, vegan: false },
     ],
   },
   {
     id: "pistoccu",
-    label: "Pistoccu",
-    subtitle: "L'unico Pistoccu tradizionale, solo da Scivedda",
+    label: t("menu_sections.pistoccu_label"),
+    subtitle: t("menu_sections.pistoccu_subtitle"),
     emoji: "🫓",
     items: [
-      { id: "pistoccu-maialetto", name: "Pistoccu col Maialetto", desc: "Maialetto sfilacciato cotto a bassa temperatura per un giorno intero, guacamole con cetriolo, cipolla e pomodoro secco, ricotta mustia, pomodorini di Pula e cetriolo, teriyaki e maionese piccante.", sizes: { regular: 13.90, xl: 16.90 }, allergens: ["latte", "glutine", "sesamo", "fruttaAGuscio"], vegetarian: false, vegan: false },
-      { id: "pistoccu-polletto", name: "Polletto Sardo", desc: "Polletto sardo di Terralba allevato a terra, salsa teriyaki, guacamole con cetriolo, cipolla rossa e pomodoro secco, olive del Parteolla, verdurine di stagione al vapore, maionese leggermente piccante e noci.", sizes: { regular: 13.90, xl: 16.90 }, allergens: ["glutine", "latte", "soia", "fruttaAGuscio", "sesamo"], vegetarian: false, vegan: false },
-      { id: "pistoccu-polpo", name: "Polpo Scivedda", desc: "Polpo Mediterraneo e tartare di pesce crudo del giorno su guacamole casereccio con cipolla, cetriolo e pomodoro secco, verdura di stagione. Polpo tradizionale con olio, aglio, prezzemolo e limone fresco.\n\n*Alcuni prodotti potrebbero essere trattati a temperature inferiori allo zero per garantirne la massima freschezza e sicurezza alimentare.", sizes: { regular: 14.90, xl: 17.90 }, allergens: ["glutine", "fruttaAGuscio", "sesamo", "latte"], vegetarian: false, vegan: false },
-      { id: "pistoccu-veg", name: "Veg di Stagione", desc: "Guacamole di avocado fresco casereccio con cipolla, cetriolo e pomodoro secco, verdura di stagione cotta al vapore, polpette di verdure e legumi del giorno, teriyaki e philadelphia, chips di cipolla croccante e sesamo.\n\n*Alcuni prodotti potrebbero essere trattati a temperature inferiori allo zero per garantirne la massima freschezza e sicurezza alimentare.", sizes: { regular: 13.90, xl: 16.90 }, allergens: ["glutine", "soia", "fruttaAGuscio", "latte"], vegetarian: true, vegan: false },
-      { id: "pistoccu-crudi-mare", name: "Crudi di Mare", desc: "Crudo del giorno, guacamole casereccio con cipolla, cetriolo e pomodoro secco, frutta di stagione, mango fresco, soia e teriyaki.\n\n*Alcuni prodotti sono trattati a temperature inferiori allo zero per garantire la massima qualità e sicurezza alimentare.", sizes: { regular: 13.90, xl: 16.90 }, allergens: ["glutine", "latte", "soia", "sesamo", "fruttaAGuscio"], vegetarian: false, vegan: false },
+      { id: "pistoccu-maialetto", name: t("menu_items.pistoccu-maialetto_name"), desc: t("menu_items.pistoccu-maialetto_desc"), sizes: { regular: 13.90, xl: 16.90 }, allergens: ["latte", "glutine", "sesamo", "fruttaGuscio"], vegetarian: false, vegan: false },
+      { id: "pistoccu-polletto", name: t("menu_items.pistoccu-polletto_name"), desc: t("menu_items.pistoccu-polletto_desc"), sizes: { regular: 13.90, xl: 16.90 }, allergens: ["glutine", "latte", "soia", "fruttaGuscio", "sesamo"], vegetarian: false, vegan: false },
+      { id: "pistoccu-polpo", name: t("menu_items.pistoccu-polpo_name"), desc: t("menu_items.pistoccu-polpo_desc"), sizes: { regular: 14.90, xl: 17.90 }, allergens: ["glutine", "fruttaGuscio", "sesamo", "latte"], vegetarian: false, vegan: false },
+      { id: "pistoccu-veg", name: t("menu_items.pistoccu-veg_name"), desc: t("menu_items.pistoccu-veg_desc"), sizes: { regular: 13.90, xl: 16.90 }, allergens: ["glutine", "soia", "fruttaGuscio", "latte"], vegetarian: true, vegan: false },
+      { id: "pistoccu-crudi-mare", name: t("menu_items.pistoccu-crudi-mare_name"), desc: t("menu_items.pistoccu-crudi-mare_desc"), sizes: { regular: 13.90, xl: 16.90 }, allergens: ["glutine", "latte", "soia", "sesamo", "fruttaGuscio"], vegetarian: false, vegan: false },
     ],
   },
   {
     id: "scivedde",
-    label: "Le nostre Scivedde",
-    subtitle: "La scivedda sarda, la tradizione incontra altre culture",
+    label: t("menu_sections.scivedde_label"),
+    subtitle: t("menu_sections.scivedde_subtitle"),
     emoji: "🥣",
     items: [
-      { id: "scivedda-sarda", name: "Scivedda Sarda", desc: "Riso bianco, salmone fresco, avocado, wakame, cetriolo, salsa di soia e semi di sesamo. Il nostro classico.", price: 11.90, allergens: ["pesce", "sesamo", "soia"], vegetarian: false, vegan: false, popular: true },
-      { id: "scivedda-piccante", name: "Scivedda Piccante", desc: "Tonno, mango, cipolla rossa, carote, spicy mayo, cipolla croccante e lime. Piccante al punto giusto.", price: 12.50, allergens: ["pesce", "uova", "sesamo"], vegetarian: false, vegan: false, popular: true },
-      { id: "scivedda-pollo", name: "Scivedda Teriyaki", desc: "Pollo teriyaki su riso integrale con avocado, mais, carote, salsa teriyaki e zenzero marinato.", price: 10.90, allergens: ["glutine", "soia", "sesamo"], vegetarian: false, vegan: false },
-      { id: "scivedda-veggie", name: "Scivedda Veggie Power", desc: "100% vegetale: tofu marinato, quinoa, avocado, mango, cetriolo, pomodorini, ponzu e nori.", price: 10.50, allergens: ["soia", "sesamo"], vegetarian: true, vegan: true },
-      { id: "scivedda-tropical", name: "Scivedda Tropicale", desc: "Gamberi, mango, ananas, cetriolo, ponzu, tobiko e lime. Un viaggio ai tropici.", price: 12.90, allergens: ["crostacei", "pesce"], vegetarian: false, vegan: false },
+      { id: "scivedda-sarda", name: t("menu_items.scivedda-sarda_name"), desc: t("menu_items.scivedda-sarda_desc"), price: 11.90, allergens: ["pesce", "sesamo", "soia"], vegetarian: false, vegan: false, popular: true },
+      { id: "scivedda-piccante", name: t("menu_items.scivedda-piccante_name"), desc: t("menu_items.scivedda-piccante_desc"), price: 12.50, allergens: ["pesce", "uova", "sesamo"], vegetarian: false, vegan: false, popular: true },
+      { id: "scivedda-pollo", name: t("menu_items.scivedda-pollo_name"), desc: t("menu_items.scivedda-pollo_desc"), price: 10.90, allergens: ["glutine", "soia", "sesamo"], vegetarian: false, vegan: false },
+      { id: "scivedda-veggie", name: t("menu_items.scivedda-veggie_name"), desc: t("menu_items.scivedda-veggie_desc"), price: 10.50, allergens: ["soia", "sesamo"], vegetarian: true, vegan: true },
+      { id: "scivedda-tropical", name: t("menu_items.scivedda-tropical_name"), desc: t("menu_items.scivedda-tropical_desc"), price: 12.90, allergens: ["crostacei", "pesce"], vegetarian: false, vegan: false },
     ],
   },
   {
     id: "culurgionis",
-    label: "Culurgionis",
-    subtitle: "Culurgionis arrosto, sempre e solo fatti a mano",
+    label: t("menu_sections.culurgionis_label"),
+    subtitle: t("menu_sections.culurgionis_subtitle"),
     emoji: "🥟",
     items: [
-      { id: "culurgionis-classici", name: "Culurgionis Classici Arrosto", desc: "I culurgionis dell'Ogliastra, ripieni di patate, menta e pecorino, arrostiti in padella con burro e salvia. Fatti a mano ogni mattina.", price: 12.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
-      { id: "culurgionis-cinghiale", name: "Culurgionis con Ragù di Cinghiale", desc: "Culurgionis fatti a mano, arrostiti, con ragù lento di cinghiale sardo, mirto e bacche di ginepro.", price: 14.00, allergens: ["glutine", "uova", "sedano", "solfiti"], vegetarian: false, vegan: false },
-      { id: "culurgionis-bottarga", name: "Culurgionis con Bottarga", desc: "Culurgionis di patate e menta, arrostiti, con bottarga di muggine grattugiata, olio e limone. Il mare nel piatto.", price: 15.00, allergens: ["glutine", "uova", "pesce"], vegetarian: false, vegan: false },
+      { id: "culurgionis-classici", name: t("menu_items.culurgionis-classici_name"), desc: t("menu_items.culurgionis-classici_desc"), price: 12.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
+      { id: "culurgionis-cinghiale", name: t("menu_items.culurgionis-cinghiale_name"), desc: t("menu_items.culurgionis-cinghiale_desc"), price: 14.00, allergens: ["glutine", "uova", "sedano", "solfiti"], vegetarian: false, vegan: false },
+      { id: "culurgionis-bottarga", name: t("menu_items.culurgionis-bottarga_name"), desc: t("menu_items.culurgionis-bottarga_desc"), price: 15.00, allergens: ["glutine", "uova", "pesce"], vegetarian: false, vegan: false },
     ],
   },
   {
     id: "panedda",
-    label: "Panedda",
-    subtitle: "Il Panino di Scivedda",
+    label: t("menu_sections.panedda_label"),
+    subtitle: t("menu_sections.panedda_subtitle"),
     emoji: "🥙",
     items: [
-      { id: "panedda-salmone", name: "Panedda col Salmone", desc: "Pane sardo morbido tostato, salmone marinato, avocado schiacciato, cetriolo, cipolla rossa e salsa ponzu. Fresco e saporito.", price: 9.50, allergens: ["glutine", "pesce", "sesamo"], vegetarian: false, vegan: false, popular: true },
-      { id: "panedda-porchetta", name: "Panedda con la Porchetta", desc: "Pane di semola tostato con porchetta sarda affettata al momento, rucola selvatica, pomodorino e maionese al limone.", price: 9.00, allergens: ["glutine", "uova", "senape"], vegetarian: false, vegan: false, popular: true },
-      { id: "panedda-tonno", name: "Panedda col Tonno", desc: "Pane carasau morbidito, tonno pinna gialla, olive verdi, capperi di Pantelleria, pomodorino e origano selvatico.", price: 8.50, allergens: ["glutine", "pesce"], vegetarian: false, vegan: false },
-      { id: "panedda-culurgionis", name: "Panedda con Culurgionis", desc: "Pane di semola aperto, culurgionis arrosto tagliati a metà, pecorino fondente, rucola e riduzione di mirto. Il nostro signature.", price: 11.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
-      { id: "panedda-veggie", name: "Panedda Veggie", desc: "Pane di segale tostato, hummus di ceci sardi, verdure grigliate, avocado, spinacino e tahini al limone. 100% vegetale.", price: 8.00, allergens: ["glutine", "sesamo"], vegetarian: true, vegan: true },
+      { id: "panedda-salmone", name: t("menu_items.panedda-salmone_name"), desc: t("menu_items.panedda-salmone_desc"), price: 9.50, allergens: ["glutine", "pesce", "sesamo"], vegetarian: false, vegan: false, popular: true },
+      { id: "panedda-porchetta", name: t("menu_items.panedda-porchetta_name"), desc: t("menu_items.panedda-porchetta_desc"), price: 9.00, allergens: ["glutine", "uova", "senape"], vegetarian: false, vegan: false, popular: true },
+      { id: "panedda-tonno", name: t("menu_items.panedda-tonno_name"), desc: t("menu_items.panedda-tonno_desc"), price: 8.50, allergens: ["glutine", "pesce"], vegetarian: false, vegan: false },
+      { id: "panedda-culurgionis", name: t("menu_items.panedda-culurgionis_name"), desc: t("menu_items.panedda-culurgionis_desc"), price: 11.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
+      { id: "panedda-veggie", name: t("menu_items.panedda-veggie_name"), desc: t("menu_items.panedda-veggie_desc"), price: 8.00, allergens: ["glutine", "sesamo"], vegetarian: true, vegan: true },
     ],
   },
   {
     id: "dolcetti",
-    label: "Dolcetti",
-    subtitle: "I nostri dolcetti, la frutta e qualche fine pasto",
+    label: t("menu_sections.dolcetti_label"),
+    subtitle: t("menu_sections.dolcetti_subtitle"),
     emoji: "🍯",
     items: [
-      { id: "seadas", name: "Seadas con Miele", desc: "La seada sarda fritta al momento, ripiena di formaggio fresco acidulo, con miele di corbezzolo amaro. Croccante fuori, morbida dentro.", price: 5.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
-      { id: "formagelle", name: "Formagella con Miele", desc: "Formagella di pecora fresca con miele millefiori sardo e noci tostate.", price: 4.50, allergens: ["latte", "fruttaGuscio"], vegetarian: true, vegan: false },
-      { id: "frutta", name: "Frutta di Stagione", desc: "Frutta fresca di stagione, selezionata ogni mattina. Pulita, tagliata e pronta.", price: 4.00, allergens: [], vegetarian: true, vegan: true },
-      { id: "pistoccu-dolce", name: "Pistoccu Dolce", desc: "Pistoccu con crema di mandorle sarde, miele e scorza d'arancia. Un fine pasto leggero e profumato.", price: 4.50, allergens: ["glutine", "fruttaGuscio"], vegetarian: true, vegan: true },
+      { id: "seadas", name: t("menu_items.seadas_name"), desc: t("menu_items.seadas_desc"), price: 5.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
+      { id: "formagelle", name: t("menu_items.formagelle_name"), desc: t("menu_items.formagelle_desc"), price: 4.50, allergens: ["latte", "fruttaGuscio"], vegetarian: true, vegan: false },
+      { id: "frutta", name: t("menu_items.frutta_name"), desc: t("menu_items.frutta_desc"), price: 4.00, allergens: [], vegetarian: true, vegan: true },
+      { id: "pistoccu-dolce", name: t("menu_items.pistoccu-dolce_name"), desc: t("menu_items.pistoccu-dolce_desc"), price: 4.50, allergens: ["glutine", "fruttaGuscio"], vegetarian: true, vegan: true },
     ],
   },
   {
     id: "dabare",
-    label: "Da Bere",
-    subtitle: "Il Bar, di Scivedda",
+    label: t("menu_sections.dabare_label"),
+    subtitle: t("menu_sections.dabare_subtitle"),
     emoji: "🍷",
     items: [
-      { id: "mirto", name: "Mirto Rosso", desc: "Liquore tradizionale sardo di mirto, servito ghiacciato. Il modo migliore per chiudere il pasto.", price: 4.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
-      { id: "vernaccia", name: "Vernaccia di Oristano", desc: "Il vino bianco sardo per eccellenza, secco e ambrato. Ottimo come aperitivo o con il pesce.", price: 5.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
-      { id: "cannonau", name: "Cannonau di Sardegna", desc: "Rosso robusto e caldo, ricco di polifenoli. Il vino della longevità sarda.", price: 5.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
-      { id: "acqua", name: "Acqua Naturale / Frizzante", desc: "Acqua in bottiglia da 50cl.", price: 2.00, allergens: [], vegetarian: true, vegan: true },
-      { id: "te-freddo", name: "Tè Freddo Artigianale", desc: "Tè freddo fatto in casa, al limone o alla pesca. Senza zuccheri aggiunti.", price: 3.00, allergens: [], vegetarian: true, vegan: true },
-      { id: "caffe", name: "Caffè", desc: "Espresso, macchiato o americano. Miscela sarda tostata artigianalmente.", price: 1.50, allergens: [], vegetarian: true, vegan: true },
+      { id: "mirto", name: t("menu_items.mirto_name"), desc: t("menu_items.mirto_desc"), price: 4.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
+      { id: "vernaccia", name: t("menu_items.vernaccia_name"), desc: t("menu_items.vernaccia_desc"), price: 5.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
+      { id: "cannonau", name: t("menu_items.cannonau_name"), desc: t("menu_items.cannonau_desc"), price: 5.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
+      { id: "acqua", name: t("menu_items.acqua_name"), desc: t("menu_items.acqua_desc"), price: 2.00, allergens: [], vegetarian: true, vegan: true },
+      { id: "te-freddo", name: t("menu_items.te-freddo_name"), desc: t("menu_items.te-freddo_desc"), price: 3.00, allergens: [], vegetarian: true, vegan: true },
+      { id: "caffe", name: t("menu_items.caffe_name"), desc: t("menu_items.caffe_desc"), price: 1.50, allergens: [], vegetarian: true, vegan: true },
     ],
   },
 ];
@@ -276,6 +284,8 @@ const LANGUAGES = [
 
 export default function BowlOrderApp() {
   const { t, i18n } = useTranslation();
+  const MENU_CATEGORIES = getMenuCategories(t);
+  const MENU_SECTIONS = getMenuSections(t);
   const [view, setView] = useState("menu"); // menu | build | cart | summary | confirm
   const [cart, setCart] = useState([]);
   const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
@@ -355,7 +365,7 @@ export default function BowlOrderApp() {
   const adminLogin = async () => {
     setAdminLoading(true); setAdminLoginError("");
     const { error } = await supabase.auth.signInWithPassword({ email: adminEmail, password: adminPassword });
-    if (error) setAdminLoginError("Email o password errati");
+    if (error) setAdminLoginError(t("ui.admin_login_error"));
     setAdminLoading(false);
   };
 
@@ -521,11 +531,11 @@ export default function BowlOrderApp() {
       });
     });
 
-    const resolvedBowlName = bowlName.trim() || customerName.trim() || "Anonimo";
+    const resolvedBowlName = bowlName.trim() || customerName.trim() || t("ui.admin_anonymous");
     setCart(prev => [...prev, {
       id: Date.now(),
       type: "custom",
-      name: `Scivedda di ${resolvedBowlName}`,
+      name: t("ui.scivedda_di", { name: resolvedBowlName }),
       desc,
       items: bowlItems,
       portions: bowlPortions,
@@ -772,9 +782,9 @@ export default function BowlOrderApp() {
         >
           <span style={{ fontSize: 24 }}>🎨</span>
           <div style={{ textAlign: "left" }}>
-            <div style={{ fontSize: 17, letterSpacing: 1, textTransform: "uppercase" }}>Crea la tua Scivedda</div>
+            <div style={{ fontSize: 17, letterSpacing: 1, textTransform: "uppercase" }}>{t("ui.cta_build_title")}</div>
             <div style={{ fontSize: 11, opacity: 0.85, fontFamily: "'DM Sans', sans-serif", fontWeight: 400 }}>
-              Scegli ogni ingrediente — da €10.90
+              {t("ui.cta_build_subtitle")}
             </div>
           </div>
           <span style={{ fontSize: 22, marginLeft: "auto" }}>→</span>
@@ -935,9 +945,9 @@ export default function BowlOrderApp() {
             <div style={{
               fontFamily: "'Jaapokki', sans-serif",
               fontSize: 18, fontWeight: 700, color: theme.text, textTransform: "uppercase", letterSpacing: 1,
-            }}>Crea la tua Scivedda</div>
+            }}>{t("ui.build_title")}</div>
             <div style={{ fontSize: 12, color: theme.textSoft }}>
-              {selected.size ? `€${customPrice.toFixed(2)}` : "Small · Regular · XL"}
+              {selected.size ? `€${customPrice.toFixed(2)}` : t("ui.build_size_label")}
             </div>
           </div>
         </div>
@@ -980,7 +990,7 @@ export default function BowlOrderApp() {
           });
           if (!chips.length) return (
             <div style={{ padding: "6px 16px 2px", minHeight: 32, display: "flex", alignItems: "center" }}>
-              <span style={{ fontSize: 11, color: theme.textSoft, fontStyle: "italic" }}>Nessuna selezione ancora...</span>
+              <span style={{ fontSize: 11, color: theme.textSoft, fontStyle: "italic" }}>{t("ui.build_no_selection")}</span>
             </div>
           );
           return (
@@ -1015,12 +1025,12 @@ export default function BowlOrderApp() {
               {cart.filter(i => i.type === "custom").length === 0 && (
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ fontSize: 15, fontWeight: 700, color: theme.text, marginBottom: 6 }}>
-                    Il tuo nome
+                    {t("ui.build_your_name")}
                   </div>
                   <input
                     value={customerName}
                     onChange={e => { setCustomerName(e.target.value); if (!bowlNameEdited) setBowlName(e.target.value); }}
-                    placeholder="Scrivi il tuo nome..."
+                    placeholder={t("ui.build_your_name_placeholder")}
                     autoComplete="given-name"
                     style={{
                       width: "100%", padding: "13px 14px",
@@ -1032,7 +1042,7 @@ export default function BowlOrderApp() {
                     }}
                   />
                   <div style={{ fontSize: 11, color: customerName.trim() ? theme.textSoft : "#ef4444", marginTop: 4, fontWeight: customerName.trim() ? 400 : 600 }}>
-                    {customerName.trim() ? "Apparirà nell'ordine in cucina" : "Il nome è obbligatorio"}
+                    {customerName.trim() ? t("ui.build_your_name_appears") : t("ui.build_your_name_required")}
                   </div>
                 </div>
               )}
@@ -1040,12 +1050,12 @@ export default function BowlOrderApp() {
               {/* Per chi è questa Scivedda? */}
               <div style={{ marginBottom: 20 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: theme.text, marginBottom: 6 }}>
-                  {cart.filter(i => i.type === "custom").length === 0 ? "Per chi è questa Scivedda?" : "🥣 Per chi è questa Scivedda?"}
+                  {cart.filter(i => i.type === "custom").length === 0 ? t("ui.build_bowl_for_whom") : `🥣 ${t("ui.build_bowl_for_whom_alt")}`}
                 </div>
                 <input
                   value={bowlName}
                   onChange={e => { setBowlName(e.target.value); setBowlNameEdited(true); }}
-                  placeholder={cart.filter(i => i.type === "custom").length === 0 ? `${customerName || "il tuo nome"}` : "Nome dell'amico..."}
+                  placeholder={cart.filter(i => i.type === "custom").length === 0 ? `${customerName || t("ui.build_your_name").toLowerCase()}` : t("ui.build_bowl_friend_placeholder")}
                   style={{
                     width: "100%", padding: "13px 14px",
                     borderRadius: 12, fontSize: 15, fontFamily: "inherit",
@@ -1057,16 +1067,16 @@ export default function BowlOrderApp() {
                 />
                 <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 4 }}>
                   {cart.filter(i => i.type === "custom").length === 0
-                    ? "Lascia vuoto per usare il tuo nome"
-                    : "Servirà per distinguere le Scivedde in cucina"}
+                    ? t("ui.build_bowl_leave_empty")
+                    : t("ui.build_bowl_distinguish")}
                 </div>
               </div>
 
               <div style={{ fontSize: 15, fontWeight: 700, color: theme.text, marginBottom: 4 }}>
-                Scegli la dimensione
+                {t("ui.build_size_choose")}
               </div>
               <div style={{ fontSize: 11, color: theme.textSoft, marginBottom: 18 }}>
-                {selected.size ? "✓ Selezionata" : "Seleziona 1"}
+                {selected.size ? `✓ ${t("ui.build_size_selected")}` : t("ui.build_size_select_one")}
               </div>
               <div style={{ display: "flex", gap: 10 }}>
                 {SIZE_OPTIONS.map(sz => {
@@ -1125,28 +1135,28 @@ export default function BowlOrderApp() {
             <>
               <div style={{ marginBottom: 14 }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: theme.text }}>
-                  {cat.emoji} Scegli {cat.label.toLowerCase()}
+                  {cat.emoji} {t("ui.build_choose_ingredient", { label: cat.label.toLowerCase() })}
                 </div>
                 <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2 }}>
                   {activeCategory === "proteine"
-                    ? `Seleziona fino a ${limit} — proteine extra +€3 cad. (${currentCount}/${limit})`
+                    ? t("ui.build_proteine_hint", { limit, count: currentCount })
                     : activeCategory === "verdure"
-                    ? `Seleziona fino a ${limit} — alcune con sovrapprezzzo (${currentCount}/${limit})`
+                    ? t("ui.build_verdure_hint", { limit, count: currentCount })
                     : activeCategory === "croccanti"
-                    ? `Seleziona fino a ${limit} — alcuni con sovrapprezzzo (${currentCount}/${limit})`
+                    ? t("ui.build_croccanti_hint", { limit, count: currentCount })
                     : activeCategory === "salse"
-                    ? `Scegli fino a 2 salse (${currentCount}/${limit})`
+                    ? t("ui.build_salse_hint", { limit, count: currentCount })
                     : activeCategory === "special"
-                    ? `Ogni special aggiunge +€1 al totale (${currentCount} selezionati)`
+                    ? t("ui.build_special_hint", { count: currentCount })
                     : isMulti
-                    ? `Seleziona fino a ${limit} (${currentCount}/${limit})`
-                    : "Seleziona 1"
+                    ? t("ui.build_multi_hint", { limit, count: currentCount })
+                    : t("ui.build_size_select_one")
                   }
                 </div>
               </div>
               {activeCategory !== "basi" && (
                 <div style={{ fontSize: 10, color: theme.textSoft, marginBottom: 10, opacity: 0.7 }}>
-                  Doppio tap su un ingrediente per indicare la doppia porzione
+                  {t("ui.build_double_tap")}
                 </div>
               )}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))", gap: 10 }}>
@@ -1190,7 +1200,7 @@ export default function BowlOrderApp() {
             padding: "6px 10px", flexShrink: 0,
             display: "flex", flexDirection: "column", alignItems: "center",
           }}>
-            <span style={{ fontSize: 9, color: theme.textSoft, textTransform: "uppercase", letterSpacing: 0.5 }}>Totale</span>
+            <span style={{ fontSize: 9, color: theme.textSoft, textTransform: "uppercase", letterSpacing: 0.5 }}>{t("ui.build_total_label")}</span>
             <span style={{ fontSize: 15, fontWeight: 800, color: theme.accent, fontFamily: "'Jaapokki', sans-serif" }}>
               €{customPrice.toFixed(2)}
             </span>
@@ -1221,11 +1231,11 @@ export default function BowlOrderApp() {
                   (catIdx === 3 && selected.verdure.length < 4);
 
                 let msg = null;
-                if (catIdx === 0 && !customerName.trim()) msg = "Inserisci il tuo nome per andare avanti!";
-                else if (catIdx === 0 && !selected.size) msg = "Scegli la dimensione per andare avanti!";
-                else if (catIdx === 1 && selected.basi.length === 0) msg = "Seleziona almeno una base per andare avanti!";
-                else if (catIdx === 2 && selected.proteine.length === 0 && warnedStep === catIdx) msg = "Non hai scelto nessuna proteina! Se vuoi comunque andare avanti clicca nuovamente.";
-                else if (catIdx === 3 && selected.verdure.length < 4 && warnedStep === catIdx) msg = "Non hai scelto le 4 verdure! Se è la tua scelta clicca nuovamente per andare avanti!";
+                if (catIdx === 0 && !customerName.trim()) msg = t("ui.build_err_name");
+                else if (catIdx === 0 && !selected.size) msg = t("ui.build_err_size");
+                else if (catIdx === 1 && selected.basi.length === 0) msg = t("ui.build_err_basi");
+                else if (catIdx === 2 && selected.proteine.length === 0 && warnedStep === catIdx) msg = t("ui.build_warn_proteine");
+                else if (catIdx === 3 && selected.verdure.length < 4 && warnedStep === catIdx) msg = t("ui.build_warn_verdure");
 
                 const handleClick = () => {
                   if (hardBlock) return;
@@ -1250,7 +1260,7 @@ export default function BowlOrderApp() {
                       boxShadow: hardBlock ? "none" : "0 2px 10px rgba(212,118,60,0.3)",
                       transition: "background 0.2s",
                     }}>
-                      {catIdx === 0 ? "Base →" : `${MENU_CATEGORIES[catOrder[catIdx + 1]].label} →`}
+                      {catIdx === 0 ? `${t("builder.basi_label")} →` : `${MENU_CATEGORIES[catOrder[catIdx + 1]].label} →`}
                     </button>
                   </>
                 );
@@ -1266,7 +1276,7 @@ export default function BowlOrderApp() {
               boxShadow: customBowlValid ? "0 2px 10px rgba(90,143,92,0.3)" : "none",
               letterSpacing: 0.5, textTransform: "uppercase",
             }}>
-              Riepilogo →
+              {t("ui.build_summary_btn")}
             </button>
           )}
         </div>
@@ -1290,7 +1300,7 @@ export default function BowlOrderApp() {
         <div style={{
           fontFamily: "'Jaapokki', sans-serif",
           fontSize: 18, fontWeight: 700, color: theme.text,
-        }}>Il tuo ordine</div>
+        }}>{t("ui.cart_title")}</div>
         <span style={{
           marginLeft: "auto",
           background: theme.accent, color: "#fff",
@@ -1313,7 +1323,7 @@ export default function BowlOrderApp() {
             <input
               value={customerName}
               onChange={e => setCustomerName(e.target.value)}
-              placeholder="Il tuo nome..."
+              placeholder={t("ui.cart_name_placeholder")}
               autoComplete="given-name"
               style={{
                 width: "100%", padding: "13px 14px",
@@ -1325,21 +1335,21 @@ export default function BowlOrderApp() {
               }}
             />
             <div style={{ fontSize: 11, color: customerName.trim() ? theme.textSoft : "#ef4444", marginTop: 4, fontWeight: customerName.trim() ? 400 : 600 }}>
-              {customerName.trim() ? "Apparirà nell'ordine" : "Il nome è obbligatorio per inviare l'ordine"}
+              {customerName.trim() ? t("ui.cart_name_appears") : t("ui.cart_name_required")}
             </div>
           </div>
         )}
         {cart.length === 0 ? (
           <div style={{ textAlign: "center", padding: "48px 20px", color: theme.textSoft }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>🥣</div>
-            <div style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>Il tuo ordine è vuoto</div>
-            <div style={{ fontSize: 13, marginTop: 6 }}>Aggiungi una scivedda per iniziare</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>{t("ui.cart_empty_title")}</div>
+            <div style={{ fontSize: 13, marginTop: 6 }}>{t("ui.cart_empty_subtitle")}</div>
             <button onClick={() => setView("menu")} style={{
               marginTop: 20, padding: "12px 28px",
               background: theme.accent, border: "none", borderRadius: 12,
               color: "#fff", fontSize: 14, fontWeight: 600,
               cursor: "pointer", fontFamily: "inherit",
-            }}>Vai al menu</button>
+            }}>{t("ui.cart_empty_cta")}</button>
           </div>
         ) : (
           <>
@@ -1401,14 +1411,14 @@ export default function BowlOrderApp() {
               cursor: "pointer", fontFamily: "inherit",
               display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             }}>
-              🥣 Aggiungi un'altra Scivedda
+              🥣 {t("ui.cart_add_another")}
             </button>
 
             {/* Mangi qui / Porti via */}
             <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: theme.text, marginBottom: 8 }}>Dove mangi?</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: theme.text, marginBottom: 8 }}>{t("ui.cart_where_eat")}</div>
               <div style={{ display: "flex", gap: 8 }}>
-                {[{ id: "qui", label: "🍽 Mangio qui" }, { id: "via", label: "🛍 Porto via" }].map(opt => (
+                {[{ id: "qui", label: t("ui.dine_in_label") }, { id: "via", label: t("ui.takeaway_label") }].map(opt => (
                   <button key={opt.id} onClick={() => setDiningOption(opt.id)} style={{
                     flex: 1, padding: "13px 8px",
                     background: diningOption === opt.id ? theme.accent : theme.card,
@@ -1433,7 +1443,7 @@ export default function BowlOrderApp() {
                 display: "flex", justifyContent: "space-between",
                 alignItems: "center", marginBottom: 16,
               }}>
-                <span style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>Totale</span>
+                <span style={{ fontSize: 15, fontWeight: 600, color: theme.text }}>{t("ui.cart_total")}</span>
                 <span style={{
                   fontSize: 24, fontWeight: 800, color: theme.accent,
                   fontFamily: "'Jaapokki', sans-serif",
@@ -1441,7 +1451,7 @@ export default function BowlOrderApp() {
               </div>
               {(!customerName.trim() || !diningOption) && (
                 <div style={{ textAlign: "center", marginBottom: 10, fontSize: 13, fontWeight: 700, color: "#ef4444" }}>
-                  {!customerName.trim() ? "Inserisci il tuo nome nel builder" : "Scegli se mangi qui o porti via"}
+                  {!customerName.trim() ? t("ui.cart_insert_name_builder") : t("ui.cart_choose_dine")}
                 </div>
               )}
               <button onClick={sendOrder} disabled={!customerName.trim() || !diningOption || sending} style={{
@@ -1454,7 +1464,7 @@ export default function BowlOrderApp() {
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 10,
                 boxShadow: !customerName.trim() || !diningOption ? "none" : "0 4px 16px rgba(37,211,102,0.35)",
               }}>
-                {sending ? "Invio in corso..." : "📲 Invia ordine su WhatsApp"}
+                {sending ? t("ui.cart_sending") : `📲 ${t("ui.cart_send_whatsapp")}`}
               </button>
             </div>
           </>
@@ -1471,21 +1481,21 @@ export default function BowlOrderApp() {
       <div style={{ width: "100%", maxWidth: 360 }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div style={{ fontSize: 40, marginBottom: 8 }}>🔐</div>
-          <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 22, color: theme.text, letterSpacing: 1 }}>Admin Scivedda</div>
+          <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 22, color: theme.text, letterSpacing: 1 }}>{t("ui.admin_title")}</div>
         </div>
         <div style={{ background: theme.card, borderRadius: 18, padding: 24, boxShadow: "0 4px 24px rgba(0,0,0,0.08)" }}>
-          <input value={adminEmail} onChange={e => setAdminEmail(e.target.value)} placeholder="Email" type="email"
+          <input value={adminEmail} onChange={e => setAdminEmail(e.target.value)} placeholder={t("ui.admin_email_placeholder")} type="email"
             style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 14, fontFamily: "inherit", marginBottom: 12, outline: "none", boxSizing: "border-box", background: theme.bg }} />
-          <input value={adminPassword} onChange={e => setAdminPassword(e.target.value)} placeholder="Password" type="password"
+          <input value={adminPassword} onChange={e => setAdminPassword(e.target.value)} placeholder={t("ui.admin_password_placeholder")} type="password"
             onKeyDown={e => e.key === "Enter" && adminLogin()}
             style={{ width: "100%", padding: "12px 14px", borderRadius: 10, border: `1px solid ${theme.border}`, fontSize: 14, fontFamily: "inherit", marginBottom: 16, outline: "none", boxSizing: "border-box", background: theme.bg }} />
           {adminLoginError && <div style={{ color: "#e53e3e", fontSize: 13, marginBottom: 12 }}>{adminLoginError}</div>}
           <button onClick={adminLogin} disabled={adminLoading} style={{
             width: "100%", padding: "14px", background: theme.accent, border: "none", borderRadius: 12,
             color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit",
-          }}>{adminLoading ? "..." : "Accedi"}</button>
+          }}>{adminLoading ? t("ui.admin_login_loading") : t("ui.admin_login_btn")}</button>
           <button onClick={() => setAdminView(false)} style={{ width: "100%", padding: "10px", background: "none", border: "none", color: theme.textSoft, fontSize: 13, cursor: "pointer", marginTop: 8 }}>
-            ← Torna al menù
+            {t("ui.admin_back_menu")}
           </button>
         </div>
       </div>
@@ -1498,7 +1508,7 @@ export default function BowlOrderApp() {
     const todayOrders = adminOrders.filter(o => new Date(o.created_at).toDateString() === today);
 
     const statusColors = { preparazione: "#3b82f6", pronto: "#10b981" };
-    const statusLabels = { preparazione: "In prep.", pronto: "Pronto ✓" };
+    const statusLabels = { preparazione: t("ui.admin_in_prep"), pronto: t("ui.admin_ready") };
     const isConfirmed = (order) => order.whatsapp_confirmed === true;
 
     const todayActive = adminOrders.filter(o => new Date(o.created_at).toDateString() === today);
@@ -1539,16 +1549,16 @@ export default function BowlOrderApp() {
                   <div style={{ fontSize: 44, fontWeight: 900, color: isYesterday ? "#94a3b8" : theme.accent, letterSpacing: 2, lineHeight: 1 }}>{order.order_code}</div>
                 )}
                 <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
-                  <div style={{ fontWeight: 700, fontSize: 18, color: theme.text }}>{order.customer_name || "Anonimo"}</div>
+                  <div style={{ fontWeight: 700, fontSize: 18, color: theme.text }}>{order.customer_name || t("ui.admin_anonymous")}</div>
                   {order.dining_option && (
                     <span style={{ fontSize: 12, fontWeight: 700, padding: "2px 8px", borderRadius: 8, background: order.dining_option === "qui" ? "#dbeafe" : "#fef9c3", color: order.dining_option === "qui" ? "#1d4ed8" : "#854d0e" }}>
-                      {order.dining_option === "qui" ? "🍽 Qui" : "🛍 Via"}
+                      {order.dining_option === "qui" ? `🍽 ${t("ui.admin_dine_in_badge")}` : `🛍 ${t("ui.admin_takeaway_badge")}`}
                     </span>
                   )}
                 </div>
                 <div style={{ fontSize: 12, color: theme.textSoft, marginTop: 1 }}>
                   {orderDate.toLocaleString("it-IT", { hour: "2-digit", minute: "2-digit" })}
-                  {isYesterday && " · IERI"}
+                  {isYesterday && ` · ${t("ui.admin_yesterday_tag")}`}
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
@@ -1585,7 +1595,7 @@ export default function BowlOrderApp() {
                   width: "100%", padding: "16px 0", borderRadius: 12, border: "none",
                   cursor: "pointer", fontSize: 16, fontWeight: 700,
                   background: "#25d366", color: "#fff", letterSpacing: 0.3,
-                }}>✓ Conferma WhatsApp</button>
+                }}>✓ {t("ui.admin_confirm_wa")}</button>
               ) : (
                 <>
                   <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
@@ -1601,7 +1611,7 @@ export default function BowlOrderApp() {
                       color: "#fff",
                       boxShadow: `0 2px 8px ${order.paid ? "#10b98155" : "#ef444455"}`,
                       transition: "background 0.2s",
-                    }}>{order.paid ? "Pagato ✓" : "Da Pagare"}</button>
+                    }}>{order.paid ? t("ui.admin_paid") : t("ui.admin_to_pay")}</button>
                     {/* Tasti In prep / Pronto */}
                     {["preparazione", "pronto"].map(s => (
                       <button key={s} onClick={() => updateOrderStatus(order.id, s)} style={{
@@ -1618,7 +1628,7 @@ export default function BowlOrderApp() {
                     width: "100%", padding: "14px 0", borderRadius: 10, border: "none",
                     cursor: "pointer", fontSize: 14, fontWeight: 700,
                     background: "#e2e8f0", color: "#475569",
-                  }}>🖨 Stampa ordine</button>
+                  }}>🖨 {t("ui.admin_print")}</button>
                 </>
               )}
             </div>
@@ -1632,43 +1642,43 @@ export default function BowlOrderApp() {
         {/* Header */}
         <div style={{ background: theme.text, color: "#fff", padding: "14px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 32 }}>
-            <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 22, letterSpacing: 1 }}>Scivedda · Cucina</div>
+            <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 22, letterSpacing: 1 }}>{t("ui.admin_kitchen_title")}</div>
             {/* Stat pills */}
             <div style={{ display: "flex", gap: 10 }}>
               <div style={{ background: "#f59e0b", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{daFare}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>da fare</span>
+                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>{t("ui.admin_stat_todo")}</span>
               </div>
               <div style={{ background: "#3b82f6", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{inPrep}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>in prep.</span>
+                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>{t("ui.admin_stat_prep")}</span>
               </div>
               <div style={{ background: "#10b981", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{pronti}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>pronti</span>
+                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>{t("ui.admin_stat_ready")}</span>
               </div>
               <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{todayOrders.length}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.7 }}>oggi</span>
+                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.7 }}>{t("ui.admin_stat_today")}</span>
               </div>
             </div>
           </div>
           {dbSaveError && (
             <div style={{ fontSize: 12, fontWeight: 700, color: "#fca5a5", background: "rgba(239,68,68,0.15)", borderRadius: 8, padding: "6px 12px" }}>
-              ⚠️ Errore DB — gestisci manualmente
+              ⚠️ {t("ui.admin_db_error")}
             </div>
           )}
           <div style={{ display: "flex", gap: 8 }}>
             <a href="https://scivedda-linea.vercel.app" target="_blank" rel="noreferrer" style={{ background: "#d4763c", color: "#fff", padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center" }}>LINEA ↗</a>
             <button onClick={fetchOrders} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "10px 18px", borderRadius: 10, cursor: "pointer", fontSize: 18 }}>↻</button>
-            <button onClick={adminLogout} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "10px 18px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>Esci</button>
+            <button onClick={adminLogout} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "10px 18px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>{t("ui.admin_logout")}</button>
           </div>
         </div>
 
         {/* Orders grid */}
         <div style={{ flex: 1, overflowY: "auto", padding: "20px 20px 24px" }}>
           {adminOrders.length === 0 && (
-            <div style={{ textAlign: "center", padding: 80, color: theme.textSoft, fontSize: 18 }}>Nessun ordine ancora</div>
+            <div style={{ textAlign: "center", padding: 80, color: theme.textSoft, fontSize: 18 }}>{t("ui.admin_no_orders")}</div>
           )}
 
           {/* Today */}
@@ -1688,7 +1698,7 @@ export default function BowlOrderApp() {
             <>
               <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "8px 0 16px" }}>
                 <div style={{ flex: 1, height: 1, background: "#cbd5e1" }} />
-                <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Ordini di ieri</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>{t("ui.admin_yesterday_label")}</div>
                 <div style={{ flex: 1, height: 1, background: "#cbd5e1" }} />
               </div>
               <div style={{
@@ -1720,16 +1730,16 @@ export default function BowlOrderApp() {
         <h2 style={{
           fontFamily: "'Jaapokki', sans-serif",
           fontSize: 24, fontWeight: 800, color: theme.text, margin: "0 0 8px",
-        }}>Ordine inviato!</h2>
+        }}>{t("ui.confirm_title")}</h2>
         <p style={{ color: theme.textSoft, fontSize: 14, lineHeight: 1.5, margin: "0 0 24px" }}>
-          Il tuo ordine è stato inviato su WhatsApp. Ti risponderemo con la conferma e i tempi di preparazione.
+          {t("ui.confirm_body")}
         </p>
         <button onClick={resetOrder} style={{
           padding: "14px 32px",
           background: theme.accent, border: "none", borderRadius: 12,
           color: "#fff", fontSize: 14, fontWeight: 700,
           cursor: "pointer", fontFamily: "inherit",
-        }}>Nuovo ordine</button>
+        }}>{t("ui.confirm_new_order")}</button>
       </div>
     </div>
   );
@@ -1812,13 +1822,13 @@ export default function BowlOrderApp() {
               {/* Allergens */}
               {photoModal.allergens.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: theme.textSoft, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>Allergeni</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: theme.textSoft, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{t("ui.modal_allergens")}</div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
                     {photoModal.allergens.map(a => (
                       <span key={a} style={{
                         background: theme.accentLight, color: theme.accent,
                         fontSize: 11, padding: "3px 8px", borderRadius: 6, fontWeight: 600,
-                      }}>{ALLERGEN_LABELS[a] || a}</span>
+                      }}>{getAllergenLabel(a, t)}</span>
                     ))}
                   </div>
                 </div>
@@ -1827,7 +1837,7 @@ export default function BowlOrderApp() {
               {/* Price + Add */}
               {photoModal.sizes ? (
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 600, color: theme.textSoft, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>Scegli la taglia</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: theme.textSoft, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>{t("ui.modal_choose_size")}</div>
                   <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
                     {Object.entries(photoModal.sizes).map(([sizeKey, sizePrice]) => (
                       <button key={sizeKey} onClick={() => setModalSize(sizeKey)} style={{
@@ -1860,13 +1870,13 @@ export default function BowlOrderApp() {
                       cursor: modalSize ? "pointer" : "not-allowed", fontFamily: "inherit",
                       boxShadow: modalSize ? "0 4px 14px rgba(212,118,60,0.3)" : "none",
                     }}>
-                    {modalSize ? `+ Aggiungi (${modalSize.toUpperCase()})` : "Scegli la taglia"}
+                    {modalSize ? t("ui.modal_add_with_size", { size: modalSize.toUpperCase() }) : t("ui.modal_choose_size_btn")}
                   </button>
                 </div>
               ) : (
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
                   <span style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 26, color: theme.accent, letterSpacing: 0.5 }}>
-                    {photoModal.price ? `€${photoModal.price.toFixed(2)}` : "Chiedi al banco"}
+                    {photoModal.price ? `€${photoModal.price.toFixed(2)}` : t("ui.modal_ask_counter")}
                   </span>
                   {photoModal.price && (
                     <button onClick={() => { addMenuItemToCart(photoModal); setPhotoModal(null); }} style={{
@@ -1875,7 +1885,7 @@ export default function BowlOrderApp() {
                       color: "#fff", fontSize: 15, fontWeight: 700,
                       cursor: "pointer", fontFamily: "inherit",
                       boxShadow: "0 4px 14px rgba(212,118,60,0.3)",
-                    }}>+ Aggiungi</button>
+                    }}>+ {t("ui.modal_add_btn")}</button>
                   )}
                 </div>
               )}
@@ -1916,7 +1926,7 @@ export default function BowlOrderApp() {
                     padding: "2px 8px", borderRadius: 8,
                     fontSize: 13, fontWeight: 800,
                   }}>{totalItems}</span>
-                  <span style={{ fontSize: 14, fontWeight: 600 }}>Il tuo ordine</span>
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>{t("ui.floating_cart_label")}</span>
                 </div>
                 <span style={{ fontSize: 16, fontWeight: 800 }}>€{totalPrice.toFixed(2)}</span>
               </button>
