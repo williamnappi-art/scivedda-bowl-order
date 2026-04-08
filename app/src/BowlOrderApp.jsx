@@ -165,6 +165,7 @@ const getMenuSections = (t) => [
     emoji: "🥣",
     items: [
       { id: "scivedda-tabule", name: t("menu_items.scivedda-tabule_name"), desc: t("menu_items.scivedda-tabule_desc"), sizes: { base: 13.90, tartare: 17.40 }, sizeLabels: { base: "€13,90", tartare: t("menu_items.scivedda-tabule_tartare_label") }, suggestion: t("menu_items.scivedda-tabule_suggestion"), allergens: ["glutine", "fruttaGuscio"], vegetarian: true, vegan: true },
+      { id: "scivedda-polletto", name: t("menu_items.scivedda-polletto_name"), desc: t("menu_items.scivedda-polletto_desc"), sizes: { base: 12.90, regular: 13.90 }, sizeLabels: { base: "€12,90", regular: t("menu_items.scivedda-polletto_regular_label") }, allergens: ["latte", "glutine", "fruttaGuscio"], vegetarian: false, vegan: false },
       { id: "scivedda-sarda", name: t("menu_items.scivedda-sarda_name"), desc: t("menu_items.scivedda-sarda_desc"), price: 11.90, allergens: ["pesce", "sesamo", "soia"], vegetarian: false, vegan: false, popular: true },
       { id: "scivedda-piccante", name: t("menu_items.scivedda-piccante_name"), desc: t("menu_items.scivedda-piccante_desc"), price: 12.50, allergens: ["pesce", "uova", "sesamo"], vegetarian: false, vegan: false, popular: true },
       { id: "scivedda-pollo", name: t("menu_items.scivedda-pollo_name"), desc: t("menu_items.scivedda-pollo_desc"), price: 10.90, allergens: ["glutine", "soia", "sesamo"], vegetarian: false, vegan: false },
