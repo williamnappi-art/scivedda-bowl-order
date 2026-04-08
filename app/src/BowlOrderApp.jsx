@@ -164,6 +164,7 @@ const getMenuSections = (t) => [
     subtitle: t("menu_sections.scivedde_subtitle"),
     emoji: "🥣",
     items: [
+      { id: "scivedda-tabule", name: t("menu_items.scivedda-tabule_name"), desc: t("menu_items.scivedda-tabule_desc"), sizes: { base: 13.90, tartare: 17.40 }, sizeLabels: { base: "€13,90", tartare: t("menu_items.scivedda-tabule_tartare_label") }, suggestion: t("menu_items.scivedda-tabule_suggestion"), allergens: ["fruttaGuscio"], vegetarian: true, vegan: true },
       { id: "scivedda-sarda", name: t("menu_items.scivedda-sarda_name"), desc: t("menu_items.scivedda-sarda_desc"), price: 11.90, allergens: ["pesce", "sesamo", "soia"], vegetarian: false, vegan: false, popular: true },
       { id: "scivedda-piccante", name: t("menu_items.scivedda-piccante_name"), desc: t("menu_items.scivedda-piccante_desc"), price: 12.50, allergens: ["pesce", "uova", "sesamo"], vegetarian: false, vegan: false, popular: true },
       { id: "scivedda-pollo", name: t("menu_items.scivedda-pollo_name"), desc: t("menu_items.scivedda-pollo_desc"), price: 10.90, allergens: ["glutine", "soia", "sesamo"], vegetarian: false, vegan: false },
@@ -891,7 +892,7 @@ export default function BowlOrderApp() {
                           }}>{item.name}</div>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span style={{ fontSize: 13, fontWeight: 800, color: theme.accent }}>
-                              {item.sizes ? `€${item.sizes.regular.toFixed(2)}` : item.price ? `€${item.price.toFixed(2)}` : "—"}
+                              {item.sizes ? `€${Object.values(item.sizes)[0].toFixed(2)}` : item.price ? `€${item.price.toFixed(2)}` : "—"}
                             </span>
                             {(item.price || item.sizes) && (
                               <button onClick={e => { e.stopPropagation(); if (item.sizes) { setPhotoModal({ ...item, sectionEmoji: section.emoji }); setModalSize(null); } else { addMenuItemToCart(item); } }} style={{
@@ -1837,6 +1838,11 @@ export default function BowlOrderApp() {
               {/* Price + Add */}
               {photoModal.sizes ? (
                 <div>
+                  {photoModal.suggestion && (
+                    <p style={{ fontSize: 13, color: theme.accent, fontWeight: 600, fontStyle: "italic", marginBottom: 12, lineHeight: 1.5 }}>
+                      {photoModal.suggestion}
+                    </p>
+                  )}
                   <div style={{ fontSize: 11, fontWeight: 600, color: theme.textSoft, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}>{t("ui.modal_choose_size")}</div>
                   <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
                     {Object.entries(photoModal.sizes).map(([sizeKey, sizePrice]) => (
@@ -1846,11 +1852,13 @@ export default function BowlOrderApp() {
                         background: modalSize === sizeKey ? theme.accentLight : theme.card,
                         fontFamily: "inherit", transition: "all 0.15s",
                       }}>
-                        <div style={{ fontWeight: 700, fontSize: 14, color: theme.text, textTransform: "uppercase" }}>{sizeKey}</div>
+                        <div style={{ fontWeight: 700, fontSize: 14, color: theme.text, textTransform: "uppercase" }}>
+                          {photoModal.sizeLabels?.[sizeKey] ?? sizeKey.toUpperCase()}
+                        </div>
                         <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 18, color: theme.accent, marginTop: 2 }}>
-                          {sizeKey === "regular"
+                          {sizeKey === Object.keys(photoModal.sizes)[0]
                             ? `€${sizePrice.toFixed(2)}`
-                            : `+${(sizePrice - photoModal.sizes.regular).toFixed(0)}€`}
+                            : `+${(sizePrice - Object.values(photoModal.sizes)[0]).toFixed(2)}€`}
                         </div>
                       </button>
                     ))}
@@ -1858,7 +1866,8 @@ export default function BowlOrderApp() {
                   <button
                     disabled={!modalSize}
                     onClick={() => {
-                      addMenuItemToCart({ ...photoModal, price: photoModal.sizes[modalSize], name: `${photoModal.name} (${modalSize.toUpperCase()})` });
+                      const sizeLabel = photoModal.sizeLabels?.[modalSize] ?? modalSize.toUpperCase();
+                      addMenuItemToCart({ ...photoModal, price: photoModal.sizes[modalSize], name: `${photoModal.name} (${sizeLabel})` });
                       setPhotoModal(null);
                       setModalSize(null);
                     }}
