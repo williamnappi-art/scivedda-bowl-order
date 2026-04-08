@@ -165,7 +165,7 @@ const getMenuSections = (t) => [
     emoji: "🥣",
     items: [
       { id: "scivedda-tabule", name: t("menu_items.scivedda-tabule_name"), desc: t("menu_items.scivedda-tabule_desc"), sizes: { base: 13.90, tartare: 17.40 }, sizeLabels: { base: "€13,90", tartare: t("menu_items.scivedda-tabule_tartare_label") }, suggestion: t("menu_items.scivedda-tabule_suggestion"), allergens: ["glutine", "fruttaGuscio"], vegetarian: true, vegan: true },
-      { id: "scivedda-polletto", name: t("menu_items.scivedda-polletto_name"), desc: t("menu_items.scivedda-polletto_desc"), sizes: { base: 12.90, regular: 13.90 }, sizeLabels: { base: "€12,90", regular: t("menu_items.scivedda-polletto_regular_label") }, allergens: ["latte", "glutine", "fruttaGuscio"], vegetarian: false, vegan: false },
+      { id: "scivedda-polletto", name: t("menu_items.scivedda-polletto_name"), desc: t("menu_items.scivedda-polletto_desc"), warning: t("menu_items.scivedda-polletto_warning"), sizes: { small: 12.90, media: 15.90 }, sizeLabels: { small: "Small", media: "Media" }, allergens: ["latte", "glutine", "fruttaGuscio"], vegetarian: false, vegan: false },
       { id: "scivedda-sarda", name: t("menu_items.scivedda-sarda_name"), desc: t("menu_items.scivedda-sarda_desc"), price: 11.90, allergens: ["pesce", "sesamo", "soia"], vegetarian: false, vegan: false, popular: true },
       { id: "scivedda-piccante", name: t("menu_items.scivedda-piccante_name"), desc: t("menu_items.scivedda-piccante_desc"), price: 12.50, allergens: ["pesce", "uova", "sesamo"], vegetarian: false, vegan: false, popular: true },
       { id: "scivedda-pollo", name: t("menu_items.scivedda-pollo_name"), desc: t("menu_items.scivedda-pollo_desc"), price: 10.90, allergens: ["glutine", "soia", "sesamo"], vegetarian: false, vegan: false },
@@ -1820,6 +1820,11 @@ export default function BowlOrderApp() {
               <p style={{ fontSize: 14, color: theme.textSoft, lineHeight: 1.6, margin: "0 0 16px" }}>
                 {photoModal.desc}
               </p>
+              {photoModal.warning && (
+                <p style={{ fontSize: 13, color: theme.textSoft, fontStyle: "italic", lineHeight: 1.5, margin: "-8px 0 16px" }}>
+                  {photoModal.warning}
+                </p>
+              )}
 
               {/* Allergens */}
               {photoModal.allergens.length > 0 && (
@@ -1859,7 +1864,7 @@ export default function BowlOrderApp() {
                         <div style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 18, color: theme.accent, marginTop: 2 }}>
                           {sizeKey === Object.keys(photoModal.sizes)[0]
                             ? `€${sizePrice.toFixed(2)}`
-                            : `+${(sizePrice - Object.values(photoModal.sizes)[0]).toFixed(2)}€`}
+                            : `+${parseFloat((sizePrice - Object.values(photoModal.sizes)[0]).toFixed(2))}€`}
                         </div>
                       </button>
                     ))}
