@@ -168,11 +168,6 @@ const getMenuSections = (t) => [
       { id: "scivedda-polletto", name: t("menu_items.scivedda-polletto_name"), desc: t("menu_items.scivedda-polletto_desc"), warning: t("menu_items.scivedda-polletto_warning"), sizes: { small: 12.90, media: 15.90 }, sizeLabels: { small: "Small", media: "Media" }, allergens: ["latte", "glutine", "fruttaGuscio"], vegetarian: false, vegan: false },
       { id: "scivedda-polpo", name: t("menu_items.scivedda-polpo_name"), desc: t("menu_items.scivedda-polpo_desc"), sizes: { small: 13.90, regular: 16.90 }, sizeLabels: { small: "Small", regular: "Regular" }, allergens: ["glutine", "pesce", "fruttaGuscio"], vegetarian: false, vegan: false },
       { id: "scivedda-salmone", name: t("menu_items.scivedda-salmone_name"), desc: t("menu_items.scivedda-salmone_desc"), sizes: { small: 12.90, regular: 15.90 }, sizeLabels: { small: "Small", regular: "Regular" }, allergens: ["latte", "glutine", "pesce"], vegetarian: false, vegan: false },
-      { id: "scivedda-sarda", name: t("menu_items.scivedda-sarda_name"), desc: t("menu_items.scivedda-sarda_desc"), price: 11.90, allergens: ["pesce", "sesamo", "soia"], vegetarian: false, vegan: false, popular: true },
-      { id: "scivedda-piccante", name: t("menu_items.scivedda-piccante_name"), desc: t("menu_items.scivedda-piccante_desc"), price: 12.50, allergens: ["pesce", "uova", "sesamo"], vegetarian: false, vegan: false, popular: true },
-      { id: "scivedda-pollo", name: t("menu_items.scivedda-pollo_name"), desc: t("menu_items.scivedda-pollo_desc"), price: 10.90, allergens: ["glutine", "soia", "sesamo"], vegetarian: false, vegan: false },
-      { id: "scivedda-veggie", name: t("menu_items.scivedda-veggie_name"), desc: t("menu_items.scivedda-veggie_desc"), price: 10.50, allergens: ["soia", "sesamo"], vegetarian: true, vegan: true },
-      { id: "scivedda-tropical", name: t("menu_items.scivedda-tropical_name"), desc: t("menu_items.scivedda-tropical_desc"), price: 12.90, allergens: ["crostacei", "pesce"], vegetarian: false, vegan: false },
     ],
   },
   {
