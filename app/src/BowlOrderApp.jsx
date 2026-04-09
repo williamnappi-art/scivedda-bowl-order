@@ -179,9 +179,8 @@ const getMenuSections = (t) => [
     subtitle: t("menu_sections.culurgionis_subtitle"),
     emoji: "🥟",
     items: [
-      { id: "culurgionis-classici", name: t("menu_items.culurgionis-classici_name"), desc: t("menu_items.culurgionis-classici_desc"), price: 12.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
-      { id: "culurgionis-cinghiale", name: t("menu_items.culurgionis-cinghiale_name"), desc: t("menu_items.culurgionis-cinghiale_desc"), price: 14.00, allergens: ["glutine", "uova", "sedano", "solfiti"], vegetarian: false, vegan: false },
-      { id: "culurgionis-bottarga", name: t("menu_items.culurgionis-bottarga_name"), desc: t("menu_items.culurgionis-bottarga_desc"), price: 15.00, allergens: ["glutine", "uova", "pesce"], vegetarian: false, vegan: false },
+      { id: "culurgionis-tradizionali", name: t("menu_items.culurgionis-tradizionali_name"), desc: t("menu_items.culurgionis-tradizionali_desc"), price: 10.90, allergens: ["glutine", "latte"], vegetarian: true, vegan: false },
+      { id: "culurgionis-scivedda", name: t("menu_items.culurgionis-scivedda_name"), desc: t("menu_items.culurgionis-scivedda_desc"), price: 10.90, allergens: ["glutine", "latte"], vegetarian: false, vegan: false },
     ],
   },
   {
