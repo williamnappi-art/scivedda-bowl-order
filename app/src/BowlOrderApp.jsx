@@ -188,13 +188,8 @@ const getMenuSections = (t) => [
     label: t("menu_sections.panedda_label"),
     subtitle: t("menu_sections.panedda_subtitle"),
     emoji: "🥙",
-    items: [
-      { id: "panedda-salmone", name: t("menu_items.panedda-salmone_name"), desc: t("menu_items.panedda-salmone_desc"), price: 9.50, allergens: ["glutine", "pesce", "sesamo"], vegetarian: false, vegan: false, popular: true },
-      { id: "panedda-porchetta", name: t("menu_items.panedda-porchetta_name"), desc: t("menu_items.panedda-porchetta_desc"), price: 9.00, allergens: ["glutine", "uova", "senape"], vegetarian: false, vegan: false, popular: true },
-      { id: "panedda-tonno", name: t("menu_items.panedda-tonno_name"), desc: t("menu_items.panedda-tonno_desc"), price: 8.50, allergens: ["glutine", "pesce"], vegetarian: false, vegan: false },
-      { id: "panedda-culurgionis", name: t("menu_items.panedda-culurgionis_name"), desc: t("menu_items.panedda-culurgionis_desc"), price: 11.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
-      { id: "panedda-veggie", name: t("menu_items.panedda-veggie_name"), desc: t("menu_items.panedda-veggie_desc"), price: 8.00, allergens: ["glutine", "sesamo"], vegetarian: true, vegan: true },
-    ],
+    comingSoon: true,
+    items: [],
   },
   {
     id: "dolcetti",
@@ -202,10 +197,10 @@ const getMenuSections = (t) => [
     subtitle: t("menu_sections.dolcetti_subtitle"),
     emoji: "🍯",
     items: [
-      { id: "seadas", name: t("menu_items.seadas_name"), desc: t("menu_items.seadas_desc"), price: 5.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
-      { id: "formagelle", name: t("menu_items.formagelle_name"), desc: t("menu_items.formagelle_desc"), price: 4.50, allergens: ["latte", "fruttaGuscio"], vegetarian: true, vegan: false },
-      { id: "frutta", name: t("menu_items.frutta_name"), desc: t("menu_items.frutta_desc"), price: 4.00, allergens: [], vegetarian: true, vegan: true },
-      { id: "pistoccu-dolce", name: t("menu_items.pistoccu-dolce_name"), desc: t("menu_items.pistoccu-dolce_desc"), price: 4.50, allergens: ["glutine", "fruttaGuscio"], vegetarian: true, vegan: true },
+      { id: "seada", name: t("menu_items.seada_name"), desc: t("menu_items.seada_desc"), price: 7.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
+      { id: "parduledda", name: t("menu_items.parduledda_name"), desc: t("menu_items.parduledda_desc"), price: 7.00, allergens: ["glutine", "latte", "uova", "fruttaGuscio"], vegetarian: true, vegan: false },
+      { id: "panna-cotta", name: t("menu_items.panna-cotta_name"), desc: t("menu_items.panna-cotta_desc"), price: 7.00, allergens: ["latte"], vegetarian: true, vegan: false },
+      { id: "tiramisu", name: t("menu_items.tiramisu_name"), desc: t("menu_items.tiramisu_desc"), price: 7.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
     ],
   },
   {
@@ -801,18 +796,19 @@ export default function BowlOrderApp() {
               marginBottom: 8,
               borderRadius: 16,
               border: `1px solid ${theme.border}`,
-              background: theme.card,
+              background: section.comingSoon ? theme.bg : theme.card,
               overflow: "hidden",
               boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
               animation: `fadeSlideUp 0.3s ease both`,
               animationDelay: `${si * 0.05}s`,
+              opacity: section.comingSoon ? 0.65 : 1,
             }}>
               {/* Section Header */}
               <button
-                onClick={() => toggleSection(section.id)}
+                onClick={() => !section.comingSoon && toggleSection(section.id)}
                 style={{
                   width: "100%", padding: "16px",
-                  background: "none", border: "none", cursor: "pointer",
+                  background: "none", border: "none", cursor: section.comingSoon ? "default" : "pointer",
                   display: "flex", alignItems: "center", gap: 12,
                   textAlign: "left",
                 }}
@@ -824,7 +820,7 @@ export default function BowlOrderApp() {
                     fontSize: 17, color: theme.text, letterSpacing: 1, textTransform: "uppercase",
                   }}>{section.label}</div>
                   <div style={{ fontSize: 11, color: theme.textSoft, marginTop: 2 }}>
-                    {section.subtitle}
+                    {section.comingSoon ? "🕐 In arrivo" : section.subtitle}
                   </div>
                 </div>
                 <span style={{
