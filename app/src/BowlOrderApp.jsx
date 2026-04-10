@@ -216,6 +216,7 @@ const getMenuSections = (t) => [
     items: [
       { id: "vino-rosso", name: t("menu_items.vino-rosso_name"), desc: t("menu_items.vino-rosso_desc"), sizes: { calice: 3.50, bottiglia: 12.90 }, sizeLabels: { calice: t("menu_items.calice_label"), bottiglia: t("menu_items.bottiglia_label") }, allergens: ["solfiti"], vegetarian: true, vegan: true },
       { id: "vino-bianco", name: t("menu_items.vino-bianco_name"), desc: t("menu_items.vino-bianco_desc"), sizes: { calice: 3.50, bottiglia: 12.90 }, sizeLabels: { calice: t("menu_items.calice_label"), bottiglia: t("menu_items.bottiglia_label") }, allergens: ["solfiti"], vegetarian: true, vegan: true },
+      { id: "kombucha-mojito", name: t("menu_items.kombucha-mojito_name"), desc: t("menu_items.kombucha-mojito_desc"), price: 6.00, allergens: [], vegetarian: true, vegan: true },
       { id: "kombucha", name: t("menu_items.kombucha_name"), desc: t("menu_items.kombucha_desc"), price: 6.00, allergens: [], vegetarian: true, vegan: true },
       { id: "ichnusa", name: t("menu_items.ichnusa_name"), desc: t("menu_items.ichnusa_desc"), price: 3.00, allergens: ["glutine"], vegetarian: true, vegan: true },
       { id: "soft-drinks", name: t("menu_items.soft-drinks_name"), desc: t("menu_items.soft-drinks_desc"), price: 3.00, allergens: [], vegetarian: true, vegan: true },
