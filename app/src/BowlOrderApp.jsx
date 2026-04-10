@@ -305,7 +305,6 @@ export default function BowlOrderApp() {
   const [photoModal, setPhotoModal] = useState(null);
   const [modalSize, setModalSize] = useState(null);
   const [langOpen, setLangOpen] = useState(false);
-  const [waOverlay, setWaOverlay] = useState(null); // null | { url: string }
 
   // ── Admin state ──────────────────────────────────────────────────────
   const [adminSession, setAdminSession] = useState(null);
@@ -640,8 +639,11 @@ export default function BowlOrderApp() {
 
     const finalCode = await generateOrderCode();
     const text = buildOrderText(finalCode);
-    const waUrl = `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
-    setWaOverlay({ url: waUrl });
+    const isAndroid = /android/i.test(navigator.userAgent);
+    const waUrl = isAndroid
+      ? `whatsapp://send?phone=${WA_BUSINESS_NUMBER}&text=${encodeURIComponent(text)}`
+      : `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
+    window.location.href = waUrl;
     setOrderSent(true);
 
     // Salva su Supabase in background
@@ -1969,51 +1971,6 @@ export default function BowlOrderApp() {
         </>
       )}
 
-      {/* WhatsApp overlay */}
-      {waOverlay && (
-        <div style={{
-          position: "fixed", inset: 0, zIndex: 9999,
-          background: "rgba(0,0,0,0.6)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          padding: 24,
-        }}>
-          <div style={{
-            background: "#fff", borderRadius: 24, padding: "36px 28px",
-            maxWidth: 360, width: "100%", textAlign: "center",
-            boxShadow: "0 16px 48px rgba(0,0,0,0.25)",
-          }}>
-            <div style={{ fontSize: 56, marginBottom: 12 }}>📲</div>
-            <h2 style={{ fontFamily: "'Jaapokki', sans-serif", fontSize: 22, color: "#1a1a1a", marginBottom: 10 }}>
-              Il tuo ordine è pronto!
-            </h2>
-            <p style={{ fontSize: 14, color: "#666", lineHeight: 1.6, marginBottom: 28 }}>
-              Tocca il tasto qui sotto per aprire WhatsApp e inviare il messaggio con il tuo ordine.
-            </p>
-            <a
-              href={waOverlay.url}
-              onClick={() => setWaOverlay(null)}
-              style={{
-                display: "block", width: "100%", padding: "16px",
-                background: "#25d366", borderRadius: 14,
-                color: "#fff", fontSize: 16, fontWeight: 700,
-                textDecoration: "none", marginBottom: 14,
-                boxShadow: "0 4px 16px rgba(37,211,102,0.4)",
-              }}
-            >
-              Apri WhatsApp →
-            </a>
-            <button
-              onClick={() => setWaOverlay(null)}
-              style={{
-                background: "none", border: "none", color: "#aaa",
-                fontSize: 13, cursor: "pointer", fontFamily: "inherit",
-              }}
-            >
-              Annulla
-            </button>
-          </div>
-        </div>
-      )}
 
       <style>{`
         @keyframes fadeSlideUp {
