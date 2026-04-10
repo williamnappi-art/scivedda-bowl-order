@@ -214,12 +214,11 @@ const getMenuSections = (t) => [
     subtitle: t("menu_sections.dabare_subtitle"),
     emoji: "🍷",
     items: [
-      { id: "mirto", name: t("menu_items.mirto_name"), desc: t("menu_items.mirto_desc"), price: 4.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
-      { id: "vernaccia", name: t("menu_items.vernaccia_name"), desc: t("menu_items.vernaccia_desc"), price: 5.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
-      { id: "cannonau", name: t("menu_items.cannonau_name"), desc: t("menu_items.cannonau_desc"), price: 5.00, allergens: ["solfiti"], vegetarian: true, vegan: true },
-      { id: "acqua", name: t("menu_items.acqua_name"), desc: t("menu_items.acqua_desc"), price: 2.00, allergens: [], vegetarian: true, vegan: true },
-      { id: "te-freddo", name: t("menu_items.te-freddo_name"), desc: t("menu_items.te-freddo_desc"), price: 3.00, allergens: [], vegetarian: true, vegan: true },
-      { id: "caffe", name: t("menu_items.caffe_name"), desc: t("menu_items.caffe_desc"), price: 1.50, allergens: [], vegetarian: true, vegan: true },
+      { id: "vino-rosso", name: t("menu_items.vino-rosso_name"), desc: t("menu_items.vino-rosso_desc"), sizes: { calice: 3.50, bottiglia: 12.90 }, sizeLabels: { calice: t("menu_items.calice_label"), bottiglia: t("menu_items.bottiglia_label") }, allergens: ["solfiti"], vegetarian: true, vegan: true },
+      { id: "vino-bianco", name: t("menu_items.vino-bianco_name"), desc: t("menu_items.vino-bianco_desc"), sizes: { calice: 3.50, bottiglia: 12.90 }, sizeLabels: { calice: t("menu_items.calice_label"), bottiglia: t("menu_items.bottiglia_label") }, allergens: ["solfiti"], vegetarian: true, vegan: true },
+      { id: "kombucha", name: t("menu_items.kombucha_name"), desc: t("menu_items.kombucha_desc"), price: 6.00, allergens: [], vegetarian: true, vegan: true },
+      { id: "ichnusa", name: t("menu_items.ichnusa_name"), desc: t("menu_items.ichnusa_desc"), price: 3.00, allergens: ["glutine"], vegetarian: true, vegan: true },
+      { id: "soft-drinks", name: t("menu_items.soft-drinks_name"), desc: t("menu_items.soft-drinks_desc"), price: 3.00, allergens: [], vegetarian: true, vegan: true },
     ],
   },
 ];
