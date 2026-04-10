@@ -639,8 +639,8 @@ export default function BowlOrderApp() {
 
     const finalCode = await generateOrderCode();
     const text = buildOrderText(finalCode);
-    const isAndroid = /android/i.test(navigator.userAgent);
-    const waUrl = isAndroid
+    const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+    const waUrl = isMobile
       ? `whatsapp://send?phone=${WA_BUSINESS_NUMBER}&text=${encodeURIComponent(text)}`
       : `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
     window.location.href = waUrl;
