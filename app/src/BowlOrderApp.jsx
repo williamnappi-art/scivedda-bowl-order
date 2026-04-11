@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { supabase } from "./supabase";
 import { useTranslation } from "react-i18next";
 
@@ -280,8 +280,10 @@ const LANGUAGES = [
 
 export default function BowlOrderApp() {
   const { t, i18n } = useTranslation();
-  const MENU_CATEGORIES = getMenuCategories(t);
-  const MENU_SECTIONS = getMenuSections(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const MENU_CATEGORIES = useMemo(() => getMenuCategories(t), [i18n.language]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const MENU_SECTIONS = useMemo(() => getMenuSections(t), [i18n.language]);
   const [view, setView] = useState("menu"); // menu | build | cart | summary | confirm
   const [cart, setCart] = useState([]);
   const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
@@ -465,7 +467,7 @@ export default function BowlOrderApp() {
     win.focus();
   };
 
-  const toggleSection = (id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] }));
+  const toggleSection = useCallback((id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] })), []);
 
   const getPortion = (category, itemId) => portions[`${category}_${itemId}`] || 1;
   const togglePortion = useCallback((category, itemId) => {
@@ -552,7 +554,7 @@ export default function BowlOrderApp() {
     setView("cart");
   };
 
-  const addMenuItemToCart = (item) => {
+  const addMenuItemToCart = useCallback((item) => {
     if (!item.price) return; // skip items without price (e.g. piatto del giorno)
     setCart(prev => {
       const existing = prev.find(c => c.menuItemId === item.id);
@@ -571,19 +573,19 @@ export default function BowlOrderApp() {
     });
     setShowCartBounce(true);
     setTimeout(() => setShowCartBounce(false), 600);
-  };
+  }, []);
 
-  const removeFromCart = (id) => setCart(prev => prev.filter(c => c.id !== id));
-  const updateQty = (id, delta) => {
+  const removeFromCart = useCallback((id) => setCart(prev => prev.filter(c => c.id !== id)), []);
+  const updateQty = useCallback((id, delta) => {
     setCart(prev => prev.map(c => {
       if (c.id !== id) return c;
       const newQty = c.qty + delta;
       return newQty > 0 ? { ...c, qty: newQty } : c;
     }).filter(c => c.qty > 0));
-  };
+  }, []);
 
-  const totalPrice = cart.reduce((s, c) => s + c.price * c.qty, 0);
-  const totalItems = cart.reduce((s, c) => s + c.qty, 0);
+  const totalPrice = useMemo(() => cart.reduce((s, c) => s + c.price * c.qty, 0), [cart]);
+  const totalItems = useMemo(() => cart.reduce((s, c) => s + c.qty, 0), [cart]);
 
   const buildOrderText = (orderCode = null) => {
     const catLabels = {
