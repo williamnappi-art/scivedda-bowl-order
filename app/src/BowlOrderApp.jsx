@@ -336,9 +336,15 @@ export default function BowlOrderApp() {
   };
 
   const generateOrderCode = async () => {
-    const { data, error } = await supabase.rpc("get_next_order_number");
-    if (error || !data) return String(Date.now()).slice(-3);
-    return data;
+    try {
+      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 3000));
+      const query = supabase.rpc("get_next_order_number");
+      const { data, error } = await Promise.race([query, timeout]);
+      if (error || !data) return String(Date.now()).slice(-3);
+      return data;
+    } catch {
+      return String(Date.now()).slice(-3);
+    }
   };
 
   useEffect(() => {
@@ -632,42 +638,46 @@ export default function BowlOrderApp() {
     if (sending) return;
     setSending(true);
 
-    const finalCode = await generateOrderCode();
-    const text = buildOrderText(finalCode);
-    const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
-    const waUrl = isMobile
-      ? `whatsapp://send?phone=${WA_BUSINESS_NUMBER}&text=${encodeURIComponent(text)}`
-      : `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
-    window.location.href = waUrl;
-    setOrderSent(true);
-
-    // Salva su Supabase in background
     try {
-      const orderId = crypto.randomUUID();
-      const { error: orderError } = await supabase.from("orders").insert({
-        id: orderId,
-        customer_name: customerName || null,
-        customer_note: customerNote || null,
-        dining_option: diningOption || null,
-        total: totalPrice,
-        status: "nuovo",
-        order_code: finalCode,
-      });
-      if (orderError) { console.error("ORDER INSERT ERROR:", orderError); setDbSaveError(true); return; }
+      finalCode = await generateOrderCode();
+      const text = buildOrderText(finalCode);
+      const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
+      const waUrl = isMobile
+        ? `whatsapp://send?phone=${WA_BUSINESS_NUMBER}&text=${encodeURIComponent(text)}`
+        : `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
+      window.location.href = waUrl;
+      setOrderSent(true);
 
-      const items = cart.map(item => ({
-        order_id: orderId,
-        item_name: item.name,
-        item_type: item.type,
-        price: item.price,
-        qty: item.qty,
-        details: item.type === "custom" ? { ...item.items, portions: item.portions || {} } : null,
-      }));
-      const { error: itemsError } = await supabase.from("order_items").insert(items);
-      if (itemsError) { console.error("ITEMS INSERT ERROR:", itemsError); setDbSaveError(true); }
-    } catch (e) {
-      console.error("Supabase exception:", e);
-      setDbSaveError(true);
+      // Salva su Supabase in background
+      try {
+        const orderId = crypto.randomUUID();
+        const { error: orderError } = await supabase.from("orders").insert({
+          id: orderId,
+          customer_name: customerName || null,
+          customer_note: customerNote || null,
+          dining_option: diningOption || null,
+          total: totalPrice,
+          status: "nuovo",
+          order_code: finalCode,
+        });
+        if (orderError) { console.error("ORDER INSERT ERROR:", orderError); setDbSaveError(true); return; }
+
+        const items = cart.map(item => ({
+          order_id: orderId,
+          item_name: item.name,
+          item_type: item.type,
+          price: item.price,
+          qty: item.qty,
+          details: item.type === "custom" ? { ...item.items, portions: item.portions || {} } : null,
+        }));
+        const { error: itemsError } = await supabase.from("order_items").insert(items);
+        if (itemsError) { console.error("ITEMS INSERT ERROR:", itemsError); setDbSaveError(true); }
+      } catch (e) {
+        console.error("Supabase exception:", e);
+        setDbSaveError(true);
+      }
+    } catch {
+      setSending(false);
     }
   };
 
