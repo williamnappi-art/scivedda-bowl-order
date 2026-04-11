@@ -10,14 +10,14 @@ const getMenuCategories = (t) => ({
     emoji: "🍚",
     color: "#f5e6d3",
     items: [
-      { id: "fregola",          name: t("builder.fregola_name"),          cal: 150, icon: "🟤" },
-      { id: "riso-bianco",      name: t("builder.riso-bianco_name"),      cal: 130, icon: "🍚" },
-      { id: "riso-rosso",       name: t("builder.riso-rosso_name"),       cal: 125, icon: "🔴" },
-      { id: "riso-nero",        name: t("builder.riso-nero_name"),        cal: 120, icon: "⚫" },
-      { id: "farro",            name: t("builder.farro_name"),            cal: 140, icon: "🌾" },
-      { id: "insalata",         name: t("builder.insalata_name"),         cal: 20,  icon: "🥬" },
-      { id: "riso-insalata",    name: t("builder.riso-insalata_name"),    cal: 90,  icon: "🍱" },
-      { id: "fregola-insalata", name: t("builder.fregola-insalata_name"), cal: 95,  icon: "🥗" },
+      { id: "fregola",          name: t("builder.fregola_name"),          cal: 150, icon: "🟤", cardImage: "/cards/basi/Frequla.webp" },
+      { id: "riso-bianco",      name: t("builder.riso-bianco_name"),      cal: 130, icon: "🍚", cardImage: "/cards/basi/Riso-bianco.webp" },
+      { id: "riso-rosso",       name: t("builder.riso-rosso_name"),       cal: 125, icon: "🔴", cardImage: "/cards/basi/Riso-rosso.webp" },
+      { id: "riso-nero",        name: t("builder.riso-nero_name"),        cal: 120, icon: "⚫", cardImage: "/cards/basi/Riso-Nero.webp" },
+      { id: "farro",            name: t("builder.farro_name"),            cal: 140, icon: "🌾", cardImage: "/cards/basi/Farro-sardo.webp" },
+      { id: "insalata",         name: t("builder.insalata_name"),         cal: 20,  icon: "🥬", cardImage: "/cards/basi/insalata-di-stagione.webp" },
+      { id: "riso-insalata",    name: t("builder.riso-insalata_name"),    cal: 90,  icon: "🍱", cardImage: "/cards/basi/riso+insalata.webp" },
+      { id: "fregola-insalata", name: t("builder.fregola-insalata_name"), cal: 95,  icon: "🥗", cardImage: "/cards/basi/frequla+insalata.webp" },
     ],
   },
   proteine: {
@@ -44,22 +44,22 @@ const getMenuCategories = (t) => ({
     color: "#d4edda",
     items: [
       { id: "avocado",          name: t("builder.avocado_name"),          cal: 80,  icon: "🥑", extra: 1.5 },
-      { id: "cipolla-rossa",    name: t("builder.cipolla-rossa_name"),    cal: 10,  icon: "🧅" },
+      { id: "cipolla-rossa",    name: t("builder.cipolla-rossa_name"),    cal: 10,  icon: "🧅", cardImage: "/cards/verdure/cipolla-rossa.webp" },
       { id: "olive-parteolla",  name: t("builder.olive-parteolla_name"),  cal: 40,  icon: "🫒" },
       { id: "cetriolo",         name: t("builder.cetriolo_name"),         cal: 15,  icon: "🥒" },
-      { id: "frutta-stagione",  name: t("builder.frutta-stagione_name"),  cal: 50,  icon: "🍓" },
-      { id: "pomodorini-pula",  name: t("builder.pomodorini-pula_name"),  cal: 18,  icon: "🍅" },
+      { id: "frutta-stagione",  name: t("builder.frutta-stagione_name"),  cal: 50,  icon: "🍓", cardImage: "/cards/verdure/frutta-di-stagione.webp" },
+      { id: "pomodorini-pula",  name: t("builder.pomodorini-pula_name"),  cal: 18,  icon: "🍅", cardImage: "/cards/verdure/pomodorini-di-pula.webp" },
       { id: "edamame",          name: t("builder.edamame_name"),          cal: 120, icon: "🫛" },
       { id: "ananas",           name: t("builder.ananas_name"),           cal: 40,  icon: "🍍" },
       { id: "mais",             name: t("builder.mais_name"),             cal: 35,  icon: "🌽" },
-      { id: "jalapeno",         name: t("builder.jalapeno_name"),         cal: 5,   icon: "🌶️" },
+      { id: "jalapeno",         name: t("builder.jalapeno_name"),         cal: 5,   icon: "🌶️", cardImage: "/cards/verdure/jalapeno.webp" },
       { id: "mango",            name: t("builder.mango_name"),            cal: 60,  icon: "🥭", extra: 1 },
-      { id: "carote",           name: t("builder.carote_name"),           cal: 20,  icon: "🥕" },
+      { id: "carote",           name: t("builder.carote_name"),           cal: 20,  icon: "🥕", cardImage: "/cards/verdure/carote.webp" },
       { id: "ceci",             name: t("builder.ceci_name"),             cal: 130, icon: "🫘" },
       { id: "zucchina-fritta",  name: t("builder.zucchina-fritta_name"),  cal: 70,  icon: "🥬", extra: 1.5 },
       { id: "cavolo-viola",     name: t("builder.cavolo-viola_name"),     cal: 25,  icon: "🫐" },
-      { id: "finocchio",        name: t("builder.finocchio_name"),        cal: 20,  icon: "🌿" },
-      { id: "verdura-stagione", name: t("builder.verdura-stagione_name"), cal: 30,  icon: "🥦", extra: 1.5 },
+      { id: "finocchio",        name: t("builder.finocchio_name"),        cal: 20,  icon: "🌿", cardImage: "/cards/verdure/finocchio.webp" },
+      { id: "verdura-stagione", name: t("builder.verdura-stagione_name"), cal: 30,  icon: "🥦", extra: 1.5, cardImage: "/cards/verdure/verdura-di-stagione.webp" },
       { id: "pomodoro-secco",   name: t("builder.pomodoro-secco_name"),   cal: 45,  icon: "🔴" },
     ],
   },
@@ -331,7 +331,13 @@ export default function BowlOrderApp() {
         ? "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
         : "width=device-width, initial-scale=1";
     }
-  }, [view, adminView, orderSent]);
+    if (view === "build") {
+      const allImages = Object.values(MENU_CATEGORIES).flatMap(cat =>
+        cat.items.filter(i => i.cardImage).map(i => i.cardImage)
+      );
+      allImages.forEach(src => { const img = new Image(); img.src = src; });
+    }
+  }, [view, adminView, orderSent, MENU_CATEGORIES]);
 
   const fetchOrders = async () => {
     const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
