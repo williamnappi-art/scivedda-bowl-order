@@ -638,6 +638,7 @@ export default function BowlOrderApp() {
     if (sending) return;
     setSending(true);
 
+    let finalCode;
     try {
       finalCode = await generateOrderCode();
       const text = buildOrderText(finalCode);
