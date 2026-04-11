@@ -1734,19 +1734,34 @@ export default function BowlOrderApp() {
         <div style={{
           fontSize: 64, marginBottom: 16,
           animation: "bounceIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)",
-        }}>🎉</div>
+        }}>📲</div>
         <h2 style={{
           fontFamily: "'Jaapokki', sans-serif",
-          fontSize: 24, fontWeight: 800, color: theme.text, margin: "0 0 8px",
+          fontSize: 24, fontWeight: 800, color: theme.text, margin: "0 0 12px",
         }}>{t("ui.confirm_title")}</h2>
-        <p style={{ color: theme.textSoft, fontSize: 14, lineHeight: 1.5, margin: "0 0 24px" }}>
+
+        {/* Box avviso importante */}
+        <div style={{
+          background: "#fff8e1", border: "1.5px solid #f0c040",
+          borderRadius: 14, padding: "14px 16px", marginBottom: 20, textAlign: "left",
+        }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: "#7a5c00", marginBottom: 6 }}>
+            ⚠️ {t("ui.confirm_warning_title")}
+          </div>
+          <div style={{ fontSize: 13, color: "#7a5c00", lineHeight: 1.5 }}>
+            {t("ui.confirm_warning_body")}
+          </div>
+        </div>
+
+        <p style={{ color: theme.textSoft, fontSize: 13, lineHeight: 1.6, margin: "0 0 24px" }}>
           {t("ui.confirm_body")}
         </p>
+
         <button onClick={resetOrder} style={{
-          padding: "14px 32px",
+          width: "100%", padding: "14px",
           background: theme.accent, border: "none", borderRadius: 12,
           color: "#fff", fontSize: 14, fontWeight: 700,
-          cursor: "pointer", fontFamily: "inherit",
+          cursor: "pointer", fontFamily: "inherit", marginBottom: 10,
         }}>{t("ui.confirm_new_order")}</button>
       </div>
     </div>
