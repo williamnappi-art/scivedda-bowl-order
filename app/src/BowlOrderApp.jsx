@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo, useTransition } from "react";
 import { supabase } from "./supabase";
 import { useTranslation } from "react-i18next";
 
@@ -242,7 +242,8 @@ const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble,
         border: isDouble ? `2px solid #e53e3e` : sel ? `2.5px solid ${theme.accent}` : `1.5px solid ${theme.border}`,
         borderRadius: 16, padding: 0, cursor: "pointer",
         display: "flex", flexDirection: "column",
-        transition: "transform 0.2s, box-shadow 0.2s, border-color 0.2s", transform: sel ? "scale(1.04)" : "scale(1)",
+        touchAction: "manipulation",
+        transition: "box-shadow 0.1s, border-color 0.1s", transform: sel ? "scale(1.04)" : "scale(1)",
         boxShadow: isDouble ? `0 2px 8px rgba(229,62,62,0.2)` : sel ? `0 4px 16px rgba(212,118,60,0.25)` : `0 1px 4px rgba(0,0,0,0.07)`,
         overflow: "hidden", position: "relative", userSelect: "none",
       }}>
@@ -284,6 +285,7 @@ export default function BowlOrderApp() {
   const MENU_CATEGORIES = useMemo(() => getMenuCategories(t), [i18n.language]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const MENU_SECTIONS = useMemo(() => getMenuSections(t), [i18n.language]);
+  const [, startTransition] = useTransition();
   const [view, setView] = useState("menu"); // menu | build | cart | summary | confirm
   const [cart, setCart] = useState([]);
   const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
@@ -478,27 +480,29 @@ export default function BowlOrderApp() {
   const catOrder = ["size", "basi", "proteine", "verdure", "croccanti", "salse", "special"];
 
   const selectIngredient = useCallback((category, itemId) => {
-    setSelected(prev => {
-      const next = { ...prev };
-      const MAX = { basi: MAX_BASI, proteine: MAX_PROTEINE, verdure: MAX_VERDURE, croccanti: MAX_CROCCANTI, salse: MAX_SALSE };
-      const max = MAX[category] ?? Infinity;
-      if (next[category].includes(itemId)) {
-        next[category] = next[category].filter(x => x !== itemId);
-      } else if (next[category].length < max) {
-        next[category] = [...next[category], itemId];
-      }
-      return next;
-    });
+    startTransition(() => {
+      setSelected(prev => {
+        const next = { ...prev };
+        const MAX = { basi: MAX_BASI, proteine: MAX_PROTEINE, verdure: MAX_VERDURE, croccanti: MAX_CROCCANTI, salse: MAX_SALSE };
+        const max = MAX[category] ?? Infinity;
+        if (next[category].includes(itemId)) {
+          next[category] = next[category].filter(x => x !== itemId);
+        } else if (next[category].length < max) {
+          next[category] = [...next[category], itemId];
+        }
+        return next;
+      });
 
-    // Pulisce la porzione quando si deseleziona
-    setPortions(prev => {
-      const key = `${category}_${itemId}`;
-      if (!prev[key]) return prev;
-      const n = { ...prev };
-      delete n[key];
-      return n;
+      // Pulisce la porzione quando si deseleziona
+      setPortions(prev => {
+        const key = `${category}_${itemId}`;
+        if (!prev[key]) return prev;
+        const n = { ...prev };
+        delete n[key];
+        return n;
+      });
     });
-  }, []);
+  }, [startTransition]);
 
   const isSelected = (category, itemId) => {
     return Array.isArray(selected[category])
