@@ -57,7 +57,7 @@ const getMenuCategories = (t) => ({
       { id: "carote",           name: t("builder.carote_name"),           cal: 20,  icon: "🥕", cardImage: "/card-carote.webp" },
       { id: "ceci",             name: t("builder.ceci_name"),             cal: 130, icon: "🫘" },
       { id: "zucchina-fritta",  name: t("builder.zucchina-fritta_name"),  cal: 70,  icon: "🥬", extra: 1.5 },
-      { id: "cavolo-viola",     name: t("builder.cavolo-viola_name"),     cal: 25,  icon: "🫐" },
+      { id: "cavolo-viola",     name: t("builder.cavolo-viola_name"),     cal: 25,  icon: "🫐", cardImage: "/card-cavolo-viola.webp" },
       { id: "finocchio",        name: t("builder.finocchio_name"),        cal: 20,  icon: "🌿", cardImage: "/card-finocchio.webp" },
       { id: "verdura-stagione", name: t("builder.verdura-stagione_name"), cal: 30,  icon: "🥦", extra: 1.5, cardImage: "/card-verdura-di-stagione.webp" },
       { id: "pomodoro-secco",   name: t("builder.pomodoro-secco_name"),   cal: 45,  icon: "🔴" },
