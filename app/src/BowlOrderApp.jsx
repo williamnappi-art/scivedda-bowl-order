@@ -14,7 +14,7 @@ const getMenuCategories = (t) => ({
       { id: "riso-bianco",      name: t("builder.riso-bianco_name"),      cal: 130, icon: "🍚", cardImage: "/card-riso-bianco.webp" },
       { id: "riso-rosso",       name: t("builder.riso-rosso_name"),       cal: 125, icon: "🔴", cardImage: "/card-riso-rosso.webp" },
       { id: "riso-nero",        name: t("builder.riso-nero_name"),        cal: 120, icon: "⚫", cardImage: "/card-riso-nero.webp" },
-      { id: "farro",            name: t("builder.farro_name"),            cal: 140, icon: "🌾", cardImage: "/card-farro.webp" },
+      { id: "farro",            name: t("builder.farro_name"),            cal: 140, icon: "🌾", cardImage: "/card-farro-sardo.webp" },
       { id: "insalata",         name: t("builder.insalata_name"),         cal: 20,  icon: "🥬", cardImage: "/card-insalata-di-stagione.webp" },
       { id: "riso-insalata",    name: t("builder.riso-insalata_name"),    cal: 90,  icon: "🍱", cardImage: "/card-riso-insalata.webp" },
       { id: "fregola-insalata", name: t("builder.fregola-insalata_name"), cal: 95,  icon: "🥗", cardImage: "/card-fregula-insalata.webp" },
