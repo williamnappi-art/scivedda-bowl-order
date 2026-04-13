@@ -25,7 +25,7 @@ const getMenuCategories = (t) => ({
     emoji: "🐟",
     color: "#ffd6d6",
     items: [
-      { id: "salmone-crudo",       name: t("builder.salmone-crudo_name"),       cal: 180, icon: "🍣" },
+      { id: "salmone-crudo",       name: t("builder.salmone-crudo_name"),       cal: 180, icon: "🍣", cardImage: "/card-salmone-crudo.webp" },
       { id: "salmone-cotto",       name: t("builder.salmone-cotto_name"),       cal: 170, icon: "🐟", cardImage: "/card-salmone-cotto.webp" },
       { id: "tonno-crudo",         name: t("builder.tonno-crudo_name"),         cal: 160, icon: "🔴", cardImage: "/card-tonno-crudo.webp" },
       { id: "tonno-cotto",         name: t("builder.tonno-cotto_name"),         cal: 150, icon: "🫙", cardImage: "/card-tonno-cotto.webp" },
