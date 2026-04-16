@@ -78,6 +78,7 @@ const getMenuCategories = (t) => ({
       { id: "anacardi",      name: t("builder.anacardi_name"),      cal: 55, icon: "🥜", extra: 0.5 },
       { id: "pistacchio",    name: t("builder.pistacchio_name"),    cal: 60, icon: "💚", extra: 0.5 },
       { id: "kataifi",       name: t("builder.kataifi_name"),       cal: 50, icon: "🥐", extra: 1 },
+      { id: "alga-nori",     name: t("builder.alga-nori_name"),     cal: 30, icon: "🌊" },
     ],
   },
   salse: {
