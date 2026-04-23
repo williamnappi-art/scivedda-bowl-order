@@ -97,6 +97,7 @@ const getMenuCategories = (t) => ({
       { id: "olio-evo",        name: t("builder.olio-evo_name"),        cal: 90, icon: "🫒" },
       { id: "sale",            name: t("builder.sale_name"),            cal: 0,  icon: "🧂" },
       { id: "wasabi",          name: t("builder.wasabi_name"),          cal: 5,  icon: "🌿" },
+      { id: "aceto-balsamico", name: t("builder.aceto-balsamico_name"), cal: 15, icon: "🍶" },
     ],
   },
   special: {
