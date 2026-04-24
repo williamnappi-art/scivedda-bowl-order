@@ -378,9 +378,16 @@ export default function BowlOrderApp() {
 
   const adminLogin = async () => {
     setAdminLoading(true); setAdminLoginError("");
-    const { error } = await supabase.auth.signInWithPassword({ email: adminEmail, password: adminPassword });
-    if (error) setAdminLoginError(t("ui.admin_login_error"));
-    setAdminLoading(false);
+    try {
+      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 10000));
+      const query = supabase.auth.signInWithPassword({ email: adminEmail, password: adminPassword });
+      const { error } = await Promise.race([query, timeout]);
+      if (error) setAdminLoginError(t("ui.admin_login_error"));
+    } catch (e) {
+      setAdminLoginError(e?.message === "timeout" ? "Server non raggiungibile. Riprova." : "Errore di connessione.");
+    } finally {
+      setAdminLoading(false);
+    }
   };
 
   const adminLogout = async () => {
