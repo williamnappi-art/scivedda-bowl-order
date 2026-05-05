@@ -666,6 +666,7 @@ export default function BowlOrderApp() {
         : `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
       window.location.href = waUrl;
       setOrderSent(true);
+      setSending(false);
 
       // Salva su Supabase in background
       try {
@@ -706,6 +707,8 @@ export default function BowlOrderApp() {
     setPortions({});
     setView("menu");
     setOrderSent(false);
+    setSending(false);
+    setDbSaveError(false);
     setCustomerName("");
     setCustomerNote("");
   };
