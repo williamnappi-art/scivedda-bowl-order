@@ -406,6 +406,7 @@ export default function BowlOrderApp() {
   const resolveIngredients = (details) => {
     if (!details) return [];
     const size = SIZE_OPTIONS.find(s => s.id === details.size)?.label;
+    const portionsMap = details.portions || {};
     const lines = [];
     if (size) lines.push(`Taglia: ${size}`);
     [
@@ -418,7 +419,12 @@ export default function BowlOrderApp() {
     ].forEach(({ key, label, src }) => {
       const ids = details[key] || [];
       if (!ids.length) return;
-      lines.push(`${label}: ${ids.map(id => src.find(i => i.id === id)?.name ?? id).join(", ")}`);
+      const names = ids.map(id => {
+        const name = src.find(i => i.id === id)?.name ?? id;
+        const p = portionsMap[`${key}_${id}`] || 1;
+        return p === 2 ? `${name} (X2)` : name;
+      });
+      lines.push(`${label}: ${names.join(", ")}`);
     });
     return lines;
   };
