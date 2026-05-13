@@ -222,9 +222,9 @@ const getMenuSections = (t) => [
 ];
 
 const SIZE_OPTIONS = [
-  { id: "small",   label: "Small",   price: 10.90, bowlW: 72 },
+  { id: "small",   label: "Small",   price: 9.90,  bowlW: 72 },
   { id: "regular", label: "Regular", price: 11.90, bowlW: 96 },
-  { id: "xl",      label: "XL",      price: 15.90, bowlW: 124 },
+  { id: "xl",      label: "XL",      price: 14.90, bowlW: 124 },
 ];
 
 const MAX_BASI = 2;
