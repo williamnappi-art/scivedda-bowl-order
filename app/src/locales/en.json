@@ -41,7 +41,7 @@
     "build_salse_hint": "Choose up to 2 sauces ({{count}}/{{limit}})",
     "build_special_hint": "Each special adds +€1 to the total ({{count}} selected)",
     "build_multi_hint": "Select up to {{limit}} ({{count}}/{{limit}})",
-    "build_double_tap": "Double-tap an ingredient to add a double portion",
+    "build_double_tap": "Tap twice for double • Tap 3 times to remove",
     "build_summary_btn": "Summary →",
     "build_total_label": "Total",
     "build_err_name": "Please enter your name to continue!",

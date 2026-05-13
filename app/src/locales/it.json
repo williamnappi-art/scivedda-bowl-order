@@ -41,7 +41,7 @@
     "build_salse_hint": "Scegli fino a 2 salse ({{count}}/{{limit}})",
     "build_special_hint": "Ogni special aggiunge +€1 al totale ({{count}} selezionati)",
     "build_multi_hint": "Seleziona fino a {{limit}} ({{count}}/{{limit}})",
-    "build_double_tap": "Doppio tap su un ingrediente per indicare la doppia porzione",
+    "build_double_tap": "Tocca 2 volte per il doppio • 3 volte per togliere",
     "build_summary_btn": "Riepilogo →",
     "build_total_label": "Totale",
     "build_err_name": "Inserisci il tuo nome per andare avanti!",

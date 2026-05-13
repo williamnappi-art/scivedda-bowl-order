@@ -237,8 +237,12 @@ const MAX_SALSE = 2;
 const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble, catColor, theme, category, onSelect, onTogglePortion }) {
   return (
     <button
-      onClick={(e) => { if (e.detail >= 2) return; onSelect(category, item.id); }}
-      onDoubleClick={() => { if (!sel) onSelect(category, item.id); if (category !== "basi") onTogglePortion(category, item.id); }}
+      onClick={() => {
+        if (category === "basi") { onSelect(category, item.id); }
+        else if (!sel) { onSelect(category, item.id); }
+        else if (!isDouble) { onTogglePortion(category, item.id); }
+        else { onSelect(category, item.id); }
+      }}
       style={{
         background: "#faf7f2",
         border: isDouble ? `2px solid #e53e3e` : sel ? `2.5px solid ${theme.accent}` : `1.5px solid ${theme.border}`,

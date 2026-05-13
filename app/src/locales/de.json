@@ -41,7 +41,7 @@
     "build_salse_hint": "Bis zu 2 Soßen wählen ({{count}}/{{limit}})",
     "build_special_hint": "Jedes Special fügt +€1 zum Gesamtpreis hinzu ({{count}} ausgewählt)",
     "build_multi_hint": "Bis zu {{limit}} auswählen ({{count}}/{{limit}})",
-    "build_double_tap": "Doppeltippen auf eine Zutat für doppelte Portion",
+    "build_double_tap": "2× tippen für doppelt • 3× tippen zum Entfernen",
     "build_summary_btn": "Zusammenfassung →",
     "build_total_label": "Gesamt",
     "build_err_name": "Bitte gib deinen Namen ein, um fortzufahren!",
