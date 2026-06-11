@@ -285,6 +285,19 @@ const tIt = i18n.getFixedT("it");
 const MENU_CATEGORIES_IT = getMenuCategories(tIt);
 const MENU_ITEMS_IT = Object.fromEntries(getMenuSections(tIt).flatMap(s => s.items.map(i => [i.id, i])));
 
+// ── Ricette "da cucina" per Le nostre Scivedde — stampate sul ticket ─────
+// Solo per questa sezione: il ticket termico mostra gli ingredienti
+// così la cucina non deve consultare altri fogli.
+const SCIVEDDE_RECIPES_IT = {
+  "scivedda-tabule": "Fregula tostata, cipolla rossa, cetriolo, menta, basilico, frutta di stagione, pomodorini di Pula, noci, sale e olio",
+  "scivedda-polletto": "Riso bianco, polletto sfilacciato marinato, salsa Teriyaki, mais, olive del Parteolla, pomodorini di Pula, finocchio, cipolla caramellata, Philadelphia, sesamo",
+  "scivedda-tonno-tartufo": "Fregula, tonno rosso crudo, zucchina fritta, ceci, pomodorini di Pula, cipolla rossa, tartufo, salsa di soia, olio d'oliva, chips di cipolla",
+  "scivedda-salmone-crudo": "Riso bianco, salmone crudo, edamame, mais, alga nori, Philadelphia, cetriolo, salsa di soia, Teriyaki, cipolla caramellata",
+  "scivedda-orata": "Riso rosso integrale, orata arrosto, citronette di agrumi, pomodorini di Pula, zucchina fritta, frutta di stagione, cipolla caramellata, mandorle",
+  "scivedda-polpo": "Fregula tostata, polpo (olio, aglio, prezzemolo, limone), zucchina fritta, noci, cipolla rossa, verdure di stagione, pomodorini di Pula, citronette al limone",
+  "scivedda-salmone": "Riso bianco, salmone al vapore con agrumi, frutta di stagione, alga wakame, pomodorini di Pula, cavolo viola, mais, cetriolo, pistacchio, Teriyaki, Philadelphia",
+};
+
 // ── Bozza ordine persistita (sopravvive al refresh della pagina) ────────
 const DRAFT_KEY = "scivedda_order_draft";
 const DRAFT_MAX_AGE = 3 * 60 * 60 * 1000; // 3 ore
@@ -490,6 +503,8 @@ export default function BowlOrderApp() {
     const tickets = bowls.map((item, idx) => {
       const ingr = item.item_type === "custom" && item.details
         ? resolveIngredients(item.details).map(l => `<div class="ing-line">${l}</div>`).join("")
+        : item.details?.recipe
+        ? `<div class="ing-line">Ingredienti: ${item.details.recipe}</div>`
         : "";
       return `
         <div class="ticket">
@@ -753,7 +768,11 @@ export default function BowlOrderApp() {
           item_type: item.type,
           price: item.price,
           qty: item.qty,
-          details: item.type === "custom" ? { ...item.items, portions: item.portions || {} } : null,
+          details: item.type === "custom"
+            ? { ...item.items, portions: item.portions || {} }
+            : SCIVEDDE_RECIPES_IT[item.menuItemId]
+            ? { recipe: SCIVEDDE_RECIPES_IT[item.menuItemId] }
+            : null,
         }));
         const { error: itemsError } = await supabase.from("order_items").insert(items);
         if (itemsError) { console.error("ITEMS INSERT ERROR:", itemsError); setDbSaveError(true); }
