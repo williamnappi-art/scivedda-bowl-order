@@ -638,6 +638,8 @@ export default function BowlOrderApp() {
       } else {
         text += `${item.name}\n`;
         const its = item.items;
+        const sizeLabel = SIZE_OPTIONS.find(s => s.id === its.size)?.label;
+        if (sizeLabel) text += `Taglia: ${sizeLabel.toUpperCase()}\n`;
         Object.entries(catLabels).forEach(([cat, label]) => {
           const val = its[cat];
           if (!val || (Array.isArray(val) && val.length === 0)) return;
