@@ -671,8 +671,12 @@ export default function BowlOrderApp() {
       finalCode = await generateOrderCode();
       const text = buildOrderText(finalCode);
       const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
-      const waUrl = isMobile
+      // Browser in-app di Meta (Facebook/Instagram/Messenger) bloccano lo schema whatsapp:// — serve il link https
+      const isInAppBrowser = /FBAN|FBAV|FB_IAB|FBIOS|Instagram|Messenger/i.test(navigator.userAgent);
+      const waUrl = isMobile && !isInAppBrowser
         ? `whatsapp://send?phone=${WA_BUSINESS_NUMBER}&text=${encodeURIComponent(text)}`
+        : isMobile
+        ? `https://api.whatsapp.com/send?phone=${WA_BUSINESS_NUMBER}&text=${encodeURIComponent(text)}`
         : `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
       window.location.href = waUrl;
       setOrderSent(true);
