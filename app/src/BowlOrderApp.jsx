@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, useTransition } from "react";
 import { supabase } from "./supabase";
 import { useTranslation } from "react-i18next";
+import i18n from "./i18n";
 
 // ── Menu Data (in production, this comes from admin panel / API) ──────────
 // Builder categories — built with t() inside component via getMenuCategories(t)
@@ -276,6 +277,13 @@ const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble,
     </button>
   );
 });
+
+// ── Dati menu in italiano — canonici per messaggio WhatsApp, DB e cucina ──
+// La cucina lavora in italiano: qualunque sia la lingua del cliente,
+// l'ordine inviato/salvato usa sempre questi nomi.
+const tIt = i18n.getFixedT("it");
+const MENU_CATEGORIES_IT = getMenuCategories(tIt);
+const MENU_ITEMS_IT = Object.fromEntries(getMenuSections(tIt).flatMap(s => s.items.map(i => [i.id, i])));
 
 // ── Bozza ordine persistita (sopravvive al refresh della pagina) ────────
 const DRAFT_KEY = "scivedda_order_draft";
@@ -597,6 +605,7 @@ export default function BowlOrderApp() {
       id: Date.now(),
       type: "custom",
       name: t("ui.scivedda_di", { name: resolvedBowlName }),
+      nameIt: tIt("ui.scivedda_di", { name: resolvedBowlName }),
       desc,
       items: bowlItems,
       portions: bowlPortions,
@@ -613,16 +622,24 @@ export default function BowlOrderApp() {
 
   const addMenuItemToCart = useCallback((item) => {
     if (!item.price) return; // skip items without price (e.g. piatto del giorno)
+    // Nome italiano canonico (per WhatsApp/DB), con eventuale taglia
+    const itItem = MENU_ITEMS_IT[item.id];
+    const baseNameIt = itItem?.name || item.name;
+    const nameIt = item.sizeKey
+      ? `${baseNameIt} (${itItem?.sizeLabels?.[item.sizeKey] ?? item.sizeKey.toUpperCase()})`
+      : baseNameIt;
     setCart(prev => {
-      const existing = prev.find(c => c.menuItemId === item.id);
+      // match anche su name: lo stesso piatto in taglie diverse resta su righe separate
+      const existing = prev.find(c => c.menuItemId === item.id && c.name === item.name);
       if (existing) {
-        return prev.map(c => c.menuItemId === item.id ? { ...c, qty: c.qty + 1 } : c);
+        return prev.map(c => c === existing ? { ...c, qty: c.qty + 1 } : c);
       }
       return [...prev, {
         id: Date.now(),
         menuItemId: item.id,
         type: "menu",
         name: item.name,
+        nameIt,
         desc: item.desc,
         price: item.price,
         qty: 1,
@@ -665,9 +682,9 @@ export default function BowlOrderApp() {
       text += `*Quantità: n.${item.qty}*\n`;
 
       if (item.type === "menu") {
-        text += `${item.name} (da menù)\n`;
+        text += `${item.nameIt || item.name} (da menù)\n`;
       } else {
-        text += `${item.name}\n`;
+        text += `${item.nameIt || item.name}\n`;
         const its = item.items;
         const sizeLabel = SIZE_OPTIONS.find(s => s.id === its.size)?.label;
         if (sizeLabel) text += `Taglia: ${sizeLabel.toUpperCase()}\n`;
@@ -676,11 +693,11 @@ export default function BowlOrderApp() {
           if (!val || (Array.isArray(val) && val.length === 0)) return;
           const names = Array.isArray(val)
             ? val.map(id => {
-                const name = MENU_CATEGORIES[cat].items.find(i => i.id === id)?.name?.toUpperCase();
+                const name = MENU_CATEGORIES_IT[cat].items.find(i => i.id === id)?.name?.toUpperCase();
                 const p = item.portions?.[`${cat}_${id}`] || 1;
                 return p === 2 ? `${name} x2` : name;
               }).filter(Boolean).join(" - ")
-            : MENU_CATEGORIES[cat].items.find(i => i.id === val)?.name?.toUpperCase();
+            : MENU_CATEGORIES_IT[cat].items.find(i => i.id === val)?.name?.toUpperCase();
           if (names) text += `${label}: ${names}\n`;
         });
       }
@@ -732,7 +749,7 @@ export default function BowlOrderApp() {
 
         const items = cart.map(item => ({
           order_id: orderId,
-          item_name: item.name,
+          item_name: item.nameIt || item.name,
           item_type: item.type,
           price: item.price,
           qty: item.qty,
@@ -1963,7 +1980,7 @@ export default function BowlOrderApp() {
                     disabled={!modalSize}
                     onClick={() => {
                       const sizeLabel = photoModal.sizeLabels?.[modalSize] ?? modalSize.toUpperCase();
-                      addMenuItemToCart({ ...photoModal, price: photoModal.sizes[modalSize], name: `${photoModal.name} (${sizeLabel})` });
+                      addMenuItemToCart({ ...photoModal, price: photoModal.sizes[modalSize], name: `${photoModal.name} (${sizeLabel})`, sizeKey: modalSize });
                       setPhotoModal(null);
                       setModalSize(null);
                     }}
