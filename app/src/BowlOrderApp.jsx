@@ -277,6 +277,25 @@ const IngredientCard = React.memo(function IngredientCard({ item, sel, isDouble,
   );
 });
 
+// ── Bozza ordine persistita (sopravvive al refresh della pagina) ────────
+const DRAFT_KEY = "scivedda_order_draft";
+const DRAFT_MAX_AGE = 3 * 60 * 60 * 1000; // 3 ore
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return null;
+    const draft = JSON.parse(raw);
+    if (!draft.savedAt || Date.now() - draft.savedAt > DRAFT_MAX_AGE || !Array.isArray(draft.cart)) {
+      localStorage.removeItem(DRAFT_KEY);
+      return null;
+    }
+    return draft;
+  } catch {
+    return null;
+  }
+}
+
 // ── Main App ────────────────────────────────────────────────────────────
 const LANGUAGES = [
   { code: "it", label: "ITA", flag: "🇮🇹" },
@@ -292,14 +311,15 @@ export default function BowlOrderApp() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const MENU_SECTIONS = useMemo(() => getMenuSections(t), [i18n.language]);
   const [, startTransition] = useTransition();
+  const draft = useMemo(loadDraft, []);
   const [view, setView] = useState("menu"); // menu | build | cart | summary | confirm
-  const [cart, setCart] = useState([]);
+  const [cart, setCart] = useState(draft?.cart || []);
   const [selected, setSelected] = useState({ size: null, basi: [], proteine: [], verdure: [], croccanti: [], salse: [], special: [] });
   const [portions, setPortions] = useState({});
   const [activeCategory, setActiveCategory] = useState("size");
-  const [customerName, setCustomerName] = useState("");
-  const [customerNote, setCustomerNote] = useState("");
-  const [diningOption, setDiningOption] = useState(null); // "qui" | "via"
+  const [customerName, setCustomerName] = useState(draft?.customerName || "");
+  const [customerNote, setCustomerNote] = useState(draft?.customerNote || "");
+  const [diningOption, setDiningOption] = useState(draft?.diningOption ?? null); // "qui" | "via"
   const [orderSent, setOrderSent] = useState(false);
   const [sending, setSending] = useState(false);
   const [showCartBounce, setShowCartBounce] = useState(false);
@@ -322,6 +342,17 @@ export default function BowlOrderApp() {
   const [dbSaveError, setDbSaveError] = useState(false);
   const logoTapCount = useRef(0);
   const logoTapTimer = useRef(null);
+
+  // Salva la bozza ordine ad ogni modifica (solo se il carrello ha item)
+  useEffect(() => {
+    try {
+      if (cart.length === 0) {
+        localStorage.removeItem(DRAFT_KEY);
+      } else {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ cart, customerName, customerNote, diningOption, savedAt: Date.now() }));
+      }
+    } catch { /* storage pieno o disabilitato: la persistenza è best-effort */ }
+  }, [cart, customerName, customerNote, diningOption]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setAdminSession(session));
@@ -683,6 +714,7 @@ export default function BowlOrderApp() {
       window.location.href = waUrl;
       setOrderSent(true);
       setSending(false);
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* best-effort */ }
 
       // Salva su Supabase in background
       try {
