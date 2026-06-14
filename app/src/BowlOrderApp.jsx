@@ -587,13 +587,24 @@ export default function BowlOrderApp() {
   };
 
   const customBowlValid = selected.size && selected.basi.length > 0;
-  const proteinItemExtra = selected.proteine.reduce((sum, id) => sum + (MENU_CATEGORIES.proteine.items.find(i => i.id === id)?.extra ?? 0) * getPortion("proteine", id), 0);
-  const proteinCountExtra = Math.max(0, selected.proteine.length - 1) * 3;
+  // Prezzo proteine. Ogni porzione (un raddoppio X2 = 2 porzioni) costa il massimo tra
+  // €3 e il suo sovrapprezzo premium. La porzione "base" (sovrapprezzo più basso) paga
+  // solo il suo premium (€0 se normale). Conseguenze volute:
+  //  - 1 normale = €0 · 1 premium = il suo premium (Polpo €3, Gambero €2)
+  //  - doppia proteina con una base normale = +€3 (il premium della 2ª è assorbito)
+  //  - due premium (diverse o stesse X2) = ognuna paga il suo premium (€3+€3 = €6)
+  const proteinPortions = selected.proteine.flatMap(id => {
+    const prem = MENU_CATEGORIES.proteine.items.find(i => i.id === id)?.extra ?? 0;
+    return Array(getPortion("proteine", id)).fill(prem);
+  });
+  const proteinExtra = proteinPortions.length === 0
+    ? 0
+    : proteinPortions.reduce((s, p) => s + Math.max(3, p), 0) - 3 + Math.min(...proteinPortions);
   const verdureItemExtra = selected.verdure.reduce((sum, id) => sum + (MENU_CATEGORIES.verdure.items.find(i => i.id === id)?.extra ?? 0) * getPortion("verdure", id), 0);
   const croccantItemExtra = selected.croccanti.reduce((sum, id) => sum + (MENU_CATEGORIES.croccanti.items.find(i => i.id === id)?.extra ?? 0) * getPortion("croccanti", id), 0);
   const salseItemExtra = selected.salse.reduce((sum, id) => sum + (MENU_CATEGORIES.salse.items.find(i => i.id === id)?.extra ?? 0) * getPortion("salse", id), 0);
   const specialItemExtra = selected.special.reduce((sum, id) => sum + 1 * getPortion("special", id), 0);
-  const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinItemExtra + proteinCountExtra + verdureItemExtra + croccantItemExtra + salseItemExtra + specialItemExtra;
+  const customPrice = (SIZE_OPTIONS.find(s => s.id === selected.size)?.price ?? 11.90) + proteinExtra + verdureItemExtra + croccantItemExtra + salseItemExtra + specialItemExtra;
 
   const addCustomToCart = () => {
     if (!customBowlValid) return;
