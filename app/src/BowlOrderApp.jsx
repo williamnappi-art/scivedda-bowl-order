@@ -1631,14 +1631,12 @@ export default function BowlOrderApp() {
     const today = new Date().toDateString();
     const todayOrders = adminOrders.filter(o => new Date(o.created_at).toDateString() === today);
 
-    const statusColors = { preparazione: "#3b82f6", pronto: "#10b981" };
-    const statusLabels = { preparazione: t("ui.admin_in_prep"), pronto: t("ui.admin_ready") };
+    const IGNORED = "ignorato";
     const isConfirmed = (order) => order.whatsapp_confirmed === true;
+    const isIgnored = (order) => order.status === IGNORED;
 
     const todayActive = adminOrders.filter(o => new Date(o.created_at).toDateString() === today);
-    const daFare = todayActive.filter(o => isConfirmed(o) && o.status !== "pronto").length;
-    const inPrep = todayActive.filter(o => o.status === "preparazione").length;
-    const pronti = todayActive.filter(o => o.status === "pronto").length;
+    const daFare = todayActive.filter(o => isConfirmed(o) && !isIgnored(o)).length;
 
     const todayStr = new Date().toDateString();
     const todayList = adminOrders.filter(o => new Date(o.created_at).toDateString() === todayStr);
@@ -1646,21 +1644,18 @@ export default function BowlOrderApp() {
 
     const renderOrderCard = (order, isYesterday) => {
       const confirmed = isConfirmed(order);
+      const ignored = isIgnored(order);
       const orderDate = new Date(order.created_at);
       let borderColor = "#cbd5e1";
-      if (!isYesterday) {
-        if (order.status === "pronto") borderColor = statusColors.pronto;
-        else if (order.status === "preparazione") borderColor = statusColors.preparazione;
-        else if (confirmed) borderColor = "#22c55e";
-        else borderColor = "#f59e0b";
-      }
+      if (!isYesterday && !ignored) borderColor = confirmed ? "#22c55e" : "#f59e0b";
       return (
         <div key={order.id} style={{
-          background: isYesterday ? "#f4f4f4" : order.status === "pronto" ? "#f0fdf4" : confirmed ? "#fff" : "#fffbeb",
+          background: isYesterday ? "#f4f4f4" : ignored ? "#f8fafc" : confirmed ? "#fff" : "#fffbeb",
           borderRadius: 16,
-          boxShadow: isYesterday ? "none" : "0 4px 16px rgba(0,0,0,0.08)",
+          boxShadow: isYesterday || ignored ? "none" : "0 4px 16px rgba(0,0,0,0.08)",
           border: `2px solid ${borderColor}`,
-          opacity: isYesterday ? 0.65 : 1,
+          opacity: isYesterday ? 0.65 : ignored ? 0.45 : 1,
+          transition: "opacity 0.2s, background 0.2s",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
@@ -1714,45 +1709,49 @@ export default function BowlOrderApp() {
           {/* Card actions */}
           {!isYesterday && (
             <div style={{ padding: "10px 14px 14px", borderTop: "1px solid #e8ecf0" }}>
-              {!confirmed ? (
-                <button onClick={() => confirmWhatsapp(order.id)} style={{
-                  width: "100%", padding: "16px 0", borderRadius: 12, border: "none",
-                  cursor: "pointer", fontSize: 16, fontWeight: 700,
-                  background: "#25d366", color: "#fff", letterSpacing: 0.3,
-                }}>✓ {t("ui.admin_confirm_wa")}</button>
+              {ignored ? (
+                /* Card messa da parte: unico tasto, per rimetterla in gioco */
+                <button onClick={() => updateOrderStatus(order.id, "nuovo")} style={{
+                  width: "100%", padding: "14px 0", borderRadius: 12, border: "none",
+                  cursor: "pointer", fontSize: 14, fontWeight: 700,
+                  background: "#e2e8f0", color: "#475569",
+                }}>↩ {t("ui.admin_restore")}</button>
               ) : (
                 <>
-                  <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-                    {/* Tasto Da Pagare / Pagato */}
-                    <button onClick={async () => {
-                      const next = !order.paid;
-                      await supabase.from("orders").update({ paid: next }).eq("id", order.id);
-                      setAdminOrders(prev => prev.map(o => o.id === order.id ? { ...o, paid: next } : o));
-                    }} style={{
-                      flex: 1, padding: "14px 4px", borderRadius: 10, border: "none", cursor: "pointer",
-                      fontSize: 13, fontWeight: 700,
-                      background: order.paid ? "#10b981" : "#ef4444",
-                      color: "#fff",
-                      boxShadow: `0 2px 8px ${order.paid ? "#10b98155" : "#ef444455"}`,
-                      transition: "background 0.2s",
-                    }}>{order.paid ? t("ui.admin_paid") : t("ui.admin_to_pay")}</button>
-                    {/* Tasti In prep / Pronto */}
-                    {["preparazione", "pronto"].map(s => (
-                      <button key={s} onClick={() => updateOrderStatus(order.id, s)} style={{
-                        flex: 1, padding: "14px 4px", borderRadius: 10, border: "none", cursor: "pointer",
-                        fontSize: 13, fontWeight: 700,
-                        background: order.status === s ? statusColors[s] : "#edf2f7",
-                        color: order.status === s ? "#fff" : "#64748b",
-                        boxShadow: order.status === s ? `0 2px 8px ${statusColors[s]}55` : "none",
+                  {!confirmed ? (
+                    <button onClick={() => confirmWhatsapp(order.id)} style={{
+                      width: "100%", padding: "16px 0", borderRadius: 12, border: "none",
+                      cursor: "pointer", fontSize: 16, fontWeight: 700,
+                      background: "#25d366", color: "#fff", letterSpacing: 0.3,
+                    }}>✓ {t("ui.admin_confirm_wa")}</button>
+                  ) : (
+                    <>
+                      {/* Tasto Da Pagare / Pagato */}
+                      <button onClick={async () => {
+                        const next = !order.paid;
+                        await supabase.from("orders").update({ paid: next }).eq("id", order.id);
+                        setAdminOrders(prev => prev.map(o => o.id === order.id ? { ...o, paid: next } : o));
+                      }} style={{
+                        width: "100%", padding: "14px 4px", borderRadius: 10, border: "none", cursor: "pointer",
+                        fontSize: 13, fontWeight: 700, marginBottom: 8,
+                        background: order.paid ? "#10b981" : "#ef4444",
+                        color: "#fff",
+                        boxShadow: `0 2px 8px ${order.paid ? "#10b98155" : "#ef444455"}`,
                         transition: "background 0.2s",
-                      }}>{statusLabels[s]}</button>
-                    ))}
-                  </div>
-                  <button onClick={() => printOrder(order)} style={{
-                    width: "100%", padding: "14px 0", borderRadius: 10, border: "none",
-                    cursor: "pointer", fontSize: 14, fontWeight: 700,
-                    background: "#e2e8f0", color: "#475569",
-                  }}>🖨 {t("ui.admin_print")}</button>
+                      }}>{order.paid ? t("ui.admin_paid") : t("ui.admin_to_pay")}</button>
+                      <button onClick={() => printOrder(order)} style={{
+                        width: "100%", padding: "14px 0", borderRadius: 10, border: "none",
+                        cursor: "pointer", fontSize: 14, fontWeight: 700,
+                        background: "#e2e8f0", color: "#475569",
+                      }}>🖨 {t("ui.admin_print")}</button>
+                    </>
+                  )}
+                  {/* Mette la card da parte (grigia). Reversibile. */}
+                  <button onClick={() => updateOrderStatus(order.id, IGNORED)} style={{
+                    width: "100%", padding: "10px 0", borderRadius: 10, border: "1px solid #e2e8f0",
+                    cursor: "pointer", fontSize: 12, fontWeight: 700, marginTop: 8,
+                    background: "transparent", color: "#94a3b8",
+                  }}>{t("ui.admin_not_confirmed")}</button>
                 </>
               )}
             </div>
@@ -1772,14 +1771,6 @@ export default function BowlOrderApp() {
               <div style={{ background: "#f59e0b", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{daFare}</span>
                 <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>{t("ui.admin_stat_todo")}</span>
-              </div>
-              <div style={{ background: "#3b82f6", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{inPrep}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>{t("ui.admin_stat_prep")}</span>
-              </div>
-              <div style={{ background: "#10b981", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{pronti}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, opacity: 0.9 }}>{t("ui.admin_stat_ready")}</span>
               </div>
               <div style={{ background: "rgba(255,255,255,0.12)", borderRadius: 10, padding: "6px 16px", display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 26, fontWeight: 900, lineHeight: 1 }}>{todayOrders.length}</span>
