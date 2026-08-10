@@ -35,7 +35,7 @@
     "build_bowl_leave_empty": "Lascia vuoto per usare il tuo nome",
     "build_bowl_distinguish": "Servirà per distinguere le Scivedde in cucina",
     "build_choose_ingredient": "Scegli {{label}}",
-    "build_proteine_hint": "Seleziona fino a {{limit}} — proteine extra +€3 cad. ({{count}}/{{limit}})",
+    "build_proteine_hint": "Una proteina è sempre compresa, dalla seconda +€3 (alcune proteine premium hanno un extra di base) · {{count}}/{{limit}}",
     "build_verdure_hint": "Seleziona fino a {{limit}} — alcune con sovrapprezzo ({{count}}/{{limit}})",
     "build_croccanti_hint": "Seleziona fino a {{limit}} — alcuni con sovrapprezzo ({{count}}/{{limit}})",
     "build_salse_hint": "Scegli fino a 2 salse ({{count}}/{{limit}})",

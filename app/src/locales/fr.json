@@ -35,7 +35,7 @@
     "build_bowl_leave_empty": "Laissez vide pour utiliser votre nom",
     "build_bowl_distinguish": "Permet de distinguer les Scivedde en cuisine",
     "build_choose_ingredient": "Choisir {{label}}",
-    "build_proteine_hint": "Sélectionnez jusqu'à {{limit}} — protéines supplémentaires +€3 chacune ({{count}}/{{limit}})",
+    "build_proteine_hint": "Une protéine est toujours incluse, +€3 dès la deuxième (certaines protéines premium ont un supplément de base) · {{count}}/{{limit}}",
     "build_verdure_hint": "Sélectionnez jusqu'à {{limit}} — certains avec supplément ({{count}}/{{limit}})",
     "build_croccanti_hint": "Sélectionnez jusqu'à {{limit}} — certains avec supplément ({{count}}/{{limit}})",
     "build_salse_hint": "Choisissez jusqu'à 2 sauces ({{count}}/{{limit}})",

@@ -35,7 +35,7 @@
     "build_bowl_leave_empty": "Leave empty to use your name",
     "build_bowl_distinguish": "Used to tell the Scivedde apart in the kitchen",
     "build_choose_ingredient": "Choose {{label}}",
-    "build_proteine_hint": "Select up to {{limit}} — extra proteins +€3 each ({{count}}/{{limit}})",
+    "build_proteine_hint": "One protein is always included, +€3 from the second (some premium proteins have a base surcharge) · {{count}}/{{limit}}",
     "build_verdure_hint": "Select up to {{limit}} — some with extra charge ({{count}}/{{limit}})",
     "build_croccanti_hint": "Select up to {{limit}} — some with extra charge ({{count}}/{{limit}})",
     "build_salse_hint": "Choose up to 2 sauces ({{count}}/{{limit}})",
