@@ -60,6 +60,7 @@
     "modal_add_with_size": "+ Add ({{size}})",
     "modal_choose_size_btn": "Choose size",
     "modal_ask_counter": "Ask at the counter",
+    "item_sold_out": "(currently unavailable)",
     "admin_title": "Admin Scivedda",
     "admin_email_placeholder": "Email",
     "admin_password_placeholder": "Password",

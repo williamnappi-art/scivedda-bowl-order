@@ -60,6 +60,7 @@
     "modal_add_with_size": "+ Aggiungi ({{size}})",
     "modal_choose_size_btn": "Scegli la taglia",
     "modal_ask_counter": "Chiedi al banco",
+    "item_sold_out": "(al momento non disponibile)",
     "admin_title": "Admin Scivedda",
     "admin_email_placeholder": "Email",
     "admin_password_placeholder": "Password",

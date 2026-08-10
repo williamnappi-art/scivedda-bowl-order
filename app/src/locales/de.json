@@ -60,6 +60,7 @@
     "modal_add_with_size": "+ Hinzufügen ({{size}})",
     "modal_choose_size_btn": "Größe wählen",
     "modal_ask_counter": "An der Theke fragen",
+    "item_sold_out": "(derzeit nicht verfügbar)",
     "admin_title": "Admin Scivedda",
     "admin_email_placeholder": "E-Mail",
     "admin_password_placeholder": "Passwort",

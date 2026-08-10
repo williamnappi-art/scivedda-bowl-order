@@ -201,7 +201,7 @@ const getMenuSections = (t) => [
     subtitle: t("menu_sections.dolcetti_subtitle"),
     emoji: "🍯",
     items: [
-      { id: "seada", name: t("menu_items.seada_name"), desc: t("menu_items.seada_desc"), price: 7.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
+      { id: "seada", name: t("menu_items.seada_name"), desc: t("menu_items.seada_desc"), price: 7.00, soldOut: true, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
       { id: "parduledda", name: t("menu_items.parduledda_name"), desc: t("menu_items.parduledda_desc"), price: 7.00, allergens: ["glutine", "latte", "uova", "fruttaGuscio"], vegetarian: true, vegan: false },
       { id: "panna-cotta", name: t("menu_items.panna-cotta_name"), desc: t("menu_items.panna-cotta_desc"), price: 7.00, allergens: ["latte"], vegetarian: true, vegan: false },
       { id: "tiramisu", name: t("menu_items.tiramisu_name"), desc: t("menu_items.tiramisu_desc"), price: 7.00, allergens: ["glutine", "latte", "uova"], vegetarian: true, vegan: false },
@@ -1016,19 +1016,27 @@ export default function BowlOrderApp() {
                             WebkitBoxOrient: "vertical", overflow: "hidden",
                           }}>{item.name}</div>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                            <span style={{ fontSize: 13, fontWeight: 800, color: theme.accent }}>
-                              {item.sizes ? `€${Object.values(item.sizes)[0].toFixed(2)}` : item.price ? `€${item.price.toFixed(2)}` : "—"}
-                            </span>
-                            {(item.price || item.sizes) && (
-                              <button onClick={e => { e.stopPropagation(); if (item.sizes) { setPhotoModal({ ...item, sectionEmoji: section.emoji }); setModalSize(null); } else { addMenuItemToCart(item); } }} style={{
-                                background: theme.accent, border: "none", borderRadius: 8,
-                                color: "#fff", fontSize: 16, width: 30, height: 30,
-                                cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                                boxShadow: "0 2px 6px rgba(212,118,60,0.3)",
-                              }}
-                                onMouseDown={e => { e.stopPropagation(); e.currentTarget.style.transform = "scale(0.88)"; }}
-                                onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
-                              >+</button>
+                            {item.soldOut ? (
+                              <span style={{ fontSize: 11, fontWeight: 700, color: theme.textSoft, fontStyle: "italic", lineHeight: 1.3 }}>
+                                {t("ui.item_sold_out")}
+                              </span>
+                            ) : (
+                              <>
+                                <span style={{ fontSize: 13, fontWeight: 800, color: theme.accent }}>
+                                  {item.sizes ? `€${Object.values(item.sizes)[0].toFixed(2)}` : item.price ? `€${item.price.toFixed(2)}` : "—"}
+                                </span>
+                                {(item.price || item.sizes) && (
+                                  <button onClick={e => { e.stopPropagation(); if (item.sizes) { setPhotoModal({ ...item, sectionEmoji: section.emoji }); setModalSize(null); } else { addMenuItemToCart(item); } }} style={{
+                                    background: theme.accent, border: "none", borderRadius: 8,
+                                    color: "#fff", fontSize: 16, width: 30, height: 30,
+                                    cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                                    boxShadow: "0 2px 6px rgba(212,118,60,0.3)",
+                                  }}
+                                    onMouseDown={e => { e.stopPropagation(); e.currentTarget.style.transform = "scale(0.88)"; }}
+                                    onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+                                  >+</button>
+                                )}
+                              </>
                             )}
                           </div>
                         </div>
@@ -1972,7 +1980,11 @@ export default function BowlOrderApp() {
               )}
 
               {/* Price + Add */}
-              {photoModal.sizes ? (
+              {photoModal.soldOut ? (
+                <div style={{ textAlign: "center", padding: "14px", borderRadius: 14, background: theme.bg, border: `1px dashed ${theme.border}`, color: theme.textSoft, fontWeight: 700, fontStyle: "italic" }}>
+                  {t("ui.item_sold_out")}
+                </div>
+              ) : photoModal.sizes ? (
                 <div>
                   {photoModal.suggestion && (
                     <p style={{ fontSize: 13, color: theme.accent, fontWeight: 600, fontStyle: "italic", marginBottom: 12, lineHeight: 1.5 }}>
