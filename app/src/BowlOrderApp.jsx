@@ -167,6 +167,7 @@ const getMenuSections = (t) => [
     subtitle: t("menu_sections.scivedde_subtitle"),
     emoji: "🥣",
     items: [
+      { id: "scivedda-maialetto", name: t("menu_items.scivedda-maialetto_name"), desc: t("menu_items.scivedda-maialetto_desc"), sizes: { small: 13.90, media: 16.90 }, sizeLabels: { small: "Small", media: "Media" }, allergens: ["glutine", "latte", "soia"], vegetarian: false, vegan: false },
       { id: "scivedda-tabule", name: t("menu_items.scivedda-tabule_name"), desc: t("menu_items.scivedda-tabule_desc"), sizes: { base: 13.90, tartare: 17.40 }, sizeLabels: { base: "€13,90", tartare: t("menu_items.scivedda-tabule_tartare_label") }, suggestion: t("menu_items.scivedda-tabule_suggestion"), allergens: ["glutine", "fruttaGuscio"], vegetarian: true, vegan: true },
       { id: "scivedda-polletto", name: t("menu_items.scivedda-polletto_name"), desc: t("menu_items.scivedda-polletto_desc"), warning: t("menu_items.scivedda-polletto_warning"), sizes: { small: 12.90, media: 15.90 }, sizeLabels: { small: "Small", media: "Media" }, allergens: ["latte", "glutine", "fruttaGuscio"], vegetarian: false, vegan: false },
       { id: "scivedda-tonno-tartufo", name: t("menu_items.scivedda-tonno-tartufo_name"), desc: t("menu_items.scivedda-tonno-tartufo_desc"), sizes: { base: 13.90, xl: 16.90 }, sizeLabels: { base: "€13,90", xl: "XL" }, allergens: ["glutine", "pesce", "soia"], vegetarian: false, vegan: false },
@@ -289,6 +290,7 @@ const MENU_ITEMS_IT = Object.fromEntries(getMenuSections(tIt).flatMap(s => s.ite
 // Solo per questa sezione: il ticket termico mostra gli ingredienti
 // così la cucina non deve consultare altri fogli.
 const SCIVEDDE_RECIPES_IT = {
+  "scivedda-maialetto": "Fregula sarda tostata, maiale sfilacciato (cotto un giorno, rosolato), pomodorini di Pula, cipolla rossa, olive del Parteolla, zucchina fritta, Ricotta Mustia affumicata, chips di cipolla croccante, salsa Teriyaki, maionese piccante",
   "scivedda-tabule": "Fregula tostata, cipolla rossa, cetriolo, menta, basilico, frutta di stagione, pomodorini di Pula, noci, sale e olio",
   "scivedda-polletto": "Riso bianco, polletto sfilacciato marinato, salsa Teriyaki, mais, olive del Parteolla, pomodorini di Pula, finocchio, cipolla caramellata, Philadelphia, sesamo",
   "scivedda-tonno-tartufo": "Fregula, tonno rosso crudo, zucchina fritta, ceci, pomodorini di Pula, cipolla rossa, tartufo, salsa di soia, olio d'oliva, chips di cipolla",
