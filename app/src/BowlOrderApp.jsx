@@ -756,13 +756,13 @@ export default function BowlOrderApp() {
         : isMobile
         ? `https://api.whatsapp.com/send?phone=${WA_BUSINESS_NUMBER}&text=${encodeURIComponent(text)}`
         : `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
-      window.location.href = waUrl;
-      setOrderSent(true);
-      setSending(false);
-      try { localStorage.removeItem(DRAFT_KEY); } catch { /* best-effort */ }
 
-      // Salva su Supabase in background
-      try {
+      // Salva su Supabase PRIMA di aprire WhatsApp: appena la pagina passa a WA il
+      // telefono la congela e le scritture ancora in corso vanno perse (ordine salvato
+      // ma piatti no → card bianca). Un tetto di tempo evita che, se il DB è lentissimo,
+      // il cliente resti bloccato: scaduto quello, WA si apre comunque.
+      const SAVE_MAX_MS = 8000;
+      const saveOrder = async () => {
         const orderId = crypto.randomUUID();
         const { error: orderError } = await supabase.from("orders").insert({
           id: orderId,
@@ -789,10 +789,21 @@ export default function BowlOrderApp() {
         }));
         const { error: itemsError } = await supabase.from("order_items").insert(items);
         if (itemsError) { console.error("ITEMS INSERT ERROR:", itemsError); setDbSaveError(true); }
+      };
+
+      try {
+        const saveTimeout = new Promise(resolve => setTimeout(resolve, SAVE_MAX_MS));
+        await Promise.race([saveOrder(), saveTimeout]);
       } catch (e) {
         console.error("Supabase exception:", e);
         setDbSaveError(true);
       }
+
+      try { localStorage.removeItem(DRAFT_KEY); } catch { /* best-effort */ }
+      setOrderSent(true);
+      setSending(false);
+      // Solo ora apre WhatsApp: l'ordine e i piatti sono gia' al sicuro nel database
+      window.location.href = waUrl;
     } catch {
       setSending(false);
     }
