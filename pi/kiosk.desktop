@@ -1,0 +1,4 @@
+[Desktop Entry]
+Type=Application
+Name=Kiosk
+Exec=/home/scivedda/kiosk.sh

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef, useCallback, useMemo, useTransition
 import { supabase } from "./supabase";
 import { useTranslation } from "react-i18next";
 import i18n from "./i18n";
+import { useOrdersSync, notifyOrdersChanged } from "./sync/useOrdersSync";
+import { printLocal, forwardRecentPrintRequests, isLocalPrinterAvailable } from "./print/localPrinter";
 
 // ── Menu Data (in production, this comes from admin panel / API) ──────────
 // Builder categories — built with t() inside component via getMenuCategories(t)
@@ -357,7 +359,6 @@ export default function BowlOrderApp() {
   // ── Admin state ──────────────────────────────────────────────────────
   const [adminSession, setAdminSession] = useState(null);
   const [adminView, setAdminView] = useState(false);
-  const [adminOrders, setAdminOrders] = useState([]);
   const [adminEmail, setAdminEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [adminLoginError, setAdminLoginError] = useState("");
@@ -365,6 +366,11 @@ export default function BowlOrderApp() {
   const [dbSaveError, setDbSaveError] = useState(false);
   const logoTapCount = useRef(0);
   const logoTapTimer = useRef(null);
+
+  // Ordini della dashboard: carico iniziale + citofono + rete di sicurezza.
+  // Sul kiosk inoltra alla stampante locale le richieste di stampa recenti.
+  const { orders: adminOrders, live: syncLive, refresh: fetchOrders, applyLocal } =
+    useOrdersSync(Boolean(adminSession && adminView), forwardRecentPrintRequests);
 
   // Salva la bozza ordine ad ogni modifica (solo se il carrello ha item)
   useEffect(() => {
@@ -399,31 +405,6 @@ export default function BowlOrderApp() {
     }
   }, [view, adminView, orderSent, MENU_CATEGORIES]);
 
-  const fetchOrders = async () => {
-    const cutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
-    const { data } = await supabase.from("orders").select("*, order_items(*)").gte("created_at", cutoff).order("created_at", { ascending: false }).limit(200);
-    if (data) setAdminOrders(data);
-  };
-
-  const generateOrderCode = async () => {
-    try {
-      const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 3000));
-      const query = supabase.rpc("get_next_order_number");
-      const { data, error } = await Promise.race([query, timeout]);
-      if (error || !data) return String(Date.now()).slice(-3);
-      return data;
-    } catch {
-      return String(Date.now()).slice(-3);
-    }
-  };
-
-  useEffect(() => {
-    if (!adminSession || !adminView) return;
-    fetchOrders();
-    const interval = setInterval(fetchOrders, 5000);
-    return () => { clearInterval(interval); };
-  }, [adminSession, adminView]);
-
   const handleLogoTap = () => {
     logoTapCount.current += 1;
     clearTimeout(logoTapTimer.current);
@@ -448,17 +429,24 @@ export default function BowlOrderApp() {
   const adminLogout = async () => {
     await supabase.auth.signOut();
     setAdminView(false);
-    setAdminOrders([]);
   };
 
   const updateOrderStatus = async (orderId, status) => {
+    applyLocal(orderId, { status });
     await supabase.from("orders").update({ status }).eq("id", orderId);
-    setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
+    notifyOrdersChanged();
   };
 
-  const confirmWhatsapp = async (orderId) => {
-    await supabase.from("orders").update({ whatsapp_confirmed: true }).eq("id", orderId);
-    setAdminOrders(prev => prev.map(o => o.id === orderId ? { ...o, whatsapp_confirmed: true } : o));
+  // Conferma WhatsApp = conferma + stampa, in una sola scrittura.
+  // Sul kiosk il ticket parte subito dalla stampante locale; il cloud viene
+  // aggiornato in parallelo (storico, telefono, e riserva del Pi).
+  const confirmWhatsapp = async (order) => {
+    const print_requested_at = new Date().toISOString();
+    const patch = { whatsapp_confirmed: true, print_requested_at };
+    applyLocal(order.id, patch);
+    printLocal({ ...order, ...patch });
+    await supabase.from("orders").update(patch).eq("id", order.id);
+    notifyOrdersChanged();
   };
 
   const resolveIngredients = (details) => {
@@ -487,8 +475,12 @@ export default function BowlOrderApp() {
     return lines;
   };
 
-  const printOrder = (order) => {
-    supabase.from("orders").update({ print_requested_at: new Date().toISOString() }).eq("id", order.id).then();
+  const printOrder = async (order) => {
+    const print_requested_at = new Date().toISOString();
+    applyLocal(order.id, { print_requested_at });
+    supabase.from("orders").update({ print_requested_at }).eq("id", order.id).then(() => notifyOrdersChanged());
+    // Sul kiosk: ticket dalla stampante termica, niente finestra
+    if (await isLocalPrinterAvailable()) { printLocal({ ...order, print_requested_at }); return; }
 
     const time = new Date(order.created_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
     const code = order.order_code || "—";
@@ -744,9 +736,47 @@ export default function BowlOrderApp() {
     if (sending) return;
     setSending(true);
 
-    let finalCode;
+    // Un solo passaggio col database: numero d'ordine, ordine e piatti nella
+    // stessa operazione (funzione create_order). Il numero è assegnato lì con
+    // un semaforo: mai doppioni, mai ripieghi. I piatti non possono restare
+    // indietro rispetto all'ordine. Tetto di tempo: se il DB è lentissimo,
+    // WhatsApp si apre comunque (senza numero).
+    let finalCode = null;
     try {
-      finalCode = await generateOrderCode();
+      const SAVE_MAX_MS = 8000;
+      const saveOrder = async () => {
+        const { data, error } = await supabase.rpc("create_order", { p: {
+          id: crypto.randomUUID(),
+          customer_name: customerName || null,
+          customer_note: customerNote || null,
+          dining_option: diningOption || null,
+          total: totalPrice,
+          items: cart.map(item => ({
+            item_name: item.nameIt || item.name,
+            item_type: item.type,
+            price: item.price,
+            qty: item.qty,
+            details: item.type === "custom"
+              ? { ...item.items, portions: item.portions || {} }
+              : SCIVEDDE_RECIPES_IT[item.menuItemId]
+              ? { recipe: SCIVEDDE_RECIPES_IT[item.menuItemId] }
+              : null,
+          })),
+        } });
+        if (error) { console.error("CREATE ORDER ERROR:", error); setDbSaveError(true); return; }
+        finalCode = data;
+      };
+
+      try {
+        const saveTimeout = new Promise(resolve => setTimeout(resolve, SAVE_MAX_MS));
+        await Promise.race([saveOrder(), saveTimeout]);
+        // Avvisa la cucina (una chiamata leggera; se fallisce ci pensa la rete di sicurezza)
+        if (finalCode) await Promise.race([notifyOrdersChanged(), new Promise(r => setTimeout(r, 1500))]);
+      } catch (e) {
+        console.error("Supabase exception:", e);
+        setDbSaveError(true);
+      }
+
       const text = buildOrderText(finalCode);
       const isMobile = /android|iphone|ipad|ipod/i.test(navigator.userAgent);
       // Browser in-app di Meta (Facebook/Instagram/Messenger) bloccano lo schema whatsapp:// — serve il link https
@@ -756,48 +786,6 @@ export default function BowlOrderApp() {
         : isMobile
         ? `https://api.whatsapp.com/send?phone=${WA_BUSINESS_NUMBER}&text=${encodeURIComponent(text)}`
         : `https://wa.me/${WA_BUSINESS_NUMBER}?text=${encodeURIComponent(text)}`;
-
-      // Salva su Supabase PRIMA di aprire WhatsApp: appena la pagina passa a WA il
-      // telefono la congela e le scritture ancora in corso vanno perse (ordine salvato
-      // ma piatti no → card bianca). Un tetto di tempo evita che, se il DB è lentissimo,
-      // il cliente resti bloccato: scaduto quello, WA si apre comunque.
-      const SAVE_MAX_MS = 8000;
-      const saveOrder = async () => {
-        const orderId = crypto.randomUUID();
-        const { error: orderError } = await supabase.from("orders").insert({
-          id: orderId,
-          customer_name: customerName || null,
-          customer_note: customerNote || null,
-          dining_option: diningOption || null,
-          total: totalPrice,
-          status: "nuovo",
-          order_code: finalCode,
-        });
-        if (orderError) { console.error("ORDER INSERT ERROR:", orderError); setDbSaveError(true); return; }
-
-        const items = cart.map(item => ({
-          order_id: orderId,
-          item_name: item.nameIt || item.name,
-          item_type: item.type,
-          price: item.price,
-          qty: item.qty,
-          details: item.type === "custom"
-            ? { ...item.items, portions: item.portions || {} }
-            : SCIVEDDE_RECIPES_IT[item.menuItemId]
-            ? { recipe: SCIVEDDE_RECIPES_IT[item.menuItemId] }
-            : null,
-        }));
-        const { error: itemsError } = await supabase.from("order_items").insert(items);
-        if (itemsError) { console.error("ITEMS INSERT ERROR:", itemsError); setDbSaveError(true); }
-      };
-
-      try {
-        const saveTimeout = new Promise(resolve => setTimeout(resolve, SAVE_MAX_MS));
-        await Promise.race([saveOrder(), saveTimeout]);
-      } catch (e) {
-        console.error("Supabase exception:", e);
-        setDbSaveError(true);
-      }
 
       try { localStorage.removeItem(DRAFT_KEY); } catch { /* best-effort */ }
       setOrderSent(true);
@@ -1740,7 +1728,7 @@ export default function BowlOrderApp() {
               ) : (
                 <>
                   {!confirmed ? (
-                    <button onClick={() => confirmWhatsapp(order.id)} style={{
+                    <button onClick={() => confirmWhatsapp(order)} style={{
                       width: "100%", padding: "16px 0", borderRadius: 12, border: "none",
                       cursor: "pointer", fontSize: 16, fontWeight: 700,
                       background: "#25d366", color: "#fff", letterSpacing: 0.3,
@@ -1750,8 +1738,9 @@ export default function BowlOrderApp() {
                       {/* Tasto Da Pagare / Pagato */}
                       <button onClick={async () => {
                         const next = !order.paid;
+                        applyLocal(order.id, { paid: next });
                         await supabase.from("orders").update({ paid: next }).eq("id", order.id);
-                        setAdminOrders(prev => prev.map(o => o.id === order.id ? { ...o, paid: next } : o));
+                        notifyOrdersChanged();
                       }} style={{
                         width: "100%", padding: "14px 4px", borderRadius: 10, border: "none", cursor: "pointer",
                         fontSize: 13, fontWeight: 700, marginBottom: 8,
@@ -1806,6 +1795,10 @@ export default function BowlOrderApp() {
           )}
           <div style={{ display: "flex", gap: 8 }}>
             <a href="https://scivedda-linea.vercel.app" target="_blank" rel="noreferrer" style={{ background: "#d4763c", color: "#fff", padding: "10px 14px", borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: "none", display: "flex", alignItems: "center" }}>LINEA ↗</a>
+            <span title={syncLive ? "Aggiornamento istantaneo attivo" : "Aggiornamento ogni 3 secondi"} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 700, color: syncLive ? "#86efac" : "#fcd34d", padding: "0 6px" }}>
+              <span style={{ width: 8, height: 8, borderRadius: "50%", background: syncLive ? "#22c55e" : "#f59e0b" }} />
+              {syncLive ? "LIVE" : "3s"}
+            </span>
             <button onClick={fetchOrders} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "10px 18px", borderRadius: 10, cursor: "pointer", fontSize: 18 }}>↻</button>
             <button onClick={adminLogout} style={{ background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", padding: "10px 18px", borderRadius: 10, cursor: "pointer", fontSize: 14, fontWeight: 600 }}>{t("ui.admin_logout")}</button>
           </div>

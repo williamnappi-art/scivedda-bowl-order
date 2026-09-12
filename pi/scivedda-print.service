@@ -1,0 +1,15 @@
+[Unit]
+Description=Scivedda cucina - dashboard locale e stampa ticket
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=scivedda
+WorkingDirectory=/home/scivedda/printer
+ExecStart=/usr/bin/node /home/scivedda/printer/index.js
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
