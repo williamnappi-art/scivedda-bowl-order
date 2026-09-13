@@ -212,8 +212,13 @@ function printOrder(order) {
 }
 
 // Stampa solo se questa richiesta (ordine + istante) non è già stata evasa.
+// L'istante viene normalizzato: il monitor lo scrive "…12.345Z", il database
+// lo restituisce "…12.345+00:00" — stesso momento, grafia diversa. Senza
+// normalizzazione la stessa richiesta stampava due volte.
 function printIfNew(order) {
-  const key = order.id + "|" + (order.print_requested_at || new Date().toISOString());
+  const raw = order.print_requested_at ? new Date(order.print_requested_at) : new Date();
+  const ts = isNaN(raw) ? String(order.print_requested_at) : raw.toISOString();
+  const key = order.id + "|" + ts;
   if (printedKeys.has(key)) return { printed: false, duplicate: true };
   if (!printOrder(order)) return { printed: false, duplicate: false };
   printedKeys.add(key);
