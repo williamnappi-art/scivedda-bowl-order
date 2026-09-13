@@ -21,7 +21,36 @@ const SAFETY_LIVE_MS = 60_000;
 const SAFETY_FALLBACK_MS = 3_000;
 const MAX_ORDERS = 200;
 
+const PENDING_KEY = "scivedda_pending_updates";
+
 const sinceIso = () => new Date(Date.now() - WINDOW_MS).toISOString();
+
+// Scritture che non hanno raggiunto il cloud (rete giù): restano in coda su
+// disco e vengono rispedite appena possibile. Così un "Conferma" fatto
+// offline stampa subito E arriva al database quando la rete torna.
+const loadPending = () => { try { return JSON.parse(localStorage.getItem(PENDING_KEY)) || []; } catch { return []; } };
+const savePending = (q) => { try { localStorage.setItem(PENDING_KEY, JSON.stringify(q)); } catch { /* best-effort */ } };
+
+async function pushUpdate(id, patch) {
+  const { error } = await supabase.from("orders").update(patch).eq("id", id);
+  if (error) throw error;
+}
+
+let flushing = false;
+async function flushPending() {
+  if (flushing) return;
+  const queue = loadPending();
+  if (!queue.length) return;
+  flushing = true;
+  try {
+    for (const item of queue) {
+      await pushUpdate(item.id, item.patch);
+      savePending(loadPending().filter(x => x.key !== item.key));
+    }
+    notifyOrdersChanged();
+  } catch { /* ancora offline: riprovo al prossimo giro */ }
+  finally { flushing = false; }
+}
 const byNewest = (a, b) => (a.created_at < b.created_at ? 1 : -1);
 
 /**
@@ -82,6 +111,7 @@ export function useOrdersSync(enabled, onChanged) {
     if (inFlightRef.current) { pendingRef.current = true; return; }
     inFlightRef.current = true;
     try {
+      await flushPending();
       let q = supabase.from("orders").select(SELECT).gte("created_at", sinceIso());
       q = watermarkRef.current
         ? q.gt("updated_at", watermarkRef.current).order("updated_at", { ascending: true })
@@ -101,13 +131,28 @@ export function useOrdersSync(enabled, onChanged) {
     }
   }, [enabled, merge]);
 
-  // Aggiornamento locale immediato dopo una scrittura fatta da questo dispositivo
+  // Aggiornamento locale immediato (la UI non aspetta il cloud)
   const applyLocal = useCallback((id, patch) => {
     const cur = mapRef.current.get(id);
     if (!cur) return;
     mapRef.current.set(id, { ...cur, ...patch });
     publish();
   }, [publish]);
+
+  // Unica via per modificare un ordine: locale subito, cloud (con coda se
+  // offline), poi citofono per gli altri dispositivi.
+  const updateOrder = useCallback(async (id, patch) => {
+    applyLocal(id, patch);
+    try {
+      await flushPending();
+      await pushUpdate(id, patch);
+      notifyOrdersChanged();
+    } catch {
+      const q = loadPending();
+      q.push({ key: id + "|" + Date.now(), id, patch });
+      savePending(q);
+    }
+  }, [applyLocal]);
 
   // Ciclo di vita: carico iniziale + citofono + sicurezza + visibilità
   useEffect(() => {
@@ -156,5 +201,5 @@ export function useOrdersSync(enabled, onChanged) {
     };
   }, [enabled, fetchChanges]);
 
-  return { orders, live, refresh: fetchChanges, applyLocal };
+  return { orders, live, refresh: fetchChanges, applyLocal, updateOrder };
 }

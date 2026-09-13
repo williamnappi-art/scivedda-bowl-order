@@ -369,7 +369,7 @@ export default function BowlOrderApp() {
 
   // Ordini della dashboard: carico iniziale + citofono + rete di sicurezza.
   // Sul kiosk inoltra alla stampante locale le richieste di stampa recenti.
-  const { orders: adminOrders, live: syncLive, refresh: fetchOrders, applyLocal } =
+  const { orders: adminOrders, live: syncLive, refresh: fetchOrders, updateOrder } =
     useOrdersSync(Boolean(adminSession && adminView), forwardRecentPrintRequests);
 
   // Salva la bozza ordine ad ogni modifica (solo se il carrello ha item)
@@ -431,11 +431,7 @@ export default function BowlOrderApp() {
     setAdminView(false);
   };
 
-  const updateOrderStatus = async (orderId, status) => {
-    applyLocal(orderId, { status });
-    await supabase.from("orders").update({ status }).eq("id", orderId);
-    notifyOrdersChanged();
-  };
+  const updateOrderStatus = (orderId, status) => updateOrder(orderId, { status });
 
   // Conferma WhatsApp = conferma + stampa, in una sola scrittura.
   // Sul kiosk il ticket parte subito dalla stampante locale; il cloud viene
@@ -443,10 +439,8 @@ export default function BowlOrderApp() {
   const confirmWhatsapp = async (order) => {
     const print_requested_at = new Date().toISOString();
     const patch = { whatsapp_confirmed: true, print_requested_at };
-    applyLocal(order.id, patch);
     printLocal({ ...order, ...patch });
-    await supabase.from("orders").update(patch).eq("id", order.id);
-    notifyOrdersChanged();
+    await updateOrder(order.id, patch);
   };
 
   const resolveIngredients = (details) => {
@@ -477,8 +471,7 @@ export default function BowlOrderApp() {
 
   const printOrder = async (order) => {
     const print_requested_at = new Date().toISOString();
-    applyLocal(order.id, { print_requested_at });
-    supabase.from("orders").update({ print_requested_at }).eq("id", order.id).then(() => notifyOrdersChanged());
+    updateOrder(order.id, { print_requested_at });
     // Sul kiosk: ticket dalla stampante termica, niente finestra
     if (await isLocalPrinterAvailable()) { printLocal({ ...order, print_requested_at }); return; }
 
@@ -1737,10 +1730,7 @@ export default function BowlOrderApp() {
                     <>
                       {/* Tasto Da Pagare / Pagato */}
                       <button onClick={async () => {
-                        const next = !order.paid;
-                        applyLocal(order.id, { paid: next });
-                        await supabase.from("orders").update({ paid: next }).eq("id", order.id);
-                        notifyOrdersChanged();
+                        await updateOrder(order.id, { paid: !order.paid });
                       }} style={{
                         width: "100%", padding: "14px 4px", borderRadius: 10, border: "none", cursor: "pointer",
                         fontSize: 13, fontWeight: 700, marginBottom: 8,
