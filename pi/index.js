@@ -239,15 +239,21 @@ function printIfNew(order, source) {
 }
 
 // ── Riserva: richieste di stampa non ancora evase ─────────────────────────
+// Guarda solo indietro di CATCHUP_MS (10 min): se il Pi resta senza rete per
+// ore, al ritorno NON sputa i ticket di tutta la giornata. Per i più vecchi
+// c'è il tasto "Stampa ordine".
 async function backstop() {
   try {
+    const floor = new Date(Date.now() - CATCHUP_MS).toISOString();
+    const since = state.watermark > floor ? state.watermark : floor;
     const { data, error } = await supabase
       .from("orders")
       .select("*, order_items(*)")
-      .gt("print_requested_at", state.watermark)
+      .gt("print_requested_at", since)
       .order("print_requested_at", { ascending: true });
     if (error) { console.error("Riserva:", error.message); return; }
     for (const order of data || []) printIfNew(order, "riserva");
+    if (since > state.watermark) { state.watermark = since; saveState(); }
   } catch (e) {
     console.error("Riserva:", e.message);
   }
