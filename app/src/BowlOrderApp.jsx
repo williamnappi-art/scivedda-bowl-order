@@ -3,7 +3,7 @@ import { supabase } from "./supabase";
 import { useTranslation } from "react-i18next";
 import i18n from "./i18n";
 import { useOrdersSync, notifyOrdersChanged } from "./sync/useOrdersSync";
-import { printLocal, forwardRecentPrintRequests, isLocalPrinterAvailable } from "./print/localPrinter";
+import { printLocal, forwardRecentPrintRequests } from "./print/localPrinter";
 
 // ── Menu Data (in production, this comes from admin panel / API) ──────────
 // Builder categories — built with t() inside component via getMenuCategories(t)
@@ -469,67 +469,12 @@ export default function BowlOrderApp() {
     return lines;
   };
 
-  const printOrder = async (order) => {
+  // RISTAMPA: come Conferma, ma solo stampa. Sul kiosk il ticket esce subito;
+  // dal telefono la richiesta arriva al monitor, che stampa (se e' collegato).
+  const printOrder = (order) => {
     const print_requested_at = new Date().toISOString();
+    printLocal({ ...order, print_requested_at });
     updateOrder(order.id, { print_requested_at });
-    // Sul kiosk: ticket dalla stampante termica, niente finestra
-    if (await isLocalPrinterAvailable()) { printLocal({ ...order, print_requested_at }); return; }
-
-    const time = new Date(order.created_at).toLocaleString("it-IT", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-    const code = order.order_code || "—";
-    const note = order.customer_note ? `<div class="note">NOTA: ${order.customer_note}</div>` : "";
-    const dining = order.dining_option === "qui" ? `<div class="dining">🍽 MANGIO QUI</div>` : order.dining_option === "via" ? `<div class="dining">🛍 PORTO VIA</div>` : "";
-
-    // Espandi ogni item per qty — ogni bowl = ticket separato
-    const bowls = [];
-    (order.order_items || []).forEach(item => {
-      for (let i = 0; i < (item.qty || 1); i++) bowls.push(item);
-    });
-    const total = bowls.length;
-
-    const tickets = bowls.map((item, idx) => {
-      const ingr = item.item_type === "custom" && item.details
-        ? resolveIngredients(item.details).map(l => `<div class="ing-line">${l}</div>`).join("")
-        : item.details?.recipe
-        ? `<div class="ing-line">Ingredienti: ${item.details.recipe}</div>`
-        : "";
-      return `
-        <div class="ticket">
-          <div class="code">${code}</div>
-          <div class="bowl-num">Bowl ${idx + 1} di ${total}</div>
-          <div class="divider">- - - - - - - - - - - - -</div>
-          <div class="cname">${order.customer_name || "Cliente"}</div>
-          ${dining}
-          <div class="time-lbl">${time}</div>
-          <div class="divider">- - - - - - - - - - - - -</div>
-          <div class="iname">${item.item_name}</div>
-          ${ingr}
-          ${note}
-        </div>`;
-    }).join('<div class="pb"></div>');
-
-    const win = window.open("", "_blank", "width=420,height=700");
-    win.document.write(`<html><head><title>Ordine ${code}</title><style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      body { font-family: monospace; }
-      .ticket { padding: 24px 20px; width: 100%; }
-      .code { font-size: 52px; font-weight: 900; text-align: center; letter-spacing: 3px; margin-bottom: 2px; }
-      .bowl-num { font-size: 15px; text-align: center; color: #555; margin-bottom: 14px; }
-      .divider { text-align: center; color: #aaa; font-size: 12px; margin: 8px 0; }
-      .cname { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
-      .time-lbl { font-size: 12px; color: #666; margin-bottom: 10px; }
-      .iname { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-      .ing-line { font-size: 14px; line-height: 1.9; }
-      .dining { font-size: 16px; font-weight: 900; margin-bottom: 4px; }
-      .note { margin-top: 10px; font-size: 13px; font-weight: 700; border-top: 1px dashed #000; padding-top: 8px; }
-      .pb { page-break-after: always; }
-      @media print { button { display: none; } .pb { page-break-after: always; } }
-    </style></head><body>
-      ${tickets}
-      <div style="padding:20px"><button onclick="window.print()" style="width:100%;padding:14px;font-size:16px;cursor:pointer;font-family:monospace;font-weight:700">Stampa tutti i ticket (${total})</button></div>
-    </body></html>`);
-    win.document.close();
-    win.focus();
   };
 
   const toggleSection = useCallback((id) => setOpenSections(prev => ({ ...prev, [id]: !prev[id] })), []);

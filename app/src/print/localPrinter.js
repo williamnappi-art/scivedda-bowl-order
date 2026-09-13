@@ -6,7 +6,7 @@
 // ticket in ~1 secondo, e funziona anche se internet è giù.
 // Su telefono/PC questo modulo è semplicemente "non disponibile".
 
-const RECENT_MS = 10 * 60 * 1000;
+const RECENT_MS = 30 * 1000; // una richiesta piu' vecchia (rete che era giu') non si stampa da sola
 const HEALTH_TTL_MS = 30_000;
 
 const isKiosk = typeof window !== "undefined" && /^http:\/\/localhost(:\d+)?$/.test(window.location.origin);
@@ -48,9 +48,10 @@ export async function printLocal(order) {
 }
 
 /**
- * Inoltra alla stampante le richieste di stampa recenti tra gli ordini
- * appena sincronizzati (es. conferme fatte dal telefono). Il Pi scarta
- * da solo i doppioni, quindi qui non serve tenere memoria.
+ * Inoltra alla stampante le richieste di stampa "vive" (ultimi 30 s) tra gli
+ * ordini appena sincronizzati: e' cosi' che un clic fatto dal telefono
+ * stampa in cucina. Richieste piu' vecchie (arretrate dopo un blackout) non
+ * si stampano mai da sole: si clicca RISTAMPA. Il Pi scarta i doppioni.
  */
 export function forwardRecentPrintRequests(orders) {
   if (!isKiosk || !orders?.length) return;

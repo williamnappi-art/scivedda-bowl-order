@@ -1,53 +1,39 @@
 // ── Scivedda — servizio cucina sul Raspberry Pi ────────────────────────────
 //
-// Fa tre cose, tutte locali:
+// Fa due cose, entrambe locali. Non parla MAI con il cloud e non ha credenziali.
 //   1. Serve la dashboard al kiosk (http://localhost:3999) facendo da tramite
 //      verso Vercel, così dashboard e stampante sono la stessa "casa" e il
-//      clic "Conferma" arriva alla stampante senza passare dal cloud.
+//      clic "Conferma"/"Ristampa" arriva alla stampante senza passare dal cloud.
 //   2. Riceve gli ordini da stampare (POST /print) e li stampa subito.
-//   3. Riserva: ogni 60 s chiede al cloud se ci sono richieste di stampa non
-//      ancora evase (es. conferma dal telefono col kiosk chiuso).
 //
+// Regola: si stampa solo quando qualcuno clicca. Se la rete era giù, le
+// richieste perse non vengono recuperate: si clicca RISTAMPA.
 // Mai doppie stampe: ogni stampa è annotata su file con chiave
-// "id ordine | istante della richiesta", da qualunque via arrivi.
-//
-// Credenziali: in /home/scivedda/printer/config.json (solo sul Pi, mai su git)
-//   { "supabaseUrl": "https://….supabase.co", "supabaseKey": "sb_secret_…" }
+// "id ordine | istante della richiesta".
 
-const { createClient } = require("@supabase/supabase-js");
 const fs = require("fs");
 const http = require("http");
 const https = require("https");
 
 const DIR = "/home/scivedda/printer";
-const CONFIG = JSON.parse(fs.readFileSync(DIR + "/config.json", "utf8"));
 const PRINTER = "/dev/usb/lp0";
 const PORT = 3999;
 const APP_ORIGIN = "https://scivedda-bowl-order.vercel.app";
 const STATE_FILE = DIR + "/state.json";
-const BACKSTOP_MS = 60 * 1000;          // riserva: ogni 60 s
-const CATCHUP_MS = 10 * 60 * 1000;      // al primo avvio recupera gli ultimi 10 min
 const MAX_KEYS = 500;
 
-const supabase = createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
 const log = (...a) => console.log("[" + new Date().toISOString() + "]", ...a);
 
 // ── Memoria di cosa è già stato stampato ───────────────────────────────────
-function loadState() {
-  try {
-    const s = JSON.parse(fs.readFileSync(STATE_FILE, "utf8"));
-    return { watermark: s.watermark || null, keys: new Set(s.keys || []) };
-  } catch {
-    return { watermark: null, keys: new Set() };
-  }
+function loadKeys() {
+  try { return new Set(JSON.parse(fs.readFileSync(STATE_FILE, "utf8")).keys || []); }
+  catch { return new Set(); }
 }
-function saveState() {
-  const keys = [...state.keys].slice(-MAX_KEYS);
-  state.keys = new Set(keys);
-  fs.writeFileSync(STATE_FILE, JSON.stringify({ watermark: state.watermark, keys }));
+function saveKeys() {
+  printedKeys = new Set([...printedKeys].slice(-MAX_KEYS));
+  fs.writeFileSync(STATE_FILE, JSON.stringify({ keys: [...printedKeys] }));
 }
-const state = loadState();
-if (!state.watermark) state.watermark = new Date(Date.now() - CATCHUP_MS).toISOString();
+let printedKeys = loadKeys();
 
 // ── Ticket (identico al programma precedente) ──────────────────────────────
 const INGREDIENT_NAMES = {
@@ -226,37 +212,14 @@ function printOrder(order) {
 }
 
 // Stampa solo se questa richiesta (ordine + istante) non è già stata evasa.
-function printIfNew(order, source) {
-  const ts = order.print_requested_at || new Date().toISOString();
-  const key = order.id + "|" + ts;
-  if (state.keys.has(key)) return { printed: false, duplicate: true };
+function printIfNew(order) {
+  const key = order.id + "|" + (order.print_requested_at || new Date().toISOString());
+  if (printedKeys.has(key)) return { printed: false, duplicate: true };
   if (!printOrder(order)) return { printed: false, duplicate: false };
-  state.keys.add(key);
-  if (ts > state.watermark) state.watermark = ts;
-  saveState();
-  log("Stampato (" + source + "): " + (order.order_code || "—") + " — " + (order.customer_name || "Cliente"));
+  printedKeys.add(key);
+  saveKeys();
+  log("Stampato: " + (order.order_code || "—") + " — " + (order.customer_name || "Cliente"));
   return { printed: true, duplicate: false };
-}
-
-// ── Riserva: richieste di stampa non ancora evase ─────────────────────────
-// Guarda solo indietro di CATCHUP_MS (10 min): se il Pi resta senza rete per
-// ore, al ritorno NON sputa i ticket di tutta la giornata. Per i più vecchi
-// c'è il tasto "Stampa ordine".
-async function backstop() {
-  try {
-    const floor = new Date(Date.now() - CATCHUP_MS).toISOString();
-    const since = state.watermark > floor ? state.watermark : floor;
-    const { data, error } = await supabase
-      .from("orders")
-      .select("*, order_items(*)")
-      .gt("print_requested_at", since)
-      .order("print_requested_at", { ascending: true });
-    if (error) { console.error("Riserva:", error.message); return; }
-    for (const order of data || []) printIfNew(order, "riserva");
-    if (since > state.watermark) { state.watermark = since; saveState(); }
-  } catch (e) {
-    console.error("Riserva:", e.message);
-  }
 }
 
 // ── Server locale: dashboard (tramite) + stampa ────────────────────────────
@@ -298,7 +261,7 @@ const server = http.createServer((req, res) => {
       try {
         const { order } = JSON.parse(body);
         if (!order || !order.id) return send(res, 400, '{"error":"ordine mancante"}');
-        return send(res, 200, JSON.stringify(printIfNew(order, "kiosk")));
+        return send(res, 200, JSON.stringify(printIfNew(order)));
       } catch (e) {
         return send(res, 400, JSON.stringify({ error: e.message }));
       }
@@ -313,7 +276,5 @@ process.on("uncaughtException", (e) => console.error("Errore inatteso:", e));
 process.on("unhandledRejection", (e) => console.error("Errore inatteso:", e));
 
 server.listen(PORT, "127.0.0.1", () => {
-  log("Servizio cucina avviato su http://localhost:" + PORT + " — riserva ogni " + BACKSTOP_MS / 1000 + "s, segnalibro " + state.watermark);
-  backstop();
-  setInterval(backstop, BACKSTOP_MS);
+  log("Servizio cucina avviato su http://localhost:" + PORT + " (stampante: " + (fs.existsSync(PRINTER) ? "ok" : "NON trovata") + ")");
 });
